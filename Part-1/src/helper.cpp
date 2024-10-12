@@ -1,11 +1,21 @@
 #include "../include/header.h"
 
-int euclidean_distance(data d1, data d2) {
-    //return sqrt(pow(d1.x - d2.x, 2) + pow(d1.y - d2.y, 2));
+int euclidean_distance(Data d1, Data d2) {
+    auto distance = 0;
+    for (uint i = 0; i < d1.size(); i++) {
+        distance += (d1[i] - d2[i]) * (d1[i] - d2[i]);
+    }
+    
+    distance = sqrt(distance);
 
-    return 1;
+    return (int)distance;
 }
 
-int compare(Data d1, Data d2) {
-    return (d1->x == d2->x && d1->y == d2->y);
+void random_permutation(vector<int> &sigma, Dataset P) {
+    int n = P.size();
+
+    for (int i = 0; i < n; i++) 
+        sigma.push_back(i);
+    
+    random_shuffle(sigma.begin(), sigma.end());
 }
