@@ -1,34 +1,40 @@
-OBJS	= greedy.o main.o graph.o helper.o pruning.o vamana_al.o
+OBJS	= ./build/greedy.o ./build/main.o ./build/graph.o ./build/helper.o ./build/pruning.o ./build/vamana_al.o
 SOURCE	= ./src/greedy.cpp ./src/main.cpp ./src/graph.cpp ./src/helper.cpp ./src/pruning.cpp ./src/vamana_al.cpp
-HEADER	= header.h
-OUT		= vamana
+HEADER	= ./include/header.h
+OUT		= ./bin/vamana
 CC	 	= g++
 FLAGS	= -g3 -c -Wall
 
-all: $(OBJS)
-	$(CC) -g $(OBJS) -o $(OUT) $(LFLAGS)
-	mv $(OBJS) ./build
-	mv $(OUT) ./bin
+all: build_dir $(OBJS)
+	$(CC) -g $(OBJS) -o $(OUT)
 
-greedy.o: ./src/greedy.cpp
-	$(CC) $(FLAGS) ./src/greedy.cpp
+# Create build directory if it does not exist
+build_dir:
+	mkdir -p ./build
+	mkdir -p ./bin
 
-main.o: ./src/main.cpp
-	$(CC) $(FLAGS) ./src/main.cpp
+# Compile each source file into an object file
+./build/greedy.o: ./src/greedy.cpp
+	$(CC) $(FLAGS) ./src/greedy.cpp -o ./build/greedy.o
 
-graph.o: ./src/graph.cpp
-	$(CC) $(FLAGS) ./src/graph.cpp
+./build/main.o: ./src/main.cpp
+	$(CC) $(FLAGS) ./src/main.cpp -o ./build/main.o
 
-helper.o: ./src/helper.cpp
-	$(CC) $(FLAGS) ./src/helper.cpp
+./build/graph.o: ./src/graph.cpp
+	$(CC) $(FLAGS) ./src/graph.cpp -o ./build/graph.o
 
-pruning.o: ./src/pruning.cpp
-	$(CC) $(FLAGS) ./src/pruning.cpp
+./build/helper.o: ./src/helper.cpp
+	$(CC) $(FLAGS) ./src/helper.cpp -o ./build/helper.o
 
-vamana_al.o: ./src/vamana_al.cpp
-	$(CC) $(FLAGS) ./src/vamana_al.cpp
+./build/pruning.o: ./src/pruning.cpp
+	$(CC) $(FLAGS) ./src/pruning.cpp -o ./build/pruning.o
 
+./build/vamana_al.o: ./src/vamana_al.cpp
+	$(CC) $(FLAGS) ./src/vamana_al.cpp -o ./build/vamana_al.o
+
+# Clean command to remove object files and binary
 clean:
-	rm -f *.o
 	rm -f ./build/*.o
-	rm -f ./bin/$(OUT)
+	rm -f $(OUT)
+	rm -rf ./build
+	rm -rf ./bin
