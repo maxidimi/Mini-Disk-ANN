@@ -1,0 +1,29 @@
+name: C Project CI
+
+on:
+  push:
+    branches:
+      - main  # Adjust the branch if necessary
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install build dependencies
+      run: sudo apt-get update && sudo apt-get install build-essential make
+
+    - name: Build project
+      run: make
+
+    - name: Run tests
+      run: make test
+
+    - name: Clean up
+      run: make clean
