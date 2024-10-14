@@ -18,7 +18,13 @@ void remove_node_from_graph(Graph &graph, Graph_Node node) {
 }
 
 // Adds an edge to the graph
-void add_to_edge_graph(Graph_Node from, Graph_Node to) {
+void add_edge_to_graph(Graph_Node from, Graph_Node to) {
+    // Check if edge already exists
+    for (auto i : from->out_neighbours) {
+        if (i == to) {
+            return;
+        }
+    }
     from->out_neighbours.push_back(to);
     to->in_neighbours.push_back(from);
 }
