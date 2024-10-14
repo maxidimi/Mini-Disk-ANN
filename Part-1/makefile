@@ -5,6 +5,12 @@ OUT		= ./bin/vamana
 CC	 	= g++
 FLAGS	= -g3 -c -Wall
 
+# Add variables for test source and objects
+# Remove main.o from the test object files to avoid conflict with main.cpp
+TEST_SRC = ./testing/test.cpp
+TEST_OBJS = ./build/greedy.o ./build/graph.o ./build/helper.o ./build/pruning.o ./build/vamana_al.o ./build/test.o
+TEST_OUT = ./bin/test
+
 all: build_dir $(OBJS)
 	$(CC) -g $(OBJS) -o $(OUT)
 
@@ -32,9 +38,19 @@ build_dir:
 ./build/vamana_al.o: ./src/vamana_al.cpp
 	$(CC) $(FLAGS) ./src/vamana_al.cpp -o ./build/vamana_al.o
 
+# Compile test source into object file
+./build/test.o: $(TEST_SRC)
+	$(CC) $(FLAGS) $(TEST_SRC) -o ./build/test.o
+
+# Link object files (excluding main.o) and run tests
+test: build_dir $(TEST_OBJS)
+	$(CC) -g $(TEST_OBJS) -o $(TEST_OUT)
+	./$(TEST_OUT)
+
 # Clean command to remove object files and binary
 clean:
 	rm -f ./build/*.o
 	rm -f $(OUT)
+	rm -f $(TEST_OUT)
 	rm -rf ./build
 	rm -rf ./bin
