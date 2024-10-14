@@ -3,7 +3,7 @@ name: C Project CI
 on:
   push:
     branches:
-      - main  # Adjust the branch if necessary
+      - main
   pull_request:
     branches:
       - main
@@ -20,13 +20,13 @@ jobs:
       run: sudo apt-get update && sudo apt-get install build-essential make
 
     - name: Build project
-      working-directory: ../../Part-1
+      working-directory: ./Part-1
       run: make
 
     - name: Run tests
-      working-directory: ../../Part-1
+      working-directory: ./Part-1
       run: make test
 
     - name: Clean up
-      working-directory: ../../Part-1
+      working-directory: ./Part-1
       run: make clean
