@@ -20,13 +20,16 @@ jobs:
       run: sudo apt-get update && sudo apt-get install build-essential make
 
     - name: Build project
-      working-directory: ../..
-      run: make
+      run: |
+        cd ../..
+        make all
 
     - name: Run tests
-      working-directory: ../..
-      run: make test
+      run: |
+        cd ../..
+        make test
 
     - name: Clean up
-      working-directory: ../..
-      run: make clean
+      run: |
+        cd ../..
+        make clean
