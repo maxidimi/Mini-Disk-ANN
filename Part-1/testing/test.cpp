@@ -21,11 +21,11 @@ void test_example(void) {
 void test_knn(void) {
     // Create a dataset
     Dataset P;
-    for (int i = 0; i < 10; i++) {
+    for (double i = 0; i < 10; i++) {
         Data data = {i, i+1, i+2};
         P.push_back(data);
     }
-    TEST_CHECK(G.size() == 10);
+    TEST_CHECK(P.size() == 10);
     /*// Create a graph
     Graph G = vamana_indexing(P, 2, 3, 2);
     
