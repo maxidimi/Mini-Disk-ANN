@@ -13,32 +13,44 @@ pair<list<Graph_Node>,list<Graph_Node>> greedy_search(Graph_Node s, Data q, int 
     while(!lv.empty()){
         double mindist;
         mindist = euclidean_distance(q,lv.front()->data);
-        Graph_Node p;
+       Graph_Node p = lv.front();
+        
         for(auto i : lv) {
             double dist = euclidean_distance(i->data,q);
             if(dist<mindist) {
                 mindist = dist;
                 p = i; 
+            }    
+        }
+        
+        for( auto i : p->out_neighbours) {
+            if(find_node_in_graph(searching_list,i->data) == NULL) {   
+                searching_list.push_back(i);
             }
         }
-        for( auto i : p->out_neighbours) {
-            searching_list.push_back(i);
+
+        if(find_node_in_graph(visited_list,p->data) == NULL) {   
+            visited_list.push_back(p);
         }
-        visited_list.push_back(p);
+        
         if (static_cast<int>(searching_list.size()) > L) {
             list<Graph_Node> max_list;
+            
             for(auto j : searching_list){
+                
                 double dista = euclidean_distance(j->data, q);
-                auto it = max_list.front();
                 int index = 0;
-                while(it!= NULL){
-                    if(euclidean_distance(it->data,q)<=dista){
+                for(auto i : max_list){
+                    print_out_neighbours(i);
+                    // std::cout<<max_list.size()<<endl;
+                    if(euclidean_distance(i->data,q)<=dista){
                         break;
                     }
-                    advance(it,1);
+                    // advance(it,1);
                     index++;
                 }
-                if(it==NULL){
+                std::cout<<"here"<<endl;
+                if(index == max_list.size()){
                     max_list.push_back(j);
                 }
                 else{
@@ -53,10 +65,16 @@ pair<list<Graph_Node>,list<Graph_Node>> greedy_search(Graph_Node s, Data q, int 
             searching_list.clear();
             searching_list.assign(max_list.begin(),max_list.end());
         }
+        for(auto i : visited_list) {
+            if(find_node_in_graph(searching_list,i->data) != NULL) {
+                remove_node_from_graph(lv,i);
+            }
+        }
     }
     for(size_t i = 1; i <= (searching_list.size() - k); i++) {
         searching_list.pop_front();
     }
+    
     
     pair<list<Graph_Node>,list<Graph_Node>> result;
     result.first = searching_list;
