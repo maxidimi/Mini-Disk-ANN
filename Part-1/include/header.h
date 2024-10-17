@@ -44,7 +44,7 @@ void changeElementAtIndex(Dataset& mylist, size_t index, Data data);
 
 /* Greedy Search | s start node, q query, k result size, L search list size */
 
-pair<list<Graph_Node>,list<Graph_Node>> greedy_search(Graph G, Graph_Node s, Data q, int k, int L, list<Graph_Node> V);
+pair<list<Graph_Node>,list<Graph_Node>> greedy_search(Graph_Node s, Data q, int k, int L);
 
 /* Robust Pruning */
 

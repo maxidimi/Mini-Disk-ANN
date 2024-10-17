@@ -13,9 +13,7 @@ void test_create_graph_node(void) {
     TEST_CHECK(node->in_neighbours.size() == 0);
 }
 
-void test_example(void) {
-    TEST_CHECK(1 == 1);
-}
+
 
 // Test results of vamana indexing
 void test_knn(void) {
@@ -42,6 +40,22 @@ void test_knn(void) {
     }
     // Find the minimum distance
     double min_distance = *min_element(distances.begin(), distances.end());*/
+}
+
+void test_shuffle_list(void){
+    list<int> new_list;
+    for (int i = 0; i < 10000; ++i) {
+        new_list.push_back(i);
+    }
+    int list_size = new_list.size();
+    shuffle_list(new_list);
+
+    list<int> new_list2;
+    shuffle_list(new_list2);
+
+    TEST_CHECK(new_list2.size()==0);
+    TEST_CHECK(new_list.front() != 0);
+    TEST_CHECK(static_cast<size_t>(list_size) == new_list.size());
 }
 
 void test_euclidean_distance(void){
@@ -72,20 +86,48 @@ void test_random_permutation(void){
     list<int> perm = random_permutation(n);
     TEST_CHECK(perm.size() == static_cast<std::list<int>::size_type>(n));
 
-    n = 10;
+    n = 2000;
     list<int> perm1 = random_permutation(n);
     list<int> perm2 = random_permutation(n);
-    TEST_CHECK(perm1 != perm2);  
+    list<int> perm3 = random_permutation(n);
+    list<int> perm4 = random_permutation(n);
+
+    TEST_CHECK(perm1 != perm2);
+    TEST_CHECK(perm1 != perm3);
+    TEST_CHECK(perm1 != perm4);
+    TEST_CHECK(perm2 != perm3);
+    TEST_CHECK(perm2 != perm4);
+    TEST_CHECK(perm3 != perm4);
+}
+
+void test_get_element_at_index(void){
+    Dataset double_list = {{1.0}, {2.0}, {3.0}, {4.0}, {5.0}, {6.0}};
     
+    Data result = getElementAtIndex(double_list, 0);  
+    TEST_CHECK(result == std::vector<double>{1.0});  
+    result = getElementAtIndex(double_list, 1);
+    TEST_CHECK(result == std::vector<double>{2.0});  
+    result = getElementAtIndex(double_list, 5);
+    TEST_CHECK(result == std::vector<double>{6.0});  
+}
+
+void test_change_element_at_index(void){
+    Dataset double_list = {{1.0}, {2.0}, {3.0}, {4.0}, {5.0}, {6.0}};
+    changeElementAtIndex(double_list,0,{10.0});
+    Data value = getElementAtIndex(double_list,0);
+    TEST_CHECK(value == std::vector<double>{10.0});
+
 }
 
 
 
 TEST_LIST = {
     { "test_create_graph_node", test_create_graph_node },
-    { "test_example", test_example },
     { "test_knn", test_knn },
     {"test_euclidean_distance", test_euclidean_distance},
+    {"test_shuffle_list", test_shuffle_list},
     {"test_random_permutation", test_random_permutation},
+    {"test_get_element_at_index",test_get_element_at_index},
+    {"test_change_element_at_index",test_change_element_at_index},
     { 0 }
 };
