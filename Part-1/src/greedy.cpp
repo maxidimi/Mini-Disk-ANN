@@ -13,8 +13,8 @@ pair<list<Graph_Node>,list<Graph_Node>> greedy_search(Graph_Node s, Data q, int 
     while(!lv.empty()){
         double mindist;
         mindist = euclidean_distance(q,lv.front()->data);
-       Graph_Node p = lv.front();
-        
+        Graph_Node p = lv.front();
+        std::cout<<"here"<<endl;
         for(auto i : lv) {
             double dist = euclidean_distance(i->data,q);
             if(dist<mindist) {
@@ -22,22 +22,19 @@ pair<list<Graph_Node>,list<Graph_Node>> greedy_search(Graph_Node s, Data q, int 
                 p = i; 
             }    
         }
-        
+        std::cout<<"here2"<<endl;
         for( auto i : p->out_neighbours) {
             if(find_node_in_graph(searching_list,i->data) == NULL) {   
                 searching_list.push_back(i);
             }
         }
-
+        std::cout<<"here3"<<endl;
         if(find_node_in_graph(visited_list,p->data) == NULL) {   
             visited_list.push_back(p);
         }
-        
         if (static_cast<int>(searching_list.size()) > L) {
-            list<Graph_Node> max_list;
-            
+            list<Graph_Node> max_list;   
             for(auto j : searching_list){
-                
                 double dista = euclidean_distance(j->data, q);
                 int index = 0;
                 for(auto i : max_list){
@@ -49,8 +46,8 @@ pair<list<Graph_Node>,list<Graph_Node>> greedy_search(Graph_Node s, Data q, int 
                     // advance(it,1);
                     index++;
                 }
-                std::cout<<"here"<<endl;
-                if(index == max_list.size()){
+                std::cout<<"here4"<<endl;
+                if(static_cast<size_t>(index) == max_list.size()){
                     max_list.push_back(j);
                 }
                 else{
@@ -62,6 +59,7 @@ pair<list<Graph_Node>,list<Graph_Node>> greedy_search(Graph_Node s, Data q, int 
             for(size_t i = 1; i <= (searching_list.size() - k); i++) {
                 max_list.pop_front();
             }
+            std::cout<<"here5"<<endl;
             searching_list.clear();
             searching_list.assign(max_list.begin(),max_list.end());
         }
@@ -70,17 +68,15 @@ pair<list<Graph_Node>,list<Graph_Node>> greedy_search(Graph_Node s, Data q, int 
                 remove_node_from_graph(lv,i);
             }
         }
+        std::cout<<"here6"<<endl;
     }
-    for(size_t i = 1; i <= (searching_list.size() - k); i++) {
+    for(int i = 1; i < (static_cast<int>(searching_list.size()) - k); i++) {
         searching_list.pop_front();
     }
-    
-    
+    std::cout<<"here7"<<endl;
     pair<list<Graph_Node>,list<Graph_Node>> result;
     result.first = searching_list;
     result.second = visited_list;
     
     return result;
-
-
 }
