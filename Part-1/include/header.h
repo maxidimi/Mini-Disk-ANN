@@ -48,7 +48,7 @@ pair<list<Graph_Node>,list<Graph_Node>> greedy_search(Graph_Node s, Data q, int 
 
 /* Robust Pruning */
 
-Graph robust_pruning(Graph G, Graph_Node p, Dataset V, int a, int R);
+Graph robust_pruning(Graph G, Data p , Dataset V, int a, int R);
 
 /* Vamana Indexing Algorithm */
 

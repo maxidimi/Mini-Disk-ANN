@@ -2,11 +2,16 @@
 
 Graph robust_pruning(Graph G, Data p, Dataset V, int a, int R) {
     Graph_Node P = find_node_in_graph(G,p);
-    list<struct graph_node *> N_out_p = P->out_neighbours;
-
-    auto iter = find(V.begin(), V.end(), p);
-    V.erase(iter);
+    list<struct graph_node *> N_out_p;
+    if(P != NULL) {
+        N_out_p = P->out_neighbours;
+    }
     
+    auto iter = find(V.begin(), V.end(), p);
+    if(iter != V.end()){
+        V.erase(iter);
+    }
+
     for (auto i : N_out_p) {
         if (i->data != p) {
             V.push_back(i->data);        
@@ -14,7 +19,10 @@ Graph robust_pruning(Graph G, Data p, Dataset V, int a, int R) {
     }
     
     N_out_p.clear();
-    P->out_neighbours.clear();
+    if(P != NULL) {
+        P->out_neighbours.clear();
+    }
+        std::cout << "Searching List (Approx. k nearest points):" << std::endl;
 
     while ( V.empty() == 0) {
         int min = euclidean_distance(p,V.front());
