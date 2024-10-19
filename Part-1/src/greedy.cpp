@@ -32,7 +32,7 @@ pair<list<Graph_Node>,list<Graph_Node>> greedy_search(Graph_Node s, Data q, int 
         if(find_node_in_graph(visited_list,p->data) == NULL) {   
             visited_list.push_back(p);
         }
-        if (static_cast<int>(searching_list.size()) > L) {
+        if ((int)(searching_list.size()) > L) {
             list<Graph_Node> max_list;   
             for(auto j : searching_list){
                 double dista = euclidean_distance(j->data, q);
