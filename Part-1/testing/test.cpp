@@ -139,15 +139,9 @@ void test_greedy_search_1() {
     for (size_t i = 0; i < (size_t)k; i++) {
         expected_neighbors.push_back(distances[i].first);
     }
-    cout << endl;
-    for (auto i : G) {
-        cout << "Node: ->" << i->data[0] << " " << i->data[1] << endl;
-        for (auto j : i->out_neighbours) {
-            cout << "\t" << j->data[0] << " " << j->data[1] << endl;
-        }
-    }
+
     // Print the distances with corresponding points
-    //cout << "\nk = " << k << ", L = " << L << endl;
+    cout << "\nk = " << k << ", L = " << L << endl;
     cout << "\nDistances from query point (" << query[0] << ", " << query[1] << "):\n";
     for (const auto& [point, distance] : distances) {
         cout << "Point: (" << point[0] << ", " << point[1] << ") - Distance: " << distance << endl;
@@ -164,7 +158,6 @@ void test_greedy_search_1() {
     // Check if the number of neighbors found matches k
     TEST_CHECK(result.size() == (size_t)k);
 
-    // Check if the neighbors found match the expected neighbors
     // Check if the neighbor is in the expected neighbors
     for (const auto& node : result) {
         bool found = false;
