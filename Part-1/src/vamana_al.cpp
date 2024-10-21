@@ -41,11 +41,19 @@ Graph vamana_indexing(Dataset P, int a, int L, int R) {
     for (auto p : P) {
         Graph_Node node = create_graph_node(p);
         add_node_to_graph(graph, node);
-        // Add R random out-neighbours to each node
-        while (node->out_neighbours.size() < (size_t)R) {
-            int random_index = rand() % n;
-            Data rand_ind = getElementAtIndex(P, random_index);
-            add_edge_to_graph(node, find_node_in_graph(graph, rand_ind));
+    }
+
+    // Add R random out-neighbours to each node
+    for (auto node : graph) {
+        while (node->out_neighbours.size() < (size_t)R && node->out_neighbours.size() < (size_t)n) {
+            // Get a random index
+            Data rand_ind = getElementAtIndex(P, rand() % n);
+
+            // Get the node with the random index
+            auto rand_node = find_node_in_graph(graph, rand_ind);
+
+            // Add edge from node to rand_node
+            add_edge_to_graph(node, rand_node);
         }
     }
 
@@ -54,18 +62,19 @@ Graph vamana_indexing(Dataset P, int a, int L, int R) {
 
     // Let σ denote a random permutation of P
     auto P_perm = random_permutation(n);
-
+    
     for (auto i : P_perm) {
         // Node of graph with data p
         auto p = getElementAtIndex(P, i);
         auto p_in_graph = find_node_in_graph(graph, p);
 
         // Run greedy_search, V are the visited nodes, L_res are the nearest neighbours
-        list<Graph_Node> V; 
-        //?auto L_res = greedy_search(graph, s, p, 1, L, V);
+        auto res = greedy_search(s, p, 1, L);
+        list<Graph_Node> L_res = res.first; list<Graph_Node> V = res.second;
 
         // Run robust_prune to update out-neighbours of s_i
-        //?robust_pruning(graph, p_in_graph, L_res, a, R);
+        Dataset V_data = get_data(V);
+        robust_pruning(graph, p, V_data, a, R);
 
         // For all points j in N_out(σ(i)) do
         for (auto j : p_in_graph->out_neighbours) {
@@ -76,7 +85,8 @@ Graph vamana_indexing(Dataset P, int a, int L, int R) {
             // If |N_out(σ(i)) U {σ(i)}| > R then
             if (N_out_j.size() > (size_t)R) {
                 // Run robust_prune to update out-neighbours of j
-                //?robust_pruning(graph, j, N_out_j, a, R);
+                list<Data> N_out_j_data = get_data(N_out_j);
+                robust_pruning(graph, j->data, N_out_j_data, a, R);
             } else {
                 // Add σ(i) to out-neighbours of j
                 add_edge_to_graph(j, p_in_graph);
