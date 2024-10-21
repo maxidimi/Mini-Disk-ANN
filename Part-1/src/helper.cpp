@@ -69,3 +69,12 @@ void changeElementAtIndex(Dataset& mylist, size_t index, Data data) {
     // Change the element at the given index
     *it = data;
 }
+
+// Given a graph node list, returns the corresponding dataset
+Dataset get_data(list<Graph_Node> graph) {
+    Dataset data;
+    for (auto node : graph) {
+        data.push_back(node->data);
+    }
+    return data;
+}
