@@ -69,3 +69,29 @@ void changeElementAtIndex(Dataset& mylist, size_t index, Data data) {
     // Change the element at the given index
     *it = data;
 }
+
+// Given a graph node list, returns the corresponding dataset
+Dataset get_data(list<Graph_Node> graph) {
+    Dataset data;
+    for (auto node : graph) {
+        data.push_back(node->data);
+    }
+    return data;
+}
+
+// L\V operation, returns the elements in L that are not in V
+list<Graph_Node> L_m_V(list<Graph_Node> L, list<Graph_Node> V) {
+    list<Graph_Node> result;
+    for (auto i : L) {
+        if (find_node_in_graph(V, i->data) == nullptr) {
+            result.push_back(i);
+        }
+    }
+    return result;
+}
+
+// Wrapper function to get the node in the graph with the given data
+Graph_Node get_node_at_index(Graph& graph, Dataset P, int index) {
+    auto data = getElementAtIndex(P, index);
+    return find_node_in_graph(graph, data);
+}

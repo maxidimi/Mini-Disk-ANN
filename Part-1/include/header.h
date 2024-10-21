@@ -6,6 +6,14 @@
 #include <random>
 #include <stdexcept>
 #include <iterator>
+#include <fstream>
+#include <cassert>
+#include <cstring>
+#include <ctime>
+#include <cstdlib>
+#include <set>
+#include <exception>
+#include <string>
 
 using namespace std;
 
@@ -41,6 +49,9 @@ list<int> random_permutation(int n);
 void shuffle_list (list<int>& el_list);
 Data getElementAtIndex(Dataset& mylist, size_t index);
 void changeElementAtIndex(Dataset& mylist, size_t index, Data data);
+Dataset get_data(list<Graph_Node> graph);
+list<Graph_Node> L_m_V(list<Graph_Node> L, list<Graph_Node> V);
+Graph_Node get_node_at_index(Graph& graph, Dataset P, int index);
 
 /* Greedy Search | s start node, q query, k result size, L search list size */
 
@@ -48,7 +59,7 @@ pair<list<Graph_Node>,list<Graph_Node>> greedy_search(Graph_Node s, Data q, int 
 
 /* Robust Pruning */
 
-Graph robust_pruning(Graph G, Data p , Dataset V, int a, int R);
+Graph robust_pruning(Graph G, Data p, Dataset V, int a, int R);
 
 /* Vamana Indexing Algorithm */
 

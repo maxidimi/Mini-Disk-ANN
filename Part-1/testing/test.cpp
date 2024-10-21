@@ -1,9 +1,5 @@
 #include "../include/header.h"
 #include "../include/acutest.h"
-#include <exception>
-#include <stdexcept>
-#include <string>
-// test files in src
 
 //Tests for Helper functions
 void test_create_graph_node(void) {
@@ -112,14 +108,14 @@ void test_greedy_search_1() {
     };
 
     // Query point to search nearest neighbors for
-    Data query = {5.1, 4.22};
+    Data query = {3.1, 4.22};
 
     // Parameters for the Vamana indexing
-    int R = log2(dataset.size()); int L = 3; int a = 2;
+    int R = log2(dataset.size()) + 1; int L = 4; int a = 1;
     Graph G = vamana_indexing(dataset, a, L, R);
 
     // Perform greedy search starting from the first node
-    int k = 2; auto result_p = greedy_search(G.front(), query, k, L);
+    int k = 3; auto result_p = greedy_search(G.front(), query, k, L);
     auto result = result_p.first; auto visited = result_p.second;
     
     // Calculate the Euclidean distances of each point from the query
@@ -141,8 +137,7 @@ void test_greedy_search_1() {
     }
 
     // Print the distances with corresponding points
-    cout << "\nk = " << k << ", L = " << L << endl;
-    cout << "\nDistances from query point (" << query[0] << ", " << query[1] << "):\n";
+    cout << "\n\nDistances from query point (" << query[0] << ", " << query[1] << "):\n";
     for (const auto& [point, distance] : distances) {
         cout << "Point: (" << point[0] << ", " << point[1] << ") - Distance: " << distance << endl;
     }
@@ -152,14 +147,21 @@ void test_greedy_search_1() {
     }
     cout << "Greedy search results:\n";
     for (const auto& node : result) {
-        cout << "\tPoint: (" << node->data[0] << ", " << node->data[1] << ")\n";
+        if (node == nullptr) {
+            cout << "\tPoint: (nullptr)\n";
+        } else 
+        {cout << "\tPoint: (" << node->data[0] << ", " << node->data[1] << ")\n";}
     }
 
     // Check if the number of neighbors found matches k
     TEST_CHECK(result.size() == (size_t)k);
-
+    
     // Check if the neighbor is in the expected neighbors
     for (const auto& node : result) {
+        if (node == nullptr) {
+            TEST_CHECK(false);
+            continue;
+        }
         bool found = false;
         for (const auto& expected : expected_neighbors) {
             if (node->data == expected) {

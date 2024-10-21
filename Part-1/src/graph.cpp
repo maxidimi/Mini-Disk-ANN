@@ -36,7 +36,7 @@ Graph_Node find_node_in_graph(Graph &graph, Data data) {
             return i;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 // Prints the graph
