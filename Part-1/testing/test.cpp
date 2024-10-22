@@ -100,22 +100,29 @@ void test_change_element_at_index(void){
 }
 
 void test_greedy_search_1() {
+    // Define the parameters for the test
+    srand((unsigned int)time(0));
+    int n = 2000; int dim = 1;
+
     // Create a dataset of points
-    Dataset dataset = {
-        {0.0, 2.0}, {1.0, 1.5}, {2.0, 2.0}, {1.0, 3.4},
-        //{1.5, 0.5}, {2.5, 1.5}, {3.5, 2.5}, {0.5, 1.5},
-        //{1.0, 0.0}, {2.0, 1.0}, {3.0, 0.0}, {1.0, 3.0}
-    };
+    Dataset dataset = random_dataset(n, dim);
 
     // Query point to search nearest neighbors for
-    Data query = {5.1, 4.22};
+    Data query = random_query(dim);
 
     // Parameters for the Vamana indexing
-    int R = log2(dataset.size()); int L = 3; int a = 1;
+    int k = 5; int R = log2(n) + 1;
+    int L = k + rand()/(RAND_MAX/100); double a = 1.2;
+
+    // Print parameters
+    cout << "\n\nk: " << k << " R: " << R << " L: " << L << " a: " << a << endl;
+    cout << "size of dataset: " << dataset.size() << endl;
+
+    // Create the Vamana index
     Graph G = vamana_indexing(dataset, a, L, R);
 
     // Perform greedy search starting from the first node
-    int k = 2; auto result_p = greedy_search(G.front(), query, k, L);
+    auto result_p = greedy_search(G.front(), query, k, L);
     auto result = result_p.first; auto visited = result_p.second;
     
     // Calculate the Euclidean distances of each point from the query
@@ -137,8 +144,7 @@ void test_greedy_search_1() {
     }
 
     // Print the distances with corresponding points
-    cout << "\nk = " << k << ", L = " << L << ", R = " << R << endl;
-    cout << "\nDistances from query point (" << query[0] << ", " << query[1] << "):\n";
+    cout << "\n\nDistances from query point (" << query[0] << ", " << query[1] << "):\n";
     for (const auto& [point, distance] : distances) {
         cout << "Point: (" << point[0] << ", " << point[1] << ") - Distance: " << distance << endl;
     }
@@ -148,14 +154,21 @@ void test_greedy_search_1() {
     }
     cout << "Greedy search results:\n";
     for (const auto& node : result) {
-        cout << "\tPoint: (" << node->data[0] << ", " << node->data[1] << ")\n";
+        if (node == nullptr) {
+            cout << "\tPoint: (nullptr)\n";
+        } else 
+        {cout << "\tPoint: (" << node->data[0] << ", " << node->data[1] << ")\n";}
     }
 
     // Check if the number of neighbors found matches k
     TEST_CHECK(result.size() == (size_t)k);
-
+    
     // Check if the neighbor is in the expected neighbors
     for (const auto& node : result) {
+        if (node == nullptr) {
+            TEST_CHECK(false);
+            continue;
+        }
         bool found = false;
         for (const auto& expected : expected_neighbors) {
             if (node->data == expected) {

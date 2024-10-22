@@ -1,61 +1,69 @@
 #include "../include/header.h"
 
-Graph robust_pruning(Graph G, Data p, Dataset V, int a, int R) {
+Graph robust_pruning(Graph G, Data p, Dataset V, double a, int R) {
+    /*
+        p_ is the point in V that minimizes the distance to p (p*)
+        i is the iterator for the loop (p')
+        p is the data point in the graph from the input
+    */
+    // V <- (V U N_out(p)) \ {p} withouth duplicates
     Graph_Node P = find_node_in_graph(G,p);
-    if(P == NULL) return G;
-    list<struct graph_node *> N_out_p;
+
+    list<Graph_Node> N_out_p;
     N_out_p = P->out_neighbours;
-    
-    
     auto iter = find(V.begin(), V.end(), p);
     if(iter != V.end()){
         V.erase(iter);
     }
-
-    for (auto i : N_out_p) {
-        if (i->data != p) {
-            V.push_back(i->data);        
-        }
+    // V <- V U N_out(p)
+    for(auto i : N_out_p) {
+        V.push_back(i->data);
     }
     
+    // N_out(p) <- {}
     N_out_p.clear();
-    P->out_neighbours.clear();
-    
         
-
-    while ( V.empty() == 0) {
-        int min = euclidean_distance(p,V.front());
-        Data p_ = V.front();
-
-        for(auto i : V) {
-            int dist = euclidean_distance(p,i);
-            if(dist < min) {
+    // While V not empty
+    while (!V.empty()) {
+        // Find p* <- argmin_{p \in V} d(p,q)
+        Data p_ = V.front(); // p_ = p*
+        double min = euclidean_distance(p,p_);
+        for (auto i : V) { // i = p'
+            double dist = euclidean_distance(p,i);
+            if (dist < min) {
                 min = dist;
                 p_ = i;
             }
         }
+
+        // Find node p* in graph and add it to N_out(p)
         Graph_Node P_ = find_node_in_graph(G,p_);
         N_out_p.push_back(P_);
 
-        if(static_cast<int>(N_out_p.size()) == R) break;
+        // If |N_out(p)| = R, break
+        if((int)(N_out_p.size()) == R) break;
 
-        for(auto i : V) {
-            
-            double d1 = euclidean_distance(i,p),d2 = euclidean_distance(i,p_);
-            if((a*d2) <= d1) {
-                auto iter = find(V.begin(), V.end(), p);
-                if(iter != V.end()){
+        // For p' in V
+        Dataset V_dup = V;
+        for (auto i : V_dup) { // i = p'
+            // If a*d(p*, p') <= d(p,p')
+            if ((double)a*euclidean_distance(p_,i) <= euclidean_distance(p, i)) {
+                // Remove p' from V
+                auto iter = find(V.begin(), V.end(), i);
+                if (iter != V.end()) {
                     V.erase(iter);
                 }
             }
         }
         
     }
+
+    // Add edges from p to N_out(p)
+    P->out_neighbours.clear();
     for(auto i : N_out_p) {
         add_edge_to_graph(P,i);
     }
 
+    // Return the graph
     return G;
 }
-
-// Robust Prune

@@ -9,7 +9,11 @@
 #include <fstream>
 #include <cassert>
 #include <cstring>
+#include <ctime>
+#include <cstdlib>
 #include <set>
+#include <exception>
+#include <string>
 
 using namespace std;
 
@@ -46,6 +50,10 @@ void shuffle_list (list<int>& el_list);
 Data getElementAtIndex(Dataset& mylist, size_t index);
 void changeElementAtIndex(Dataset& mylist, size_t index, Data data);
 Dataset get_data(list<Graph_Node> graph);
+list<Graph_Node> L_m_V(list<Graph_Node> L, list<Graph_Node> V);
+Graph_Node get_node_at_index(Graph& graph, Dataset P, int index);
+Data random_query(int dim);
+Dataset random_dataset(int n, int dim);
 
 /* Greedy Search | s start node, q query, k result size, L search list size */
 
@@ -53,9 +61,9 @@ pair<list<Graph_Node>,list<Graph_Node>> greedy_search(Graph_Node s, Data q, int 
 
 /* Robust Pruning */
 
-Graph robust_pruning(Graph G, Data p, Dataset V, int a, int R);
+Graph robust_pruning(Graph G, Data p, Dataset V, double a, int R);
 
 /* Vamana Indexing Algorithm */
 
 Data medoid(Dataset P);
-Graph vamana_indexing(Dataset P, int a, int L, int R);
+Graph vamana_indexing(Dataset P, double a, int L, int R);
