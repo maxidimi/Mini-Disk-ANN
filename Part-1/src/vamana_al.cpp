@@ -9,7 +9,7 @@ Data medoid(Dataset P) {
     
     Data s = P.front();
 
-    double min_distance = 0;
+    double min_distance = numeric_limits<double>::max();
 
     for (auto p : P) {
         // distance from p to all other points in P
@@ -18,7 +18,7 @@ Data medoid(Dataset P) {
             distance += euclidean_distance(p, q);
         }
 
-        if (distance < min_distance) {
+        if (distance <= min_distance) {
             s = p;
             min_distance = distance;
         }
@@ -28,7 +28,7 @@ Data medoid(Dataset P) {
 }
 
 // Vamana Indexing Algorithm
-Graph vamana_indexing(Dataset P, int a, int L, int R) {
+Graph vamana_indexing(Dataset P, double a, int L, int R) {
     /*s is the medoid of dataset P
       i is the index given by the random permutation σ
       p is the i-st point in dataset P

@@ -13,27 +13,25 @@ pair<list<Graph_Node>,list<Graph_Node>> greedy_search(Graph_Node s, Data q, int 
     // While L \ V is not empty
     while (!lv.empty()) {
         // Let node p* <- argmin_{p \in L\V} d(p.q)
-        double mindist;
-        mindist = euclidean_distance(q, lv.front()->data);
-
         // Find the node with minimum distance
-        Graph_Node p = lv.front();
+        Graph_Node p_s = lv.front();
+        double mindist = euclidean_distance(p_s->data, q);
         for (auto i : lv) {
             double dist = euclidean_distance(i->data, q);
             if (dist < mindist) {
                 mindist = dist;
-                p = i; 
+                p_s = i; 
             }    
         }
 
-        // Update L <- L U N_out(p*) by adding lists instead of looping and prevent duplicates
+        // Update L <- L U N_out(p*) and prevent duplicates with set
         set<Graph_Node> temp(searching_list.begin(), searching_list.end());
-        temp.insert(p->out_neighbours.begin(), p->out_neighbours.end());
+        temp.insert(p_s->out_neighbours.begin(), p_s->out_neighbours.end());
         searching_list.clear();
         searching_list.assign(temp.begin(), temp.end());
 
         // Update V <- V U {p*}
-        visited_list.push_back(p);
+        visited_list.push_back(p_s);
         
         // If |L| > L, then update lv to be the L closest points to q
         //! Sort the list and keep the first L elements (or pop the last L elements)

@@ -4,7 +4,7 @@
 double euclidean_distance(Data d1, Data d2) {
     auto distance = 0.0;
     for (uint i = 0; i < d1.size(); i++) {
-        distance += pow(d1[i] - d2[i], 2);
+        distance += pow(d2[i] - d1[i], 2);
     }
     
     distance = sqrt(distance);
@@ -94,4 +94,26 @@ list<Graph_Node> L_m_V(list<Graph_Node> L, list<Graph_Node> V) {
 Graph_Node get_node_at_index(Graph& graph, Dataset P, int index) {
     auto data = getElementAtIndex(P, index);
     return find_node_in_graph(graph, data);
+}
+
+// Generates a random query of the given dimension
+Data random_query(int dim) {
+    Data query;
+    for (int i = 0; i < dim; i++) {
+        query.push_back((double)rand() / RAND_MAX);
+    }
+    return query;
+}
+
+// Generates a random dataset of the given size and dimension
+Dataset random_dataset(int n, int dim) {
+    Dataset dataset;
+    for (int i = 0; i < n; i++) {
+        Data data;
+        for (int j = 0; j < dim; j++) {
+            data.push_back((double)rand() / RAND_MAX);
+        }
+        dataset.push_back(data);
+    }
+    return dataset;
 }
