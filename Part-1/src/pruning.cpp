@@ -1,6 +1,6 @@
 #include "../include/header.h"
 
-Graph robust_pruning(Graph G, Data p, Dataset V, double a, int R) {
+Graph robust_pruning(Graph &G, Data &p, Dataset &V, double a, int R) {
     /*
         p_ is the point in V that minimizes the distance to p (p*)
         i is the iterator for the loop (p')
@@ -8,16 +8,22 @@ Graph robust_pruning(Graph G, Data p, Dataset V, double a, int R) {
     */
     // V <- (V U N_out(p)) \ {p} withouth duplicates
     Graph_Node P = find_node_in_graph(G,p);
+    if (P == nullptr) {
+        cout << "Point not found in the graph\n";
+        return G;
+    }
 
-    list<Graph_Node> N_out_p;
-    N_out_p = P->out_neighbours;
+    list<Graph_Node> N_out_p(P->out_neighbours.begin(), P->out_neighbours.end());
     auto iter = find(V.begin(), V.end(), p);
     if(iter != V.end()){
         V.erase(iter);
     }
-    // V <- V U N_out(p)
-    for(auto i : N_out_p) {
-        V.push_back(i->data);
+
+    // V <- V U N_out(p) without duplicates
+    for (const auto &i : N_out_p) {
+        if (find(V.begin(), V.end(), i->data) == V.end()) {
+            V.push_back(i->data);
+        }
     }
     
     // N_out(p) <- {}
@@ -28,7 +34,8 @@ Graph robust_pruning(Graph G, Data p, Dataset V, double a, int R) {
         // Find p* <- argmin_{p \in V} d(p,q)
         Data p_ = V.front(); // p_ = p*
         double min = euclidean_distance(p,p_);
-        for (auto i : V) { // i = p'
+
+        for (const auto &i : V) { // i = p'
             double dist = euclidean_distance(p,i);
             if (dist < min) {
                 min = dist;
@@ -38,14 +45,18 @@ Graph robust_pruning(Graph G, Data p, Dataset V, double a, int R) {
 
         // Find node p* in graph and add it to N_out(p)
         Graph_Node P_ = find_node_in_graph(G,p_);
+        if (P_ == nullptr) {
+            cout << "Point not found in the graph\n";
+            return G;
+        }
         N_out_p.push_back(P_);
 
         // If |N_out(p)| = R, break
-        if((int)(N_out_p.size()) == R) break;
+        if((int)N_out_p.size() == R) break;
 
         // For p' in V
         Dataset V_dup = V;
-        for (auto i : V_dup) { // i = p'
+        for (const auto &i : V_dup) { // i = p'
             // If a*d(p*, p') <= d(p,p')
             if ((double)a*euclidean_distance(p_,i) <= euclidean_distance(p, i)) {
                 // Remove p' from V
@@ -60,7 +71,7 @@ Graph robust_pruning(Graph G, Data p, Dataset V, double a, int R) {
 
     // Add edges from p to N_out(p)
     P->out_neighbours.clear();
-    for(auto i : N_out_p) {
+    for (const auto &i : N_out_p) {
         add_edge_to_graph(P,i);
     }
 

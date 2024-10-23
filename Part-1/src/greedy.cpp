@@ -3,12 +3,12 @@
 // Greedy Algorithm - returning [k-nearest aprx. points, visited points]
 pair<list<Graph_Node>,list<Graph_Node>> greedy_search(Graph_Node s, Data q, int k, int L){
 
-    list<Graph_Node> visited_list, searching_list, lv;
-
     // Initialize sets L<-{s}, V<-{}
+    list<Graph_Node> visited_list, searching_list, lv;
     searching_list.push_back(s); 
 
-    lv = L_m_V(searching_list, visited_list);
+    // Initialize L \ V = {s}
+    lv.push_back(s);
     
     // While L \ V is not empty
     while (!lv.empty()) {
@@ -16,7 +16,7 @@ pair<list<Graph_Node>,list<Graph_Node>> greedy_search(Graph_Node s, Data q, int 
         // Find the node with minimum distance
         Graph_Node p_s = lv.front();
         double mindist = euclidean_distance(p_s->data, q);
-        for (auto i : lv) {
+        for (const auto &i : lv) {
             double dist = euclidean_distance(i->data, q);
             if (dist < mindist) {
                 mindist = dist;
@@ -25,8 +25,13 @@ pair<list<Graph_Node>,list<Graph_Node>> greedy_search(Graph_Node s, Data q, int 
         }
 
         // Update L <- L U N_out(p*) and prevent duplicates with set
+        if (p_s == nullptr) break;
         set<Graph_Node> temp(searching_list.begin(), searching_list.end());
-        temp.insert(p_s->out_neighbours.begin(), p_s->out_neighbours.end());
+        for (const auto &neighbour : p_s->out_neighbours) {
+            if (find(visited_list.begin(), visited_list.end(), neighbour) == visited_list.end()) {
+                temp.insert(neighbour);  // Only add unvisited neighbours
+            }
+        }
         searching_list.clear();
         searching_list.assign(temp.begin(), temp.end());
 
@@ -47,11 +52,9 @@ pair<list<Graph_Node>,list<Graph_Node>> greedy_search(Graph_Node s, Data q, int 
     }
     
     // Return the first k elements of L
-    searching_list.resize(k);
+    if (k < (int)searching_list.size()) 
+        searching_list.resize(k);
 
     // Return the result as a pair
-    pair<list<Graph_Node>,list<Graph_Node>> result;
-    result.first = searching_list; result.second = visited_list;
-
-    return result;
+    return {searching_list, visited_list};
 }

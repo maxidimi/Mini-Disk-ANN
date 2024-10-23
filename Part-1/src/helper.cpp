@@ -1,15 +1,14 @@
 #include "../include/header.h"
 
 // Computes the Euclidean distance between two data points
-double euclidean_distance(Data d1, Data d2) {
-    auto distance = 0.0;
-    for (uint i = 0; i < d1.size(); i++) {
-        distance += pow(d2[i] - d1[i], 2);
+double euclidean_distance(const Data &d1, const Data &d2) {
+    size_t dim = d1.size(); auto distance = 0.0; 
+    for (size_t i = 0; i < dim; i++) {
+        double diff = d2[i] - d1[i];
+        distance += diff * diff;
     }
-    
-    distance = sqrt(distance);
 
-    return distance;
+    return sqrt(distance);
 }
 
 // Generates a random permutation of integers from 0 to n-1
@@ -24,7 +23,7 @@ list<int> random_permutation(int n) {
 }
 
 // Shuffles the elements of a list
-void shuffle_list (list<int>& el_list) {
+void shuffle_list (list<int> &el_list) {
     // Create a random number generator
     random_device rd;
     mt19937 g(rd());
@@ -41,7 +40,7 @@ void shuffle_list (list<int>& el_list) {
 }
 
 // Returns the element at the given index in a list
-Data getElementAtIndex(Dataset& mylist, size_t index) {
+Data get_element_at_index(Dataset &mylist, size_t index) {
     // Check if index is out of bounds
     if (index >= mylist.size()) {
         throw out_of_range("Index is out of bounds");
@@ -56,7 +55,7 @@ Data getElementAtIndex(Dataset& mylist, size_t index) {
 }
 
 // Changes the element at the given index in a list
-void changeElementAtIndex(Dataset& mylist, size_t index, Data data) {
+void change_element_at_index(Dataset &mylist, size_t index, Data &data) {
     // Check if index is out of bounds
     if (index >= mylist.size()) {
         throw out_of_range("Index is out of bounds");
@@ -71,28 +70,29 @@ void changeElementAtIndex(Dataset& mylist, size_t index, Data data) {
 }
 
 // Given a graph node list, returns the corresponding dataset
-Dataset get_data(list<Graph_Node> graph) {
+Dataset get_data(list<Graph_Node> &graph) {
     Dataset data;
-    for (auto node : graph) {
+    for (const auto &node : graph) {
         data.push_back(node->data);
     }
     return data;
 }
 
 // L\V operation, returns the elements in L that are not in V
-list<Graph_Node> L_m_V(list<Graph_Node> L, list<Graph_Node> V) {
+list<Graph_Node> L_m_V(list<Graph_Node> &L, list<Graph_Node> &V) {
     list<Graph_Node> result;
-    for (auto i : L) {
-        if (find_node_in_graph(V, i->data) == nullptr) {
-            result.push_back(i);
+    for (const auto &node : L) {
+        if (find(V.begin(), V.end(), node) == V.end()) {
+            result.push_back(node);
         }
     }
+    
     return result;
 }
 
 // Wrapper function to get the node in the graph with the given data
-Graph_Node get_node_at_index(Graph& graph, Dataset P, int index) {
-    auto data = getElementAtIndex(P, index);
+Graph_Node get_node_at_index(Graph &graph, Dataset &P, int index) {
+    auto data = get_element_at_index(P, index);
     return find_node_in_graph(graph, data);
 }
 
