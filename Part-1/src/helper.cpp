@@ -4,8 +4,7 @@
 double euclidean_distance(const Data &d1, const Data &d2) {
     size_t dim = d1.size(); auto distance = 0.0; 
     for (size_t i = 0; i < dim; i++) {
-        double diff = d2[i] - d1[i];
-        distance += diff * diff;
+        distance += (d2[i] - d1[i]) * (d2[i] - d1[i]);
     }
 
     return sqrt(distance);

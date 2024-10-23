@@ -52,7 +52,7 @@ Graph robust_pruning(Graph &G, Data &p, Dataset &V, double a, int R) {
         N_out_p.push_back(P_);
 
         // If |N_out(p)| = R, break
-        if((int)N_out_p.size() == R) break;
+        if ((int)N_out_p.size() == R) break;
 
         // For p' in V
         Dataset V_dup = V;

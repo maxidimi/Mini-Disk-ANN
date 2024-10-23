@@ -56,13 +56,15 @@ Graph vamana_indexing(Dataset &P, double a, int L, int R) {
         }
     }*/
     // Select R unique random neighbours
-    set<int> random_indices;
-    while ((int)random_indices.size() < R) {
-        int random_idx = rand() % n;
-        if (random_indices.find(random_idx) == random_indices.end()) {
-            random_indices.insert(random_idx);
-            Graph_Node rand_node = get_node_at_index(graph, P, random_idx);
-            add_edge_to_graph(node, rand_node);
+    for (const auto &node : graph) {
+        set<int> random_indices;
+        while ((int)random_indices.size() < R) {
+            int random_idx = rand() % n;
+            if (random_indices.find(random_idx) == random_indices.end()) {
+                random_indices.insert(random_idx);
+                Graph_Node rand_node = get_node_at_index(graph, P, random_idx);
+                add_edge_to_graph(node, rand_node);
+            }
         }
     }
     
@@ -82,7 +84,7 @@ Graph vamana_indexing(Dataset &P, double a, int L, int R) {
         Graph_Node p_in_graph = find_node_in_graph(graph, p);
 
         // Run greedy_search, V are the visited nodes, L_res are the nearest neighbours
-        pair<Graph, Graph> res = greedy_search(s, p, 1, L);//?
+        pair<list<Graph_Node>, list<Graph_Node>> res = greedy_search(s, p, 1, L);
         list<Graph_Node> L_res = res.first; list<Graph_Node> V = res.second;
 
         // Run robust_prune to update out-neighbours of s_i

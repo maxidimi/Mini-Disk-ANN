@@ -14,7 +14,11 @@ void add_node_to_graph(Graph &graph, Graph_Node node) {
 
 // Adds an edge to the graph
 void add_edge_to_graph(Graph_Node from, Graph_Node to) {
-    from->out_neighbours.push_back(to);
+    // Check if the edge already exists
+    auto it = find(from->out_neighbours.begin(), from->out_neighbours.end(), to);
+    if (it == from->out_neighbours.end()) {
+        from->out_neighbours.push_back(to);
+    }
 }
 
 // Finds a node in the graph

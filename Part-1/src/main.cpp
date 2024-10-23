@@ -11,8 +11,10 @@ int main(int argc, char *argv[]) {
         cout << "Invalid parameters\n";
         return 1;
     }
+
     srand((unsigned int)time(0));
-    double a = 1.2; int R = 5; int L = 89;
+    
+    double a = 1.2; int R = log2(n) - 1; int L = k + 10;
     /*int L = k + rand()/(RAND_MAX/100);
     if ((int)(log2(n) - 1) == 0) { 
         R = 1;
@@ -27,8 +29,9 @@ int main(int argc, char *argv[]) {
     // Create a dataset of points
     Dataset dataset = random_dataset(n, dim);
 
-    // Query point to search nearest neighbors for
-    Data query = random_query(dim);
+    // Query point to search nearest neighbors for, rand from dataset(list)
+    Data query = get_element_at_index(dataset, rand() % n);
+    //= random_query(dim);
 
     // Start the timer
     clock_t start = clock();
@@ -82,13 +85,13 @@ int main(int argc, char *argv[]) {
 
     // Check if the number of neighbors found matches k
     if (result.size() == (size_t)k) cout << "Number of neighbors found matches k\n";
-    else {cout << "Number of neighbors found does not match k. Found: " << result.size() << " Expected: " << k << endl;}
+    else {cerr << "Number of neighbors found does not match k. Found: " << result.size() << " Expected: " << k << endl;}
     int foundC = 0;
     
     // Check if the neighbor is in the expected neighbors
     for (const auto &node : result) {
         if (node == nullptr) {
-            cout << "Error: nullptr\n";
+            cerr << "Error: nullptr\n";
             continue;
         }
         bool found = false;
@@ -98,10 +101,17 @@ int main(int argc, char *argv[]) {
                 break;
             }
         }
-        if (!found) {cout << "Error: Neighbor not found in expected neighbors\n";}
+        if (!found) {
+            cerr << "Error: Neighbor " << node->data[0] << " " << node->data[1] << " not found in expected neighbors\n";
+        }
         else {foundC++;}
     }
     cout << "Number of neighbors found in expected neighbors: " << foundC << endl;
     
+    // Free the memory allocated for the graph
+    for (const auto &node : G) {
+        delete node;
+    }
+
     return 0;
 }
