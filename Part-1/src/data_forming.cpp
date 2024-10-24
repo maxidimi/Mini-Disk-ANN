@@ -1,24 +1,29 @@
 #include "../include/header.h"
 
-void* fvecs_read(char* file_name){
+vector<vector<int>> fvecs_read(char* file_name){
     auto *file = fopen(file_name, "r");
     if (file == nullptr) {
         cout << "Error ";
-        return;
+        return {};
     }
     int num;
+    cout << "Here1 ";
     fread(&num, sizeof(int), 1, file);
     int vecsizeof = 1 * 4 + num * 4;
+    
     fseek(file, 0, SEEK_END);
     int a = 1;
     int bmax = ftell(file) / vecsizeof ;
     int b = bmax;
-    vector<int> arr[bmax][vecsizeof];
+    cout<<vecsizeof/4<< "  " <<bmax<<endl;
+    vector<vector<int>> arr;
     fseek(file,0, SEEK_SET);
-    for(int i = 0; i < bmax; i++) {
-        fseek(file,(long) sizeof(int) , SEEK_CUR);
-        vector<int> v ;
-        fread(&v, sizeof(int) , vecsizeof ,file);
-        arr[i]->assign(v.begin(),v.end());
+    for (int i = 0; i < bmax; i++) {
+        fseek(file, sizeof(int), SEEK_CUR);
+        vector<int> v(num);
+        fread(v.data(), sizeof(int), num-1, file);
+        arr.push_back(v);
     }
+    fclose(file);
+    return arr;
 }

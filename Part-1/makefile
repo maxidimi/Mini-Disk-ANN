@@ -1,5 +1,5 @@
-OBJS	= ./build/greedy.o ./build/main.o ./build/graph.o ./build/helper.o ./build/pruning.o ./build/vamana_al.o
-SOURCE	= ./src/greedy.cpp ./src/main.cpp ./src/graph.cpp ./src/helper.cpp ./src/pruning.cpp ./src/vamana_al.cpp
+OBJS    = ./build/data_forming.o ./build/greedy.o ./build/main.o ./build/graph.o ./build/helper.o ./build/pruning.o ./build/vamana_al.o 
+SOURCE    = ./src/data_forming. ./src/greedy.cpp ./src/main.cpp ./src/graph.cpp ./src/helper.cpp ./src/pruning.cpp ./src/vamana_al.cpp
 HEADER	= ./include/header.h
 OUT		= ./bin/vamana
 CC	 	= g++
@@ -37,6 +37,9 @@ build_dir:
 
 ./build/vamana_al.o: ./src/vamana_al.cpp
 	$(CC) $(FLAGS) ./src/vamana_al.cpp -o ./build/vamana_al.o
+
+./build/data_forming.o: ./src/data_forming.cpp
+	$(CC) $(FLAGS) ./src/data_forming.cpp -o ./build/data_forming.o
 
 # Compile test source into object file
 ./build/test.o: $(TEST_SRC)
