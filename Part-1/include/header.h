@@ -69,4 +69,5 @@ Graph robust_pruning(Graph G, Data p, Dataset V, double a, int R);
 Data medoid(Dataset P);
 Graph vamana_indexing(Dataset P, double a, int L, int R);
 
-vector<vector<int>> fvecs_read(char* file_name);
+vector<vector<uint8_t>> bvecs_read(char* file_name);
+vector<vector<float>> fvecs_read(char* file_name);
