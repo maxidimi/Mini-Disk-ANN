@@ -69,7 +69,7 @@ void change_element_at_index(Dataset &mylist, size_t index, Data &data) {
 }
 
 // Given a graph node list, returns the corresponding dataset
-Dataset get_data(list<Graph_Node> &graph) {
+Dataset get_data(Graph &graph) {
     Dataset data;
     for (const auto &node : graph) {
         data.push_back(node->data);
@@ -78,8 +78,8 @@ Dataset get_data(list<Graph_Node> &graph) {
 }
 
 // L\V operation, returns the elements in L that are not in V
-list<Graph_Node> L_m_V(list<Graph_Node> &L, list<Graph_Node> &V) {
-    list<Graph_Node> result;
+Graph L_m_V(Graph &L, Graph &V) {
+    Graph result;
     for (const auto &node : L) {
         if (find(V.begin(), V.end(), node) == V.end()) {
             result.push_back(node);

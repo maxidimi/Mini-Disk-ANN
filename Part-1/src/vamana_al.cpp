@@ -84,23 +84,24 @@ Graph vamana_indexing(Dataset &P, double a, int L, int R) {
         Graph_Node p_in_graph = find_node_in_graph(graph, p);
 
         // Run greedy_search, V are the visited nodes, L_res are the nearest neighbours
-        pair<list<Graph_Node>, list<Graph_Node>> res = greedy_search(s, p, 1, L);
-        list<Graph_Node> L_res = res.first; list<Graph_Node> V = res.second;
+        pair<Graph, Graph> res = greedy_search(s, p, 1, L);
+        Graph L_res = res.first; Graph V = res.second;
 
         // Run robust_prune to update out-neighbours of s_i
         Dataset V_data = get_data(V);
         graph = robust_pruning(graph, p, V_data, a, R);
 
         // For all points j in N_out(σ(i)) do
-        for (const auto &j : p_in_graph->out_neighbours) {
+        Graph p_d = p_in_graph->out_neighbours;
+        for (const auto &j : p_d) {
             // |N_out(j) U {σ(i)}|
-            list<Graph_Node> N_out_j = j->out_neighbours;
+            Graph N_out_j = j->out_neighbours;
             N_out_j.push_back(p_in_graph);
 
             // If |N_out(σ(i)) U {σ(i)}| > R then
             if (N_out_j.size() > (size_t)R) {
                 // Run robust_prune to update out-neighbours of j
-                list<Data> N_out_j_data = get_data(N_out_j);
+                Dataset N_out_j_data = get_data(N_out_j);
                 graph = robust_pruning(graph, j->data, N_out_j_data, a, R);
             } else {
                 // Add σ(i) to out-neighbours of j

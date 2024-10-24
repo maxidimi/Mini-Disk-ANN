@@ -13,7 +13,7 @@ Graph robust_pruning(Graph &G, Data &p, Dataset &V, double a, int R) {
         return G;
     }
 
-    list<Graph_Node> N_out_p(P->out_neighbours.begin(), P->out_neighbours.end());
+    Graph N_out_p(P->out_neighbours.begin(), P->out_neighbours.end());
     auto iter = find(V.begin(), V.end(), p);
     if(iter != V.end()){
         V.erase(iter);

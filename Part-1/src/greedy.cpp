@@ -1,10 +1,10 @@
 #include "../include/header.h"
 
 // Greedy Algorithm - returning [k-nearest aprx. points, visited points]
-pair<list<Graph_Node>,list<Graph_Node>> greedy_search(Graph_Node s, Data q, int k, int L){
+pair<Graph,Graph> greedy_search(Graph_Node s, Data q, int k, int L){
 
     // Initialize sets L<-{s}, V<-{}
-    list<Graph_Node> visited_list, searching_list, lv;
+    Graph visited_list, searching_list, lv;
     searching_list.push_back(s); 
 
     // Initialize L \ V = {s}

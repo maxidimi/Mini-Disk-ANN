@@ -1,29 +1,21 @@
 #include "../include/header.h"
 
 int main(int argc, char *argv[]) {
-    // Parameters for the Vamana indexing
+    // Parameters for the Vamana indexing / Check for corectness
     if (argc != 4) {
         cout << "Usage: " << argv[0] << " n dim k\n";
         return 1;
     }
     int n = atoi(argv[1]); int dim = atoi(argv[2]); int k = atoi(argv[3]);
-    if (n <= 1 || dim <= 0 || k <= 1 || k >= n) {
+    if (n <= 1 || dim <= 0 || k <= 0 || k >= n) {
         cout << "Invalid parameters\n";
         return 1;
     }
 
     srand((unsigned int)time(0));
     
+    // After, they will be given from terminal
     double a = 1.2; int R = log2(n) - 1; int L = k + 10;
-    /*int L = k + rand()/(RAND_MAX/100);
-    if ((int)(log2(n) - 1) == 0) { 
-        R = 1;
-    } else {
-        R = rand() % (int)(log2(n) - 1) + 1;
-    }
-    if (R < 1) {
-        R = 1;
-    }*/
     cout << "k: " << k << " || R: " << R << " || L: " << L << "|| a: " << a << " || n: " << n << " || dim: " << dim << endl;
 
     // Create a dataset of points

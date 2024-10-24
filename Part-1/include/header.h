@@ -37,15 +37,15 @@ list<int> random_permutation(int n);
 void shuffle_list (list<int> &el_list);
 Data get_element_at_index(Dataset &mylist, size_t index);
 void change_element_at_index(Dataset &mylist, size_t index, Data &data);
-Dataset get_data(list<Graph_Node> &graph);
-list<Graph_Node> L_m_V(list<Graph_Node> &L, list<Graph_Node> &V);
+Dataset get_data(Graph &graph);
+Graph L_m_V(Graph &L, Graph &V);
 Graph_Node get_node_at_index(Graph &graph, Dataset &P, int index);
 Data random_query(int dim);
 Dataset random_dataset(int n, int dim);
 
 /* Greedy Search | s start node, q query, k result size, L search list size */
 
-pair<list<Graph_Node>,list<Graph_Node>> greedy_search(Graph_Node s, Data q, int k, int L);
+pair<Graph,Graph> greedy_search(Graph_Node s, Data q, int k, int L);
 
 /* Robust Pruning */
 
