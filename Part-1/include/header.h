@@ -5,12 +5,17 @@
 #include <algorithm>
 #include <random>
 #include <cmath>
+#include <fstream>
+#include <sstream>
+#include <string>
 
 using namespace std;
 
-typedef vector<double> Data;
+typedef float data_t;
 
-typedef list<Data> Dataset;
+typedef vector<float> Data;
+
+typedef vector<Data> Dataset;
 
 struct graph_node {
     Data data;
@@ -32,9 +37,8 @@ void print_out_neighbours(Graph_Node node);
 
 /* Helper functions */
 
-double euclidean_distance(const Data &d1, const Data &d2);
-list<int> random_permutation(int n);
-void shuffle_list (list<int> &el_list);
+data_t euclidean_distance(const Data &d1, const Data &d2);
+vector<int> random_permutation(int n);
 Data get_element_at_index(Dataset &mylist, size_t index);
 void change_element_at_index(Dataset &mylist, size_t index, Data &data);
 Dataset get_data(Graph &graph);
@@ -42,6 +46,10 @@ Graph L_m_V(Graph &L, Graph &V);
 Graph_Node get_node_at_index(Graph &graph, Dataset &P, int index);
 Data random_query(int dim);
 Dataset random_dataset(int n, int dim);
+void print_results(const Dataset &dataset, const Data &query, const vector<Data> &expected_neighbors,\
+                   const Graph &result, const vector<pair<Data, double>> &distances);
+void check_results_manually(const Dataset &dataset, const Data &query, const Graph &result,\
+                            int k, Dataset expected_neighbors_g);
 
 /* Greedy Search | s start node, q query, k result size, L search list size */
 

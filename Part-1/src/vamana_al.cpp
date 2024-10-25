@@ -64,14 +64,14 @@ Graph vamana_indexing(Dataset &P, double a, int L, int R) {
     Graph_Node s = find_node_in_graph(graph, s_d);
     
     // Let σ denote a random permutation of P
-    list<int> P_perm = random_permutation(n);
+    vector<int> P_perm = random_permutation(n);
     
-    for (int ii = 0; ii < n; ii++) {
-        // Get the next element in the permutation
-        int i = P_perm.front(); P_perm.pop_front();
+    // For all points i in σ do
+    for (const auto &i : P_perm) {
 
         // Node of graph with data p
-        Data p = get_element_at_index(P, i);
+        Data p = P[i];
+        
         Graph_Node p_in_graph = find_node_in_graph(graph, p);
 
         // Run greedy_search, V are the visited nodes, L_res are the nearest neighbours
