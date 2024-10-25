@@ -33,10 +33,10 @@ Graph robust_pruning(Graph &G, Data &p, Dataset &V, double a, int R) {
     while (!V.empty()) {
         // Find p* <- argmin_{p \in V} d(p,q)
         Data p_ = V.front(); // p_ = p*
-        double min = euclidean_distance(p,p_);
+        data_t min = euclidean_distance(p,p_);
 
         for (const auto &i : V) { // i = p'
-            double dist = euclidean_distance(p,i);
+            data_t dist = euclidean_distance(p,i);
             if (dist < min) {
                 min = dist;
                 p_ = i;

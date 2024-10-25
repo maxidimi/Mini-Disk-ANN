@@ -9,11 +9,11 @@ Data medoid(Dataset &P) {
     
     Data s = P.front();
 
-    double min_distance = numeric_limits<double>::max();
+    data_t min_distance = numeric_limits<data_t>::max();
 
     for (const auto &p : P) {
         // distance from p to all other points in P
-        double distance = 0;
+        float distance = 0;
         for (const auto &q : P) {
             distance += euclidean_distance(p, q);
         }
@@ -44,21 +44,11 @@ Graph vamana_indexing(Dataset &P, double a, int L, int R) {
     }
     srand((unsigned int)time(0));
     
-    /*// Add R random out-neighbours to each node
-    for (int i = 0; i < n; i++) {
-        Graph_Node node = get_node_at_index(graph, P, i);
-        for (int j = 1; j <= R; j++) {
-            // Add edges with the next R nodes
-            Graph_Node rand_node = get_node_at_index(graph, P, (i + j) % n);  
-
-            // Add edge from node to rand_node
-            add_edge_to_graph(node, rand_node);
-        }
-    }*/
-    // Select R unique random neighbours
+    // Select up to R unique random neighbours
     for (const auto &node : graph) {
+        int num_edges = rand() % R + 1;
         set<int> random_indices;
-        while ((int)random_indices.size() < R) {
+        while ((int)random_indices.size() < num_edges) {
             int random_idx = rand() % n;
             if (random_indices.find(random_idx) == random_indices.end()) {
                 random_indices.insert(random_idx);
@@ -70,6 +60,7 @@ Graph vamana_indexing(Dataset &P, double a, int L, int R) {
     
     // Let s denote the medoid of dataset P
     Data s_d = medoid(P);
+    
     Graph_Node s = find_node_in_graph(graph, s_d);
     
     // Let σ denote a random permutation of P

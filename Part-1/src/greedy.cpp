@@ -15,9 +15,9 @@ pair<Graph,Graph> greedy_search(Graph_Node s, Data q, int k, int L){
         // Let node p* <- argmin_{p \in L\V} d(p.q)
         // Find the node with minimum distance
         Graph_Node p_s = lv.front();
-        double mindist = euclidean_distance(p_s->data, q);
+        data_t mindist = euclidean_distance(p_s->data, q);
         for (const auto &i : lv) {
-            double dist = euclidean_distance(i->data, q);
+            data_t dist = euclidean_distance(i->data, q);
             if (dist < mindist) {
                 mindist = dist;
                 p_s = i; 
