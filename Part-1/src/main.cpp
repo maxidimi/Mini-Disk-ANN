@@ -9,25 +9,26 @@
     R=10
     L=20
     a=1.5
+    If L and R are not provided, they will be set to k+10 and log2(k)-1 respectively.
     Then run the program with the configuration file as an argument.
 */
 
-int main(int argc, char *argv[]) { //! Give k L R a from terminal as ex. ./main K= 
+int main(int argc, char *argv[]) {
     // Read the configuration file name from the command line
     if (argc != 2) {
-        cerr << "Usage: " << argv[0] << " <config_file>" << std::endl;
+        cerr << "Usage: " << argv[0] << " <config_file>" << endl;
         return 1;
     } char *file_name = argv[1];
     
     ifstream configFile(file_name);
     if (!configFile) {
-        cerr << "Unable to open configuration file!" << std::endl;
+        cerr << "Unable to open configuration file!" << endl;
         return 1;
     }
 
     // Read the configuration file and set the parameters
     string dataset_f, query_f, groundtruth_f;
-    int k = 0, R = 0, L = 0; float a = 0.0;
+    int k = 0, R = -1, L = -1; float a = 0.0;
     
     string line;
     while (getline(configFile, line)) {
@@ -46,6 +47,8 @@ int main(int argc, char *argv[]) { //! Give k L R a from terminal as ex. ./main 
             }
         }
     }
+    if (R == -1) R = log2(k) - 1;
+    if (L == -1) L = k + 10;
 
     configFile.close();
 
@@ -84,7 +87,7 @@ int main(int argc, char *argv[]) { //! Give k L R a from terminal as ex. ./main 
     cout << " || Time taken: " << elapsed_time << " seconds.\n";
     
     Dataset groundtruth = ivecs_read(groundtruth_f);
-    check_results_manually(dataset, query, result, k, groundtruth.front());
+    check_results_manually(dataset, query, result, k, {});
     
     // Free the memory allocated for the graph
     for (const auto &node : G) {

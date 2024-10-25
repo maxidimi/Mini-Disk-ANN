@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <cstdio>
 
 using namespace std;
 
@@ -63,3 +64,11 @@ Graph robust_pruning(Graph &G, Data &p, Dataset &V, double a, int R);
 
 Data medoid(Dataset &P);
 Graph vamana_indexing(Dataset &P, double a, int L, int R);
+=======
+Data medoid(Dataset P);
+Graph vamana_indexing(Dataset P, double a, int L, int R);
+
+/* File Reading */
+
+vector<vector<uint8_t>> bvecs_read(char* file_name);
+vector<vector<float>> fvecs_read(char* file_name);
