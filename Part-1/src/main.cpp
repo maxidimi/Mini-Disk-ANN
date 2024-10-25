@@ -1,104 +1,90 @@
 #include "../include/header.h"
 
-int main(int argc, char *argv[]) {
-    // Parameters for the Vamana indexing / Check for corectness
-    if (argc != 4) {
-        cout << "Usage: " << argv[0] << " n dim k\n";
-        return 1;
-    }
-    int n = atoi(argv[1]); int dim = atoi(argv[2]); int k = atoi(argv[3]);
-    if (n <= 1 || dim <= 0 || k <= 0 || k >= n) {
-        cout << "Invalid parameters\n";
-        return 1;
-    }
+/*
+    Make a configuration file with the following format:
+    dataset=dataset.fvecs
+    query=query.fvecs
+    groundtruth=groundtruth.ivecs
+    k=10
+    R=10
+    L=20
+    a=1.5
+    Then run the program with the configuration file as an argument.
+*/
 
-    srand((unsigned int)time(0));
+int main(int argc, char *argv[]) { //! Give k L R a from terminal as ex. ./main K= 
+    // Read the configuration file name from the command line
+    if (argc != 2) {
+        cerr << "Usage: " << argv[0] << " <config_file>" << std::endl;
+        return 1;
+    } char *file_name = argv[1];
     
-    // After, they will be given from terminal
-    double a = 1.2; int R = log2(n) - 1; int L = k + 10;
-    cout << "k: " << k << " || R: " << R << " || L: " << L << "|| a: " << a << " || n: " << n << " || dim: " << dim << endl;
+    ifstream configFile(file_name);
+    if (!configFile) {
+        cerr << "Unable to open configuration file!" << std::endl;
+        return 1;
+    }
 
-    // Create a dataset of points
-    Dataset dataset = random_dataset(n, dim);
+    // Read the configuration file and set the parameters
+    string dataset_f, query_f, groundtruth_f;
+    int k = 0, R = 0, L = 0; float a = 0.0;
+    
+    string line;
+    while (getline(configFile, line)) {
+        istringstream lineStream(line);
+        string key;
+        if (getline(lineStream, key, '=')) {
+            string value;
+            if (getline(lineStream, value)) {
+                if (key == "dataset") dataset_f = value;
+                else if (key == "query") query_f = value;
+                else if (key == "groundtruth") groundtruth_f = value;
+                else if (key == "k") k = stoi(value);
+                else if (key == "R") R = stoi(value);
+                else if (key == "L") L = stoi(value);
+                else if (key == "a") a = stof(value);
+            }
+        }
+    }
 
-    // Query point to search nearest neighbors for, rand from dataset(list)
-    Data query = get_element_at_index(dataset, rand() % n);
-    //= random_query(dim);
+    configFile.close();
+
+    cout << " || Dataset: " << dataset_f << endl;
+    cout << " || Query: " << query_f << endl;
+    cout << " || Groundtruth: " << groundtruth_f << endl;
+    cout << " || k: " << k << endl;
+    cout << " || R: " << R << endl;
+    cout << " || L: " << L << endl;
+    cout << " || a: " << a << endl;
+    
+    // Read the dataset
+    Dataset dataset = fvecs_read(dataset_f);
+    
+    cout << " || Size: " << dataset.size() << endl;
+    cout << " || Dimension: " << dataset.front().size() << endl;
+    cout << "====================================================================\n";
+
+    // Query point to search nearest neighbors for
+    Data query = fvecs_read(query_f).front();
 
     // Start the timer
     clock_t start = clock();
-
+    
     // Create the Vamana index
     Graph G = vamana_indexing(dataset, a, L, R);
 
     // Perform greedy search starting from the first node
-    auto result_p = greedy_search(G.front(), query, k, L);
+    Graph_Node s = G.front();
+    auto result_p = greedy_search(s, query, k, L);
     auto result = result_p.first; auto visited = result_p.second;
 
     // End the timer
     clock_t end = clock();
     double elapsed_time = double(end - start) / CLOCKS_PER_SEC;
-    cout << "Time taken: " << elapsed_time << " seconds\n";
+    cout << " || Time taken: " << elapsed_time << " seconds.\n";
     
-    // Calculate the Euclidean distances of each point from the query
-    vector<pair<Data, double>> distances;
-    for (const auto &data : dataset) {
-        double dist = euclidean_distance(data, query);
-        distances.emplace_back(data, dist);
-    }
-    
-    // Sort distances in ascending order
-    sort(distances.begin(), distances.end(), [](const auto& a, const auto& b) {
-        return a.second < b.second;
-    });
-    
-    // Get the expected nearest neighbors
-    vector<Data> expected_neighbors;
-    for (size_t i = 0; i < (size_t)k; i++) {
-        expected_neighbors.push_back(distances[i].first);
-    }
-    
-    // Print the distances with corresponding points
-    /*cout << "\n\nDistances from query point (" << query[0] << ", " << query[1] << "):\n";
-    for (const auto &[point, distance] : distances) {
-        cout << "Point: (" << point[0] << ", " << point[1] << ") - Distance: " << distance << endl;
-    }
-    cout << "\nExpected nearest neighbors:\n";
-    for (const auto &neighbor : expected_neighbors) {
-        cout << "\tPoint: (" << neighbor[0] << ", " << neighbor[1] << ")\n";
-    }
-    cout << "Greedy search results:\n";
-    for (const auto &node : result) {
-        if (node == nullptr) {
-            cout << "\tPoint: (nullptr)\n";
-        } else 
-        {cout << "\tPoint: (" << node->data[0] << ", " << node->data[1] << ")\n";}
-    }*/
-
-    // Check if the number of neighbors found matches k
-    if (result.size() == (size_t)k) cout << "Number of neighbors found matches k\n";
-    else {cerr << "Number of neighbors found does not match k. Found: " << result.size() << " Expected: " << k << endl;}
-    int foundC = 0;
-    
-    // Check if the neighbor is in the expected neighbors
-    for (const auto &node : result) {
-        if (node == nullptr) {
-            cerr << "Error: nullptr\n";
-            continue;
-        }
-        bool found = false;
-        for (const auto &expected : expected_neighbors) {
-            if (node->data == expected) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            cerr << "Error: Neighbor " << node->data[0] << " " << node->data[1] << " not found in expected neighbors\n";
-        }
-        else {foundC++;}
-    }
-    cout << "Number of neighbors found in expected neighbors: " << foundC << endl;
+    Dataset groundtruth = ivecs_read(groundtruth_f);
+    check_results_manually(dataset, query, result, k, groundtruth.front());
     
     // Free the memory allocated for the graph
     for (const auto &node : G) {
