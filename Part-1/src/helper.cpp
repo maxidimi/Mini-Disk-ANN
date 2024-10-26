@@ -2,6 +2,10 @@
 
 // Computes the Euclidean distance between two data points
 data_t euclidean_distance(const Data &d1, const Data &d2) {
+    if (d1.size() != d2.size()) {
+        cerr << "Data points have different dimensions\n";
+        exit(1);
+    }
     size_t dim = d1.size(); data_t distance = 0.0; 
     for (size_t i = 0; i < dim; i++) {
         distance += (d2[i] - d1[i]) * (d2[i] - d1[i]);
@@ -26,7 +30,8 @@ vector<int> random_permutation(int n) {
 Data get_element_at_index(Dataset &mylist, size_t index) {
     // Check if index is out of bounds
     if (index >= mylist.size()) {
-        throw out_of_range("Index is out of bounds");
+        cerr << "Index is out of bounds\n";
+        exit(1);
     }
 
     return mylist[index];
@@ -36,7 +41,8 @@ Data get_element_at_index(Dataset &mylist, size_t index) {
 void change_element_at_index(Dataset &mylist, size_t index, Data &data) {
     // Check if index is out of bounds
     if (index >= mylist.size()) {
-        throw out_of_range("Index is out of bounds");
+        cerr << "Index is out of bounds\n";
+        exit(1);
     }
 
     mylist[index] = data;
@@ -72,20 +78,21 @@ Graph_Node get_node_at_index(Graph &graph, Dataset &P, int index) {
 
 // Generates a random query of the given dimension
 Data random_query(int dim) {
-    Data query;
+    Data query; srand((unsigned int)time(0));
     for (int i = 0; i < dim; i++) {
-        query.push_back((double)rand() / RAND_MAX);
+        query.push_back((data_t)rand() / RAND_MAX);
     }
     return query;
 }
 
 // Generates a random dataset of the given size and dimension
 Dataset random_dataset(int n, int dim) {
+    srand((unsigned int)time(0));
     Dataset dataset;
     for (int i = 0; i < n; i++) {
         Data data;
         for (int j = 0; j < dim; j++) {
-            data.push_back((double)rand() / RAND_MAX);
+            data.push_back((data_t)rand() / RAND_MAX);
         }
         dataset.push_back(data);
     }
