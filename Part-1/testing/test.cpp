@@ -76,7 +76,37 @@ void test_change_element_at_index(void){
     TEST_CHECK(value == vector<data_t>{10.0});
 }
 
-void test_greedy_search() {
+void test_find_node_in_graph(void){
+    Data data = {1, 2, 3};
+    Graph_Node node = create_graph_node(data);
+    Graph graph = {node};
+
+    // Test for a data that is in the graph
+    Graph_Node found = find_node_in_graph(graph, data);
+    TEST_CHECK(found == node);
+
+    // Test for changing the data of the node
+    Data new_data = {4, 5, 6};
+    found->data = new_data;
+    Graph_Node found_changed = find_node_in_graph(graph, new_data);
+    TEST_CHECK(found_changed->data == new_data);
+
+    // Test for a data that is not in the graph
+    Graph_Node snot_found = find_node_in_graph(graph, data);
+    TEST_CHECK(snot_found == nullptr);
+}
+
+void test_medoid(void) {
+    Dataset P = {{0, 0}, {0, 4}, {2, 3}, {4, 4}, {4, 0}};
+    
+    Data s = medoid(P);
+
+    Data expected = {2, 3};
+
+    TEST_CHECK(s == expected);
+}
+
+void test_greedy_search(void) {
     // Define the parameters for the test
     srand((unsigned int)time(0));
     int n = 500; int dim = 2;
@@ -145,6 +175,8 @@ TEST_LIST = {
     {"test_random_permutation", test_random_permutation},
     {"test_get_element_at_index",test_get_element_at_index},
     {"test_change_element_at_index",test_change_element_at_index},
+    {"test_find_node_in_graph", test_find_node_in_graph},
+    {"test_medoid", test_medoid},
     {"test_greedy_search", test_greedy_search},
     { 0 }
 };
