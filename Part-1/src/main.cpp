@@ -9,7 +9,10 @@
     R=10
     L=20
     a=1.5
+    n=10000
+    d=128
     If L and R are not provided, they will be set to k+10 and log2(k)-1 respectively.
+    n and d are used for generating random datasets and queries.
     Then run the program with the configuration file as an argument.
 */
 
@@ -28,7 +31,7 @@ int main(int argc, char *argv[]) {
 
     // Read the configuration file and set the parameters
     string dataset_f, query_f, groundtruth_f;
-    int k = 0, R = -1, L = -1; float a = 0.0;
+    int k = 0, R = -1, L = -1, n = -1, d = -1; float a = 0.0;
     
     string line;
     while (getline(configFile, line)) {
@@ -44,13 +47,20 @@ int main(int argc, char *argv[]) {
                 else if (key == "R") R = stoi(value);
                 else if (key == "L") L = stoi(value);
                 else if (key == "a") a = stof(value);
+                else if (key == "n") n = stoi(value);
+                else if (key == "d") d = stoi(value);
             }
         }
     }
-    if (R == -1) R = log2(k) - 1;
-    if (L == -1) L = k + 10;
-
     configFile.close();
+
+    // Read the dataset
+    Dataset dataset = random_dataset(n, d);
+    //Dataset dataset = fvecs_read(dataset_f);
+
+    n = (int)dataset.size();
+    if (R == -1) R = log2(n) - 1;
+    if (L == -1) L = k + 10;
 
     cout << " || Dataset: " << dataset_f << endl;
     cout << " || Query: " << query_f << endl;
@@ -59,23 +69,20 @@ int main(int argc, char *argv[]) {
     cout << " || R: " << R << endl;
     cout << " || L: " << L << endl;
     cout << " || a: " << a << endl;
-    
-    // Read the dataset
-    Dataset dataset = fvecs_read(dataset_f);
-    
     cout << " || Size: " << dataset.size() << endl;
     cout << " || Dimension: " << dataset.front().size() << endl;
-    cout << "====================================================================\n";
+    cout << "====================================================================\n";    
 
     // Query point to search nearest neighbors for
-    Data query = fvecs_read(query_f).front();
-
+    Data query = random_query(d);
+    //Data query = fvecs_read(query_f).front();
+    
     // Start the timer
     clock_t start = clock();
     
     // Create the Vamana index
     Graph G = vamana_indexing(dataset, a, L, R);
-
+    
     // Perform greedy search starting from the first node
     Graph_Node s = G.front();
     auto result_p = greedy_search(s, query, k, L);
