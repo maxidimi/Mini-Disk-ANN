@@ -12,18 +12,19 @@ Data medoid(Dataset &P) {
     data_t min_distance = numeric_limits<data_t>::max();
 
     for (const auto &p : P) {
-        // distance from p to all other points in P
-        float distance = 0;
+        // Compute distance from p to all other points in P
+        data_t distance = 0;
         for (const auto &q : P) {
+            if (p == q) continue;
             distance += euclidean_distance(p, q);
         }
 
-        if (distance <= min_distance) {
+        if (distance < min_distance) {
             s = p;
             min_distance = distance;
         }
     }
-
+    
     return s;
 }
 
@@ -46,9 +47,9 @@ Graph vamana_indexing(Dataset &P, double a, int L, int R) {
     
     // Select up to R unique random neighbours
     for (const auto &node : graph) {
-        int num_edges = rand() % R + 1;
+        //int num_edges = rand() % R + 1;
         set<int> random_indices;
-        while ((int)random_indices.size() < num_edges) {
+        while ((int)random_indices.size() < R) {
             int random_idx = rand() % n;
             if (random_indices.find(random_idx) == random_indices.end()) {
                 random_indices.insert(random_idx);
