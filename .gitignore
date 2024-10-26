@@ -1,2 +1,4 @@
 .vscode/
 *.o
+analysis.txt
+*.out

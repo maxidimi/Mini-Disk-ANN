@@ -1,9 +1,9 @@
-OBJS    = ./build/data_forming.o ./build/greedy.o ./build/main.o ./build/graph.o ./build/helper.o ./build/pruning.o ./build/vamana_al.o 
-SOURCE    = ./src/data_forming. ./src/greedy.cpp ./src/main.cpp ./src/graph.cpp ./src/helper.cpp ./src/pruning.cpp ./src/vamana_al.cpp
+OBJS	= ./build/greedy.o ./build/main.o ./build/graph.o ./build/helper.o ./build/pruning.o ./build/vamana_al.o ./build/data_forming.o
+SOURCE	= ./src/greedy.cpp ./src/main.cpp ./src/graph.cpp ./src/helper.cpp ./src/pruning.cpp ./src/vamana_al.cpp ./src/data_forming.cpp
 HEADER	= ./include/header.h
 OUT		= ./bin/vamana
 CC	 	= g++
-FLAGS	= -g3 -c -Wall
+FLAGS	= -g3 -c -Wall -pg
 
 # Add variables for test source and objects
 # Remove main.o from the test object files to avoid conflict with main.cpp
@@ -12,7 +12,7 @@ TEST_OBJS = ./build/greedy.o ./build/graph.o ./build/helper.o ./build/pruning.o 
 TEST_OUT = ./bin/test
 
 all: build_dir $(OBJS)
-	$(CC) -g $(OBJS) -o $(OUT)
+	$(CC) -g -pg $(OBJS) -o $(OUT)
 
 # Create build directory if it does not exist
 build_dir:

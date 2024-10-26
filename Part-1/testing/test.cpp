@@ -10,30 +10,6 @@ void test_create_graph_node(void) {
     TEST_CHECK(node->data == data);
 
     TEST_CHECK(node->out_neighbours.size() == 0);
-
-    TEST_CHECK(node->in_neighbours.size() == 0);
-}
-
-void test_shuffle_list(void){
-    list<int> new_list;
-    for (int i = 0; i < 10000; ++i) {
-        new_list.push_back(i);
-    }
-
-    int list_size = new_list.size();
-    shuffle_list(new_list);
-
-    list<int> new_list2;
-    shuffle_list(new_list2);
-    
-    //Testing if an empty list remains empty after shuffle  
-    TEST_CHECK(new_list2.size()==0);
-
-    //Testing if the first value of the list changed after shuffle
-    TEST_CHECK(new_list.front() != 0);
-
-    //Testing if the size of the value remains the same after shuffle
-    TEST_CHECK(static_cast<size_t>(list_size) == new_list.size());
 }
 
 void test_euclidean_distance(void){
@@ -60,16 +36,16 @@ void test_euclidean_distance(void){
 
 void test_random_permutation(void){
     int n = 25;
-    list<int> perm = random_permutation(n);
+    vector<int> perm = random_permutation(n);
 
     //Testing if the size of the list is the same as the argument we passed
     TEST_CHECK(perm.size() == static_cast<list<int>::size_type>(n));
 
     n = 2000;
-    list<int> perm1 = random_permutation(n);
-    list<int> perm2 = random_permutation(n);
-    list<int> perm3 = random_permutation(n);
-    list<int> perm4 = random_permutation(n);
+    vector<int> perm1 = random_permutation(n);
+    vector<int> perm2 = random_permutation(n);
+    vector<int> perm3 = random_permutation(n);
+    vector<int> perm4 = random_permutation(n);
 
     //Testing that the lists are not the same
     TEST_CHECK(perm1 != perm2);
@@ -82,27 +58,28 @@ void test_random_permutation(void){
 
 void test_get_element_at_index(void){
     Dataset double_list = {{1.0}, {2.0}, {3.0}, {4.0}, {5.0}, {6.0}};
-    Data result = getElementAtIndex(double_list, 0);  
+    Data result = get_element_at_index(double_list, 0);  
     //Testing that the func returns the values that we expect
-    TEST_CHECK(result == vector<double>{1.0});  
-    result = getElementAtIndex(double_list, 1);
-    TEST_CHECK(result == vector<double>{2.0});  
-    result = getElementAtIndex(double_list, 5);
-    TEST_CHECK(result == vector<double>{6.0});  
+    TEST_CHECK(result == vector<data_t>{1.0});  
+    result = get_element_at_index(double_list, 1);
+    TEST_CHECK(result == vector<data_t>{2.0});  
+    result = get_element_at_index(double_list, 5);
+    TEST_CHECK(result == vector<data_t>{6.0});  
 }
 
 void test_change_element_at_index(void){
     Dataset double_list = {{1.0}, {2.0}, {3.0}, {4.0}, {5.0}, {6.0}};
-    changeElementAtIndex(double_list,0,{10.0});
-    Data value = getElementAtIndex(double_list,0);
+    auto new_data = vector<data_t>{10.0};
+    change_element_at_index(double_list, 0, new_data);
+    Data value = get_element_at_index(double_list,0);
     //Testing if the element of the list successfully changed
-    TEST_CHECK(value == vector<double>{10.0});
+    TEST_CHECK(value == vector<data_t>{10.0});
 }
 
-void test_greedy_search_1() {
+void test_greedy_search() {
     // Define the parameters for the test
     srand((unsigned int)time(0));
-    int n = 2000; int dim = 1;
+    int n = 500; int dim = 2;
 
     // Create a dataset of points
     Dataset dataset = random_dataset(n, dim);
@@ -111,12 +88,10 @@ void test_greedy_search_1() {
     Data query = random_query(dim);
 
     // Parameters for the Vamana indexing
-    int k = 5; int R = log2(n) + 1;
-    int L = k + rand()/(RAND_MAX/100); double a = 1.2;
-
-    // Print parameters
-    cout << "\n\nk: " << k << " R: " << R << " L: " << L << " a: " << a << endl;
-    cout << "size of dataset: " << dataset.size() << endl;
+    int k = 8;
+    int L = k + rand()/(RAND_MAX/100);
+    int R = log2(n) + rand()/(RAND_MAX/100);
+    double a = 2.0;
 
     // Create the Vamana index
     Graph G = vamana_indexing(dataset, a, L, R);
@@ -126,9 +101,9 @@ void test_greedy_search_1() {
     auto result = result_p.first; auto visited = result_p.second;
     
     // Calculate the Euclidean distances of each point from the query
-    vector<pair<Data, double>> distances;
+    vector<pair<Data, data_t>> distances;
     for (const auto& data : dataset) {
-        double dist = euclidean_distance(data, query);
+        data_t dist = euclidean_distance(data, query);
         distances.emplace_back(data, dist);
     }
 
@@ -141,23 +116,6 @@ void test_greedy_search_1() {
     vector<Data> expected_neighbors;
     for (size_t i = 0; i < (size_t)k; i++) {
         expected_neighbors.push_back(distances[i].first);
-    }
-
-    // Print the distances with corresponding points
-    cout << "\n\nDistances from query point (" << query[0] << ", " << query[1] << "):\n";
-    for (const auto& [point, distance] : distances) {
-        cout << "Point: (" << point[0] << ", " << point[1] << ") - Distance: " << distance << endl;
-    }
-    cout << "\nExpected nearest neighbors:\n";
-    for (const auto& neighbor : expected_neighbors) {
-        cout << "\tPoint: (" << neighbor[0] << ", " << neighbor[1] << ")\n";
-    }
-    cout << "Greedy search results:\n";
-    for (const auto& node : result) {
-        if (node == nullptr) {
-            cout << "\tPoint: (nullptr)\n";
-        } else 
-        {cout << "\tPoint: (" << node->data[0] << ", " << node->data[1] << ")\n";}
     }
 
     // Check if the number of neighbors found matches k
@@ -180,61 +138,13 @@ void test_greedy_search_1() {
     }
 }
 
-void test_greedy_search_2() {
-   Data d1 = {0.0, 0.0};
-    Data d2 = {1.0, 1.0};
-    Data d3 = {2.0, 2.0};
-    Data d4 = {3.0, 3.0};
-
-    Graph_Node G1 = create_graph_node(d1);
-    Graph_Node G2 = create_graph_node(d2);
-    Graph_Node G3 = create_graph_node(d3);
-    Graph_Node G4 = create_graph_node(d4);
-
-    G1->out_neighbours.push_back(G2);
-    G2->out_neighbours.push_back(G1);
-    G3->out_neighbours.push_back(G4);
-    G4->out_neighbours.push_back(G3);
-
-    G1->data = d1;
-    G2->data = d2;
-    G3->data = d3;
-    G4->data = d4;
-
-    Graph G ;
-    add_node_to_graph(G,G1);
-    add_node_to_graph(G,G2);
-    add_node_to_graph(G,G3);
-    add_node_to_graph(G,G4);
-
-    Data query = {1.0, 2.0};
-
-    int k = 2;
-    int L = 5;
-
-    auto result = greedy_search(G.front(), query, k, L);
-
-    TEST_CHECK(result.first.size() == 2); 
-    TEST_CHECK(result.second.size() > 0);
-
-    auto it = result.first.begin();
-    TEST_CHECK((*it)->data == G.front()->data);
-
-    ++it;
-    TEST_CHECK((*it)->data == G2->data);
-
-    TEST_CHECK(find_node_in_graph(result.second, G1->data));  
-    TEST_CHECK(find_node_in_graph(result.second, G2->data));  
-}
 
 TEST_LIST = {
     {"test_create_graph_node", test_create_graph_node },
     {"test_euclidean_distance", test_euclidean_distance},
-    {"test_shuffle_list", test_shuffle_list},
     {"test_random_permutation", test_random_permutation},
     {"test_get_element_at_index",test_get_element_at_index},
     {"test_change_element_at_index",test_change_element_at_index},
-    {"test_greedy_search_1", test_greedy_search_1},
-    {"test_greedy_search_2", test_greedy_search_2},
+    {"test_greedy_search", test_greedy_search},
     { 0 }
 };

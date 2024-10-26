@@ -1,30 +1,98 @@
 #include "../include/header.h"
 
-int main() {
-    string n = "data/bigann_query.bvecs";
-    char* name = &n[0];
-    vector<vector<uint8_t>> res ;
-    res = bvecs_read(name);
+/*
+    Make a configuration file with the following format:
+    dataset=dataset.fvecs
+    query=query.fvecs
+    groundtruth=groundtruth.ivecs
+    k=10
+    R=10
+    L=20
+    a=1.5
+    If L and R are not provided, they will be set to k+10 and log2(k)-1 respectively.
+    Then run the program with the configuration file as an argument.
+*/
 
-    for (size_t i = 0; i < res.size(); i++) {
-        printf("Vector %lu: ", i);
-        for (size_t j = 0; j < res[i].size(); j++) {
-            printf("%d ", res[i][j]);
-        }
-        printf("\n");
+int main(int argc, char *argv[]) {
+    // Read the configuration file name from the command line
+    if (argc != 2) {
+        cerr << "Usage: " << argv[0] << " <config_file>" << endl;
+        return 1;
+    } char *file_name = argv[1];
+    
+    ifstream configFile(file_name);
+    if (!configFile) {
+        cerr << "Unable to open configuration file!" << endl;
+        return 1;
     }
 
-    // string n = "data/siftsmall_base.fvecs";
-    // char* name = &n[0];
-    // vector<vector<float>> res ;
-    // res = fvecs_read(name);
+    // Read the configuration file and set the parameters
+    string dataset_f, query_f, groundtruth_f;
+    int k = 0, R = -1, L = -1; float a = 0.0;
+    
+    string line;
+    while (getline(configFile, line)) {
+        istringstream lineStream(line);
+        string key;
+        if (getline(lineStream, key, '=')) {
+            string value;
+            if (getline(lineStream, value)) {
+                if (key == "dataset") dataset_f = value;
+                else if (key == "query") query_f = value;
+                else if (key == "groundtruth") groundtruth_f = value;
+                else if (key == "k") k = stoi(value);
+                else if (key == "R") R = stoi(value);
+                else if (key == "L") L = stoi(value);
+                else if (key == "a") a = stof(value);
+            }
+        }
+    }
+    if (R == -1) R = log2(k) - 1;
+    if (L == -1) L = k + 10;
 
-    // for (size_t i = 0; i < res.size(); i++) {
-    //     printf("Vector %lu: ", i);
-    //     for (size_t j = 0; j < res[i].size(); j++) {
-    //         printf("%f ", res[i][j]);
-    //     }
-    //     printf("\n");
-    // }
+    configFile.close();
+
+    cout << " || Dataset: " << dataset_f << endl;
+    cout << " || Query: " << query_f << endl;
+    cout << " || Groundtruth: " << groundtruth_f << endl;
+    cout << " || k: " << k << endl;
+    cout << " || R: " << R << endl;
+    cout << " || L: " << L << endl;
+    cout << " || a: " << a << endl;
+    
+    // Read the dataset
+    Dataset dataset = fvecs_read(dataset_f);
+    
+    cout << " || Size: " << dataset.size() << endl;
+    cout << " || Dimension: " << dataset.front().size() << endl;
+    cout << "====================================================================\n";
+
+    // Query point to search nearest neighbors for
+    Data query = fvecs_read(query_f).front();
+
+    // Start the timer
+    clock_t start = clock();
+    
+    // Create the Vamana index
+    Graph G = vamana_indexing(dataset, a, L, R);
+
+    // Perform greedy search starting from the first node
+    Graph_Node s = G.front();
+    auto result_p = greedy_search(s, query, k, L);
+    auto result = result_p.first; auto visited = result_p.second;
+
+    // End the timer
+    clock_t end = clock();
+    double elapsed_time = double(end - start) / CLOCKS_PER_SEC;
+    cout << " || Time taken: " << elapsed_time << " seconds.\n";
+    
+    Dataset groundtruth = ivecs_read(groundtruth_f);
+    check_results_manually(dataset, query, result, k, {});
+    
+    // Free the memory allocated for the graph
+    for (const auto &node : G) {
+        delete node;
+    }
+
     return 0;
 }
