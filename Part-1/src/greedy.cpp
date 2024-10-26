@@ -28,9 +28,7 @@ pair<Graph,Graph> greedy_search(Graph_Node s, Data q, int k, int L){
         if (p_s == nullptr) break;
         set<Graph_Node> temp(searching_list.begin(), searching_list.end());
         for (const auto &neighbour : p_s->out_neighbours) {
-            if (find(visited_list.begin(), visited_list.end(), neighbour) == visited_list.end()) {
-                temp.insert(neighbour);  // Only add unvisited neighbours
-            }
+            temp.insert(neighbour);  // Only add unvisited neighbours
         }
         searching_list.clear();
         searching_list.assign(temp.begin(), temp.end());
