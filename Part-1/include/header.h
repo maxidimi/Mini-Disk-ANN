@@ -8,13 +8,12 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <cstdio>
 
 using namespace std;
 
 typedef float data_t;
 
-typedef vector<float> Data;
+typedef vector<data_t> Data;
 
 typedef vector<Data> Dataset;
 
@@ -48,7 +47,7 @@ Graph_Node get_node_at_index(Graph &graph, Dataset &P, int index);
 Data random_query(int dim);
 Dataset random_dataset(int n, int dim);
 void print_results(const Dataset &dataset, const Data &query, const vector<Data> &expected_neighbors,\
-                   const Graph &result, const vector<pair<Data, double>> &distances);
+                   const Graph &result, const vector<pair<Data, data_t>> &distances);
 void check_results_manually(const Dataset &dataset, const Data &query, const Graph &result,\
                             int k, Dataset expected_neighbors_g);
 
@@ -64,9 +63,6 @@ Graph robust_pruning(Graph &G, Data &p, Dataset &V, double a, int R);
 
 Data medoid(Dataset &P);
 Graph vamana_indexing(Dataset &P, double a, int L, int R);
-=======
-Data medoid(Dataset P);
-Graph vamana_indexing(Dataset P, double a, int L, int R);
 
 /* File Reading */
 
