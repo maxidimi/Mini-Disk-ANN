@@ -60,7 +60,7 @@ Dataset fvecs_read(string file_name_s){
         cout << "Error, can not read the file";
         return {};
     }
-    cout<<"here"<<endl;
+    
     int vecsizeof = 4 + num*4;
     
     fseek(file, 0, SEEK_END);
@@ -118,7 +118,7 @@ Dataset ivecs_read(string Filename_s) {
     for(int i = 0; i < vecnum; i++) {
         fseek(fid, sizeof(int), SEEK_CUR);
         vector<int> v(num);
-        r = fread(v.data(), sizeof(int), (size_t)num, file);
+        r = fread(v.data(), sizeof(int), (size_t)num, fid);
         vector<data_t> v2(v.begin(), v.end());
         if (r != (size_t)(num - 1)) {
             cout << "Error, can not read the file";
