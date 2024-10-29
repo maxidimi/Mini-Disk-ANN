@@ -8,17 +8,13 @@ Graph_Node create_graph_node(Data &data) {
 }
 
 // Adds a node to the graph
-void add_node_to_graph(Graph &graph, Graph_Node node) {
+void add_node_to_graph(Graph &graph, Graph_Node &node) {
     graph.push_back(node);
 }
 
 // Adds an edge to the graph
-void add_edge_to_graph(Graph_Node from, Graph_Node to) {
-    // Check if the edge already exists
-    auto it = find(from->out_neighbours.begin(), from->out_neighbours.end(), to);
-    if (it == from->out_neighbours.end()) {
-        from->out_neighbours.push_back(to);
-    }
+void add_edge_to_graph(Graph_Node &from, const Graph_Node &to) {
+    from->out_neighbours.insert(to);
 }
 
 // Finds a node in the graph
@@ -44,7 +40,7 @@ void print_graph(Graph &graph) {
 }
 
 // Prints the out neighbours of a node
-void print_out_neighbours(Graph_Node node) {
+void print_out_neighbours(Graph_Node &node) {
     cout << "\nOut-neighbours of node: (";
     for (const auto &i : node->data) {
         cout << i << ", ";

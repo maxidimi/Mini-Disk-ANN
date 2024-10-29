@@ -1,17 +1,32 @@
 #include "../include/header.h"
 
+// Map for caching the distances
+//map<pair<Data, Data>, long double> dist_cache;
+
 // Computes the Euclidean distance between two data points
-data_t euclidean_distance(const Data &d1, const Data &d2) {
+long double euclidean_distance(const Data &d1, const Data &d2) {
     if (d1.size() != d2.size()) {
         cerr << "Data points have different dimensions\n";
         exit(1);
     }
-    size_t dim = d1.size(); data_t distance = 0.0; 
-    for (size_t i = 0; i < dim; i++) {
-        distance += (d2[i] - d1[i]) * (d2[i] - d1[i]);
-    }
-    
-    return sqrt(distance);
+
+    // Search for the distance in the cache map
+    /*if (dist_cache.find({d1, d2}) != dist_cache.end()) {
+        return dist_cache[{d1, d2}];
+    } else if (dist_cache.find({d2, d1}) != dist_cache.end()) {
+        return dist_cache[{d2, d1}];
+    } else {*/
+        size_t dim = d1.size();
+        long double distance = 0.0L;
+
+        for (size_t i = 0; i < dim; i++) {
+            distance += (d2[i] - d1[i]) * (d2[i] - d1[i]);
+        }
+        
+        distance = sqrt(distance);
+        //dist_cache[{d1, d2}] = distance;
+        return distance;
+    //}
 }
 
 // Generates a random permutation of integers from 0 to n-1
@@ -21,31 +36,9 @@ vector<int> random_permutation(int n) {
         perm[i] = i;
     }
 
-    shuffle(perm.begin(), perm.end(), mt19937(random_device()()));
+    random_shuffle(perm.begin(), perm.end());
 
     return perm;
-}
-
-// Returns the element at the given index in a list
-Data get_element_at_index(Dataset &mylist, size_t index) {
-    // Check if index is out of bounds
-    if (index >= mylist.size()) {
-        cerr << "Index is out of bounds\n";
-        exit(1);
-    }
-
-    return mylist[index];
-}
-
-// Changes the element at the given index in a list
-void change_element_at_index(Dataset &mylist, size_t index, Data &data) {
-    // Check if index is out of bounds
-    if (index >= mylist.size()) {
-        cerr << "Index is out of bounds\n";
-        exit(1);
-    }
-
-    mylist[index] = data;
 }
 
 // Given a graph node list, returns the corresponding dataset
@@ -57,37 +50,20 @@ Dataset get_data(Graph &graph) {
     return data;
 }
 
-// L\V operation, returns the elements in L that are not in V
-Graph L_m_V(Graph &L, Graph &V) {
-    Graph result;
-    for (const auto &node : L) {
-        if (find(V.begin(), V.end(), node) == V.end()) {
-            result.push_back(node);
-        }
-    }
-    
-    return result;
-}
-
-// Wrapper function to get the node in the graph with the given data
-Graph_Node get_node_at_index(Graph &graph, Dataset &P, int index) {
-    auto data = P[index];
-    
-    return find_node_in_graph(graph, data);
-}
-
 // Generates a random query of the given dimension
 Data random_query(int dim) {
-    Data query; srand((unsigned int)time(0));
+    Data query;
+
     for (int i = 0; i < dim; i++) {
         query.push_back((data_t)rand() / RAND_MAX);
     }
+
     return query;
 }
 
 // Generates a random dataset of the given size and dimension
 Dataset random_dataset(int n, int dim) {
-    srand((unsigned int)time(0));
+
     Dataset dataset;
     for (int i = 0; i < n; i++) {
         Data data;
@@ -125,7 +101,7 @@ void check_results_manually(const Dataset &dataset, const Data &query, const Gra
     // Calculate the Euclidean distances of each point from the query
     vector<pair<Data, data_t>> distances;
     for (const auto &data : dataset) {
-        data_t dist = euclidean_distance(data, query);
+        long double dist = euclidean_distance(data, query);
         distances.emplace_back(data, dist);
     }
     
@@ -137,7 +113,7 @@ void check_results_manually(const Dataset &dataset, const Data &query, const Gra
     // Get the expected nearest neighbors (if not provided)
     vector<Data> expected_neighbors;
     if (expected_neighbors_g.empty()) {
-        for (size_t i = 0; i < (size_t)k; i++) {
+        for (size_t i = 0; i < static_cast<size_t>(k); i++) {
             expected_neighbors.push_back(distances[i].first);
         }
     } else {
@@ -145,7 +121,7 @@ void check_results_manually(const Dataset &dataset, const Data &query, const Gra
     }
 
     // Check if the number of neighbors found matches k
-    if (result.size() == (size_t)k) cout << " || Number of neighbors is k.\n";
+    if (static_cast<int>(result.size()) == k) cout << " || Number of neighbors is k.\n";
     else {cerr << " || Number of neighbors found is not k. Found: " << result.size() << " Expected: " << k << ".\n";}
     int foundC = 0;
     
