@@ -56,9 +56,12 @@ int main(int argc, char *argv[]) {
     configFile.close();
     
     // Read the dataset
-    Dataset dataset = random_dataset(n, d);
-    //Dataset dataset = fvecs_read(dataset_f);
-
+    // Dataset dataset = random_dataset(n, d);
+    Dataset dataset = fvecs_read(dataset_f);
+    Data td = dataset.at(6383);cout << endl;
+    for (int i = 0; i < td.size(); i++) {
+        cout << td[i]<<"  ";
+    }cout << endl;
     n = static_cast<int>(dataset.size());
     if (R == -1  || L == -1 || k  < 0 || a < 1.0) {
         cerr << "Invalid parametrization!" << endl;

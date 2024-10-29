@@ -30,13 +30,14 @@ Dataset bvecs_read(string file_name_s){
     //We have a loop to read every vector
     for (int i = 0; i < veccount; i++) {
         fseek(file, sizeof(int), SEEK_CUR);
-        vector<data_t> v(num);
-        r = fread(v.data(), sizeof(data_t), (size_t)num, file);
+        vector<uint8_t> v(num);
+        r = fread(v.data(), sizeof(uint8_t), (size_t)num, file);
+        vector<data_t> v2(v.begin(), v.end());
         if (r != (size_t)num) {
             cout << "Error, can not read the file";
             return {};
         }
-        arr.push_back(v);
+        arr.push_back(v2);
     }
     fclose(file);
 
@@ -59,7 +60,7 @@ Dataset fvecs_read(string file_name_s){
         cout << "Error, can not read the file";
         return {};
     }
-    
+    cout<<"here"<<endl;
     int vecsizeof = 4 + num*4;
     
     fseek(file, 0, SEEK_END);
@@ -72,13 +73,16 @@ Dataset fvecs_read(string file_name_s){
     //We have a loop to read every vector
     for (int i = 0; i < veccount; i++) {
         fseek(file, sizeof(int), SEEK_CUR);
-        vector<data_t> v(num);
-        r = fread(v.data(), sizeof(data_t), (size_t)num, file);
+        vector<float> v(num);
+        r = fread(v.data(), sizeof(float), (size_t)num, file);
+        vector<data_t> v2(v.begin(), v.end());
+
         if (r != (size_t)num) {
             cout << "Error, can not read the file";
             return {};
         }
-        arr.push_back(v);
+        
+        arr.push_back(v2);
     }
     fclose(file);
 
@@ -113,13 +117,14 @@ Dataset ivecs_read(string Filename_s) {
 
     for(int i = 0; i < vecnum; i++) {
         fseek(fid, sizeof(int), SEEK_CUR);
-        vector<data_t> v(num);
-        r = fread(v.data(), sizeof(data_t), (size_t)(num - 1), fid);
+        vector<int> v(num);
+        r = fread(v.data(), sizeof(int), (size_t)num, file);
+        vector<data_t> v2(v.begin(), v.end());
         if (r != (size_t)(num - 1)) {
             cout << "Error, can not read the file";
             return {};
         }
-        arr.push_back(v);
+        arr.push_back(v2);
     }
     fclose(fid);
 
