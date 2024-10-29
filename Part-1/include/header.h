@@ -66,5 +66,6 @@ Graph vamana_indexing(Dataset &P, double a, int L, int R);
 
 /* File Reading */
 
-vector<vector<uint8_t>> bvecs_read(char* file_name);
-vector<vector<float>> fvecs_read(char* file_name);
+Dataset bvecs_read(string file_name);
+Dataset fvecs_read(string file_name);
+Dataset ivecs_read(string Filename_s);

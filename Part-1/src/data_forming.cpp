@@ -1,91 +1,127 @@
 #include "../include/header.h"
 
-//Func for reading vectors from a file
-vector<vector<uint8_t>> bvecs_read(char* file_name){
+// Reading vectors from files of .bvecs format
+Dataset bvecs_read(string file_name_s){
+    char* file_name = &file_name_s[0];
     auto *file = fopen(file_name, "r");
     if (file == nullptr) {
         cout << "Error, can not open the file";
         return {};
     }
+
     //Reading the size of the vectors
     int num;
-    fread(&num, sizeof(int), 1, file);
+    size_t r = fread(&num, sizeof(int), (size_t)1, file);
+    if (r != (size_t)1) {
+        cout << "Error, can not read the file";
+        return {};
+    }
     
     int vecsizeof = 4 + num;
     
     fseek(file, 0, SEEK_END);
 
     // Calculate the number of vectors
-    long veccount = ftell(file) / vecsizeof ;
+    long veccount = ftell(file) / vecsizeof;
     
-    vector<vector<uint8_t>> arr;
-    fseek(file,0, SEEK_SET);
+    Dataset arr;
+    fseek(file, 0, SEEK_SET);
+
     //We have a loop to read every vector
     for (int i = 0; i < veccount; i++) {
         fseek(file, sizeof(int), SEEK_CUR);
-        vector<uint8_t> v(num);
-        fread(v.data(), sizeof(uint8_t), num, file);
+        vector<data_t> v(num);
+        r = fread(v.data(), sizeof(data_t), (size_t)num, file);
+        if (r != (size_t)num) {
+            cout << "Error, can not read the file";
+            return {};
+        }
         arr.push_back(v);
     }
     fclose(file);
+
     return arr;
 }
 
-
-vector<vector<float>> fvecs_read(char* file_name){
+// Reading vectors from files of .fvecs format
+Dataset fvecs_read(string file_name_s){
+    char* file_name = &file_name_s[0];
     auto *file = fopen(file_name, "r");
     if (file == nullptr) {
         cout << "Error, can not open the file";
         return {};
     }
+
     //Reading the size of the vectors
     int num;
-    fread(&num, sizeof(int), 1, file);
+    size_t r = fread(&num, sizeof(int), (size_t)1, file);
+    if (r != (size_t)1) {
+        cout << "Error, can not read the file";
+        return {};
+    }
     
     int vecsizeof = 4 + num*4;
     
     fseek(file, 0, SEEK_END);
-    // Calculate the number of vectors
-    long veccount = ftell(file) / vecsizeof ;
 
-    vector<vector<float>> arr;
-    fseek(file,0, SEEK_SET);
+    // Calculate the number of vectors
+    long veccount = ftell(file) / vecsizeof;
+    Dataset arr;
+    fseek(file, 0, SEEK_SET);
+
     //We have a loop to read every vector
     for (int i = 0; i < veccount; i++) {
         fseek(file, sizeof(int), SEEK_CUR);
-        vector<float> v(num);
-        fread(v.data(), sizeof(int), num, file);
+        vector<data_t> v(num);
+        r = fread(v.data(), sizeof(data_t), (size_t)num, file);
+        if (r != (size_t)num) {
+            cout << "Error, can not read the file";
+            return {};
+        }
         arr.push_back(v);
     }
     fclose(file);
+
     return arr;
 }
 
+// Reading vectors from files of .ivecs format
+Dataset ivecs_read(string Filename_s) {
+    char* Filename = &Filename_s[0];
+    auto fid = fopen(Filename,"r");
 
-vector<vector<int>> ivecs_read(char * file_name) {
-    auto *file = fopen(file_name, "r");
-    if (file == nullptr) {
-        cout << "Error, can not open the file";
+    if (fid == NULL) {
+        cout << "I/O error : Unable to open the file "<< Filename << endl;
         return {};
     }
-    //Reading the size of the vectors
+
     int num;
-    fread(&num, sizeof(int), 1, file);
-    
-    int vecsizeof = 4 + num*4;
-    
-    fseek(file, 0, SEEK_END);
-    // Calculate the number of vectors
-    long veccount = ftell(file) / vecsizeof ;
-    vector<vector<int>> arr;
-    fseek(file,0, SEEK_SET);
-    //We have a loop to read every vector
-    for (int i = 0; i < veccount; i++) {
-        fseek(file, sizeof(int), SEEK_CUR);
-        vector<int> v(num);
-        fread(v.data(), sizeof(int), num, file);
+    size_t r = fread(&num, sizeof(int), (size_t)1, fid);
+    if (r != (size_t)1) {
+        cout << "Error, can not read the file";
+        return {};
+    }
+
+    int vecsizeof = 4 + num * 4;
+
+    fseek(fid , 0, SEEK_END);
+
+    long vecnum = ftell(fid) / vecsizeof;
+    Dataset arr;
+
+    fseek(fid, 0, SEEK_SET);
+
+    for(int i = 0; i < vecnum; i++) {
+        fseek(fid, sizeof(int), SEEK_CUR);
+        vector<data_t> v(num);
+        r = fread(v.data(), sizeof(data_t), (size_t)(num - 1), fid);
+        if (r != (size_t)(num - 1)) {
+            cout << "Error, can not read the file";
+            return {};
+        }
         arr.push_back(v);
     }
-    fclose(file);
+    fclose(fid);
+
     return arr;
 }
