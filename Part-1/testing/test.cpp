@@ -1,7 +1,6 @@
 #include "../include/header.h"
 #include "../include/acutest.h"
 
-//Tests for Helper functions
 void test_create_graph_node(void) {
     Data data = {1, 2, 3};
 
@@ -10,6 +9,61 @@ void test_create_graph_node(void) {
     TEST_CHECK(node->data == data);
 
     TEST_CHECK(node->out_neighbours.size() == 0);
+}
+
+void test_add_node_to_graph(void) {
+    Data data = {1, 2, 3};
+
+    Graph_Node node = create_graph_node(data);
+
+    Graph graph = {node};
+
+    Data data1 = {4, 5, 6};
+
+    Graph_Node node1 = create_graph_node(data1);
+
+    add_node_to_graph(graph, node1);
+
+    TEST_CHECK(graph.size() == 2);
+    TEST_CHECK(graph[1] == node1);
+}
+
+void test_add_edge_to_graph(void) {
+    Data data = {1, 2, 3};
+
+    Graph_Node node = create_graph_node(data);
+
+    Data data1 = {4, 5, 6};
+
+    Graph_Node node1 = create_graph_node(data1);
+
+    add_edge_to_graph(node, node1);
+
+    TEST_CHECK(node->out_neighbours.size() == 1);
+    TEST_CHECK(node->out_neighbours.find(node1) != node->out_neighbours.end());
+
+    add_edge_to_graph(node, node1);
+    TEST_CHECK(node->out_neighbours.size() == 1);
+}
+
+void test_find_node_in_graph(void){
+    Data data = {1, 2, 3};
+    Graph_Node node = create_graph_node(data);
+    Graph graph = {node};
+
+    // Test for a data that is in the graph
+    Graph_Node found = find_node_in_graph(graph, data);
+    TEST_CHECK(found == node);
+
+    // Test for changing the data of the node
+    Data new_data = {4, 5, 6};
+    found->data = new_data;
+    Graph_Node found_changed = find_node_in_graph(graph, new_data);
+    TEST_CHECK(found_changed->data == new_data);
+
+    // Test for a data that is not in the graph
+    Graph_Node snot_found = find_node_in_graph(graph, data);
+    TEST_CHECK(snot_found == nullptr);
 }
 
 void test_euclidean_distance(void){
@@ -56,52 +110,12 @@ void test_random_permutation(void){
     TEST_CHECK(perm3 != perm4);
 }
 
-void test_get_element_at_index(void){
-    Dataset double_list = {{1.0}, {2.0}, {3.0}, {4.0}, {5.0}, {6.0}};
-    Data result = get_element_at_index(double_list, 0);  
-    //Testing that the func returns the values that we expect
-    TEST_CHECK(result == vector<data_t>{1.0});  
-    result = get_element_at_index(double_list, 1);
-    TEST_CHECK(result == vector<data_t>{2.0});  
-    result = get_element_at_index(double_list, 5);
-    TEST_CHECK(result == vector<data_t>{6.0});  
-}
-
-void test_change_element_at_index(void){
-    Dataset double_list = {{1.0}, {2.0}, {3.0}, {4.0}, {5.0}, {6.0}};
-    auto new_data = vector<data_t>{10.0};
-    change_element_at_index(double_list, 0, new_data);
-    Data value = get_element_at_index(double_list,0);
-    //Testing if the element of the list successfully changed
-    TEST_CHECK(value == vector<data_t>{10.0});
-}
-
-void test_find_node_in_graph(void){
-    Data data = {1, 2, 3};
-    Graph_Node node = create_graph_node(data);
-    Graph graph = {node};
-
-    // Test for a data that is in the graph
-    Graph_Node found = find_node_in_graph(graph, data);
-    TEST_CHECK(found == node);
-
-    // Test for changing the data of the node
-    Data new_data = {4, 5, 6};
-    found->data = new_data;
-    Graph_Node found_changed = find_node_in_graph(graph, new_data);
-    TEST_CHECK(found_changed->data == new_data);
-
-    // Test for a data that is not in the graph
-    Graph_Node snot_found = find_node_in_graph(graph, data);
-    TEST_CHECK(snot_found == nullptr);
-}
-
 void test_medoid(void) {
     Dataset P = {{0, 0}, {0, 4}, {2, 3}, {4, 4}, {4, 0}};
     
-    Data s = medoid(P);
+    int s = medoid(P);
 
-    Data expected = {2, 3};
+    int expected = 2;
 
     TEST_CHECK(s == expected);
 }
@@ -133,7 +147,7 @@ void test_greedy_search(void) {
     // Calculate the Euclidean distances of each point from the query
     vector<pair<Data, data_t>> distances;
     for (const auto& data : dataset) {
-        data_t dist = euclidean_distance(data, query);
+        long double dist = euclidean_distance(data, query);
         distances.emplace_back(data, dist);
     }
 
@@ -144,12 +158,12 @@ void test_greedy_search(void) {
     
     // Get the expected nearest neighbors
     vector<Data> expected_neighbors;
-    for (size_t i = 0; i < (size_t)k; i++) {
+    for (size_t i = 0; i < static_cast<size_t>(k); i++) {
         expected_neighbors.push_back(distances[i].first);
     }
 
     // Check if the number of neighbors found matches k
-    TEST_CHECK(result.size() == (size_t)k);
+    TEST_CHECK(result.size() == static_cast<size_t>(k));
     
     // Check if the neighbor is in the expected neighbors
     for (const auto& node : result) {
@@ -171,11 +185,11 @@ void test_greedy_search(void) {
 
 TEST_LIST = {
     {"test_create_graph_node", test_create_graph_node },
+    {"test_add_node_to_graph", test_add_node_to_graph},
+    {"test_add_edge_to_graph", test_add_edge_to_graph},
+    {"test_find_node_in_graph", test_find_node_in_graph},
     {"test_euclidean_distance", test_euclidean_distance},
     {"test_random_permutation", test_random_permutation},
-    {"test_get_element_at_index",test_get_element_at_index},
-    {"test_change_element_at_index",test_change_element_at_index},
-    {"test_find_node_in_graph", test_find_node_in_graph},
     {"test_medoid", test_medoid},
     {"test_greedy_search", test_greedy_search},
     { 0 }
