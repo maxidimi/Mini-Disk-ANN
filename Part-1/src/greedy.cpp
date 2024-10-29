@@ -1,58 +1,74 @@
 #include "../include/header.h"
 
+// L\V operation, returns the elements in L that are not in V
+Graph L_m_V(Graph &L, Graph &V) {
+    unordered_set<Graph_Node> v_set(V.begin(), V.end());
+    Graph result;
+
+    for (const auto& node : L) {
+        // If the node is not in V, add it to the result
+        auto it = v_set.find(node);
+        if (it == v_set.end()) {
+            result.push_back(node);
+        }
+    }
+
+    return result;
+}
+
 // Greedy Algorithm - returning [k-nearest aprx. points, visited points]
-pair<Graph,Graph> greedy_search(Graph_Node s, Data q, int k, int L){
+pair<Graph,Graph> greedy_search(Graph_Node s, Data q, int k, int L_s){
 
     // Initialize sets L<-{s}, V<-{}
-    Graph visited_list, searching_list, lv;
-    searching_list.push_back(s); 
+    Graph L; L.push_back(s);
+    Graph V = {};
 
     // Initialize L \ V = {s}
-    lv.push_back(s);
+    Graph L_not_V;
+    L_not_V.push_back(s);
     
     // While L \ V is not empty
-    while (!lv.empty()) {
-        // Let node p* <- argmin_{p \in L\V} d(p.q)
-        // Find the node with minimum distance
-        Graph_Node p_s = lv.front();
-        data_t mindist = euclidean_distance(p_s->data, q);
-        for (const auto &i : lv) {
-            data_t dist = euclidean_distance(i->data, q);
-            if (dist < mindist) {
-                mindist = dist;
-                p_s = i; 
-            }    
+    while (!L_not_V.empty()) {
+
+        // Find p* <- argmin_{p \in L \ V} d(p,q)
+        data_t min_dist = numeric_limits<data_t>::max();
+        Graph_Node p_star = nullptr;
+        for (const auto &p : L_not_V) {
+            data_t dist = euclidean_distance(p->data, q);
+            if (dist < min_dist) {
+                min_dist = dist;
+                p_star = p;
+            }
         }
 
-        // Update L <- L U N_out(p*) and prevent duplicates with set
-        if (p_s == nullptr) break;
-        set<Graph_Node> temp(searching_list.begin(), searching_list.end());
-        for (const auto &neighbour : p_s->out_neighbours) {
-            temp.insert(neighbour);  // Only add unvisited neighbours
+        // Update L <- L U N_out(p*), V <- V U {p*}
+        for (const auto &p : p_star->out_neighbours) {
+            if (find(L.begin(), L.end(), p) == L.end()) {
+                L.push_back(p);
+            }
         }
-        searching_list.clear();
-        searching_list.assign(temp.begin(), temp.end());
+        V.push_back(p_star);
 
-        // Update V <- V U {p*}
-        visited_list.push_back(p_s);
-        
-        // If |L| > L, then update lv to be the L closest points to q
-        //! Sort the list and keep the first L elements (or pop the last L elements)
-        if (searching_list.size() > (size_t)L) {
-            searching_list.sort([q](Graph_Node a, Graph_Node b) {
+        // If |L| > L_s then update L to retain closest L_s points to q
+        if (L.size() > static_cast<size_t>(L_s)) {
+            sort(L.begin(), L.end(), [q](const auto &a, const auto &b) {
                 return euclidean_distance(a->data, q) < euclidean_distance(b->data, q);
             });
-            
-            searching_list.resize(L);
+            L.resize(L_s);
         }
 
-        lv = L_m_V(searching_list, visited_list);
+        // Update L \ V
+        L_not_V = L_m_V(L, V);
     }
     
     // Return the first k elements of L
-    if (k < (int)searching_list.size()) 
-        searching_list.resize(k);
-
+    if (L.size() > static_cast<size_t>(k)) {
+        sort(L.begin(), L.end(), [q](const auto &a, const auto &b) {
+            return euclidean_distance(a->data, q) < euclidean_distance(b->data, q);
+        });
+        L.resize(k);
+    }
+    
     // Return the result as a pair
-    return {searching_list, visited_list};
+    return {L, V};
 }
