@@ -14,7 +14,8 @@ Graph robust_pruning(Graph &G, Data &p, Dataset &V, double a, int R) {
     V.erase(remove(V.begin(), V.end(), p), V.end());
     
     // N_out(p) <- {}
-    p_node->out_neighbours = {};
+    p_node->out_neighbours.clear();
+    p_node->out_neighbours.reserve(R);
     
     // While V not empty
     while (!V.empty()) {

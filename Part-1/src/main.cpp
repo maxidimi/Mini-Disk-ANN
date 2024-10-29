@@ -56,18 +56,30 @@ int main(int argc, char *argv[]) {
     configFile.close();
     
     // Read the dataset
-    // Dataset dataset = random_dataset(n, d);
-    Dataset dataset = fvecs_read(dataset_f);
-    Data td = dataset.at(6383);cout << endl;
-    for (int i = 0; i < td.size(); i++) {
-        cout << td[i]<<"  ";
-    }cout << endl;
+    Dataset dataset;
+    vector<int> groundtruth;
+    Data query;
+    int ind = rand() % 100;
+    if (n != -1 && d != -1) {
+        dataset = random_dataset(n, d);
+        query = random_query(d);
+        groundtruth = {};
+    } else {
+        dataset = fvecs_read(dataset_f);
+        query = fvecs_read(query_f).at(ind);
+        Dataset groundtruth_d = ivecs_read(groundtruth_f);
+        //convert groundtruth.at(ind) to vector<int>
+        for (const auto &i : groundtruth_d.at(ind)) {
+            groundtruth.push_back(i);
+        }
+    }
+
     n = static_cast<int>(dataset.size());
     if (R == -1  || L == -1 || k  < 0 || a < 1.0) {
         cerr << "Invalid parametrization!" << endl;
         return 1;
     }
-
+    
     cout << " || Dataset: " << dataset_f << endl;
     cout << " || Query: " << query_f << endl;
     cout << " || Groundtruth: " << groundtruth_f << endl;
@@ -77,11 +89,7 @@ int main(int argc, char *argv[]) {
     cout << " || a: " << a << endl;
     cout << " || Size: " << dataset.size() << endl;
     cout << " || Dimension: " << dataset.front().size() << endl;
-    cout << "====================================================================\n";    
-
-    // Query point to search nearest neighbors for
-    Data query = random_query(d);
-    //Data query = fvecs_read(query_f).front();
+    cout << "====================================================================\n";
     
     // Start the timer
     clock_t start = clock();
@@ -99,7 +107,8 @@ int main(int argc, char *argv[]) {
     double elapsed_time = double(end - start) / CLOCKS_PER_SEC;
     cout << " || Time taken: " << elapsed_time << " seconds.\n";
     
-    //Dataset groundtruth = ivecs_read(groundtruth_f);
+    check_results_manually(dataset, query, result, k, groundtruth);
+    cout << "====================================================================\n";
     check_results_manually(dataset, query, result, k, {});
     
     // Free the memory allocated for the graph

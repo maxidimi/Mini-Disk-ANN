@@ -48,7 +48,7 @@ Dataset random_dataset(int n, int dim);
 void print_results(const Dataset &dataset, const Data &query, const vector<Data> &expected_neighbors,\
                    const Graph &result, const vector<pair<Data, data_t>> &distances);
 void check_results_manually(const Dataset &dataset, const Data &query, const Graph &result,\
-                            int k, Dataset expected_neighbors_g);
+                            int k, vector<int> expected_neighbors_g);
 
 /* Greedy Search | s start node, q query, k result size, L search list size */
 
