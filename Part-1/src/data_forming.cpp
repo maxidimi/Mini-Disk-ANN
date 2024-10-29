@@ -43,7 +43,6 @@ vector<vector<float>> fvecs_read(char* file_name){
     fread(&num, sizeof(int), 1, file);
     
     int vecsizeof = 4 + num*4;
-    cout<<"HERE\n"<<vecsizeof<<endl;
     
     fseek(file, 0, SEEK_END);
     // Calculate the number of vectors
