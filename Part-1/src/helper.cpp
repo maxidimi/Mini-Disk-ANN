@@ -97,7 +97,7 @@ void print_results(const Dataset &dataset, const Data &query, const vector<Data>
 }
 
 // Checks the results of the Greedy search manually
-void check_results_manually(const Dataset &dataset, const Data &query, const Graph &result, int k, Dataset expected_neighbors_g) {
+void check_results_manually(const Dataset &dataset, const Data &query, const Graph &result, int k, vector<int> expected_neighbors_g) {
     // Calculate the Euclidean distances of each point from the query
     vector<pair<Data, data_t>> distances;
     for (const auto &data : dataset) {
@@ -117,7 +117,10 @@ void check_results_manually(const Dataset &dataset, const Data &query, const Gra
             expected_neighbors.push_back(distances[i].first);
         }
     } else {
-        expected_neighbors = expected_neighbors_g;
+        // Here expected_neighbors_g is the groundtruth that contains the indices of the expected neighbors.
+        for (const auto &index : expected_neighbors_g) {
+            expected_neighbors.push_back(dataset[index]);
+        }
     }
 
     // Check if the number of neighbors found matches k

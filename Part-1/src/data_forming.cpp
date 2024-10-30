@@ -5,7 +5,7 @@ Dataset bvecs_read(string file_name_s){
     char* file_name = &file_name_s[0];
     auto *file = fopen(file_name, "r");
     if (file == nullptr) {
-        cout << "Error, can not open the file";
+        cout << "Error, can not open the file " << file_name << endl;
         return {};
     }
 
@@ -13,7 +13,7 @@ Dataset bvecs_read(string file_name_s){
     int num;
     size_t r = fread(&num, sizeof(int), (size_t)1, file);
     if (r != (size_t)1) {
-        cout << "Error, can not read the file";
+        cout << "Error_01, can not read the file " << file_name << endl;
         return {};
     }
     
@@ -34,7 +34,7 @@ Dataset bvecs_read(string file_name_s){
         r = fread(v.data(), sizeof(uint8_t), (size_t)num, file);
         vector<data_t> v2(v.begin(), v.end());
         if (r != (size_t)num) {
-            cout << "Error, can not read the file";
+            cout << "Error_02, can not read the file " << file_name << endl;
             return {};
         }
         arr.push_back(v2);
@@ -49,7 +49,7 @@ Dataset fvecs_read(string file_name_s){
     char* file_name = &file_name_s[0];
     auto *file = fopen(file_name, "r");
     if (file == nullptr) {
-        cout << "Error, can not open the file";
+        cout << "Error, can not open the file " << file_name << endl;
         return {};
     }
 
@@ -57,7 +57,7 @@ Dataset fvecs_read(string file_name_s){
     int num;
     size_t r = fread(&num, sizeof(int), (size_t)1, file);
     if (r != (size_t)1) {
-        cout << "Error, can not read the file";
+        cout << "Error_01, can not read the file " << file_name << endl;
         return {};
     }
     
@@ -78,7 +78,7 @@ Dataset fvecs_read(string file_name_s){
         vector<data_t> v2(v.begin(), v.end());
 
         if (r != (size_t)num) {
-            cout << "Error, can not read the file";
+            cout << "Error_02, can not read the file " << file_name << endl;
             return {};
         }
         
@@ -102,7 +102,7 @@ Dataset ivecs_read(string Filename_s) {
     int num;
     size_t r = fread(&num, sizeof(int), (size_t)1, fid);
     if (r != (size_t)1) {
-        cout << "Error, can not read the file";
+        cout << "Error_01, can not read the file " << Filename << endl;
         return {};
     }
 
@@ -120,8 +120,8 @@ Dataset ivecs_read(string Filename_s) {
         vector<int> v(num);
         r = fread(v.data(), sizeof(int), (size_t)num, fid);
         vector<data_t> v2(v.begin(), v.end());
-        if (r != (size_t)(num - 1)) {
-            cout << "Error, can not read the file";
+        if (r != (size_t)num) {
+            cout << "Error_02, can not read the file " << Filename << endl;
             return {};
         }
         arr.push_back(v2);
