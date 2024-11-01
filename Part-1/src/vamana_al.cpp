@@ -5,39 +5,51 @@
 // Returns directed graph G over P with out-degree <= R
 
 // Medoid of a dataset P is the point s in P that minimizes the sum of distances to all other points in P
-int medoid(Dataset &P) {
+int medoid(const Dataset &P) {
 
-    // Return the index of the medoid
-    int medoid_index = -1;
-    data_t min_sum = numeric_limits<data_t>::max();
+    /* Compute the medoid of the dataset P as:
+        s = argmin_{p \in P} \sum_{q \in P, q != p} d(p, q)
+        Creates a vector sum of distances from each point to all other points.
+        Computes only the upper triangular matrix of distances.
+        Returns the index of the point with the minimum sum.
+    */
     
-    for (size_t i = 0; i < P.size(); i++) {
+    size_t n = P.size(); int medoid_index = -1;
 
-        long double sum = 0.0L;
+    long double min_sum = numeric_limits<long double>::max();
 
-        for (size_t j = 0; j < P.size(); j++) {
-            sum += euclidean_distance(P[i], P[j]);
+    // Initialize the sum vector
+    vector<long double> sum(n, 0.0L);
+
+    for (size_t i = 0; i < n; i++) {
+        for (size_t j = i + 1; j < n; j++) {
+            if (i != j) {
+                // Store the distance between points i and j in each sum
+                long double dist = euclidean_distance(P[i], P[j]);
+                sum[i] += dist;
+                sum[j] += dist;
+            }
         }
-
-        if (sum < min_sum) {
-            min_sum = sum;
+        
+        if (sum[i] < min_sum) {
+            min_sum = sum[i];
             medoid_index = i;
         }
     }
-
+    
+    // Return the index of the medoid
     return medoid_index;
 }
 
 // Vamana Indexing Algorithm
-Graph vamana_indexing(Dataset &P, double a, int L, int R) {
-
-    // Initialize G to a random R-regular directed graph
-    Graph G;
-
+Graph vamana_indexing(const Dataset &P, double a, int L, int R) {
     int n = static_cast<int>(P.size());
 
+    // Initialize G to a random R-regular directed graph
+    Graph G; G.reserve(n);
+
     for (auto &p : P) {
-        Graph_Node node = create_graph_node(p);
+        Graph_Node node = create_graph_node(p, R);
         add_node_to_graph(G, node);
     }
     
@@ -47,7 +59,7 @@ Graph vamana_indexing(Dataset &P, double a, int L, int R) {
         
         set<int> random_indices;
 
-        while ((int)random_indices.size() < R) {
+        while (static_cast<int>(random_indices.size()) < R) {
             int random_idx = rand() % n;
 
             if (random_idx == i) continue;
@@ -56,7 +68,7 @@ Graph vamana_indexing(Dataset &P, double a, int L, int R) {
         }
 
         for (const auto &idx : random_indices) {
-            add_edge_to_graph(node, create_graph_node(P[idx]));
+            add_edge_to_graph(node, create_graph_node(P[idx], R));
         }i++;
     }
     
@@ -85,10 +97,10 @@ Graph vamana_indexing(Dataset &P, double a, int L, int R) {
         // Run robust_prune to update out-neighbours of s_i
         Dataset V_d = get_data(V);
 
-        G = robust_pruning(G, p_d, V_d, a, R);
+        G = robust_pruning(G, p_d, V_d, a, R, p);
 
         // For all points j in N_out(σ(i)) do
-        for (const auto &j : p->out_neighbours) {
+        for (auto j : p->out_neighbours) {
             // |N_out(j) U {σ(i)}|
             auto N_out_j_p = j->out_neighbours;
             N_out_j_p.insert(p);
@@ -101,7 +113,7 @@ Graph vamana_indexing(Dataset &P, double a, int L, int R) {
                     N_out_j_p_d.push_back(node->data);
                 }
 
-                G = robust_pruning(G, j->data, N_out_j_p_d, a, R);
+                G = robust_pruning(G, j->data, N_out_j_p_d, a, R, j);
             } else {
                 // Add σ(i) to out-neighbours of j
                 j->out_neighbours.insert(p);

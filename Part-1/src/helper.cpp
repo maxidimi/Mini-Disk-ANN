@@ -1,8 +1,5 @@
 #include "../include/header.h"
 
-// Map for caching the distances
-//map<pair<Data, Data>, long double> dist_cache;
-
 // Computes the Euclidean distance between two data points
 long double euclidean_distance(const Data &d1, const Data &d2) {
     if (d1.size() != d2.size()) {
@@ -10,23 +7,16 @@ long double euclidean_distance(const Data &d1, const Data &d2) {
         exit(1);
     }
 
-    // Search for the distance in the cache map
-    /*if (dist_cache.find({d1, d2}) != dist_cache.end()) {
-        return dist_cache[{d1, d2}];
-    } else if (dist_cache.find({d2, d1}) != dist_cache.end()) {
-        return dist_cache[{d2, d1}];
-    } else {*/
-        size_t dim = d1.size();
-        long double distance = 0.0L;
+    size_t dim = d1.size();
+    long double distance = 0.0L;
 
-        for (size_t i = 0; i < dim; i++) {
-            distance += (d2[i] - d1[i]) * (d2[i] - d1[i]);
-        }
-        
-        distance = sqrt(distance);
-        //dist_cache[{d1, d2}] = distance;
-        return distance;
-    //}
+    for (size_t i = 0; i < dim; i++) {
+        distance += (d2[i] - d1[i]) * (d2[i] - d1[i]);
+    }
+    
+    //distance = sqrt(distance);
+    
+    return distance;
 }
 
 // Generates a random permutation of integers from 0 to n-1
@@ -42,8 +32,8 @@ vector<int> random_permutation(int n) {
 }
 
 // Given a graph node list, returns the corresponding dataset
-Dataset get_data(Graph &graph) {
-    Dataset data;
+Dataset get_data(const Graph &graph) {
+    Dataset data; data.reserve(graph.size());
     for (const auto &node : graph) {
         data.push_back(node->data);
     }
@@ -97,22 +87,23 @@ void print_results(const Dataset &dataset, const Data &query, const vector<Data>
 }
 
 // Checks the results of the Greedy search manually
-void check_results_manually(const Dataset &dataset, const Data &query, const Graph &result, int k, vector<int> expected_neighbors_g) {
-    // Calculate the Euclidean distances of each point from the query
-    vector<pair<Data, data_t>> distances;
-    for (const auto &data : dataset) {
-        long double dist = euclidean_distance(data, query);
-        distances.emplace_back(data, dist);
-    }
-    
-    // Sort distances in ascending order
-    sort(distances.begin(), distances.end(), [](const auto& a, const auto& b) {
-        return a.second < b.second;
-    });
+void check_results(const Dataset &dataset, const Data &query, const Graph &result, int k, vector<int> expected_neighbors_g) {
     
     // Get the expected nearest neighbors (if not provided)
-    vector<Data> expected_neighbors;
+    vector<Data> expected_neighbors; expected_neighbors.reserve(k);
     if (expected_neighbors_g.empty()) {
+        // Calculate the Euclidean distances of each point from the query
+        vector<pair<Data, data_t>> distances; distances.reserve(dataset.size());
+        for (const auto &data : dataset) {
+            long double dist = euclidean_distance(data, query);
+            distances.emplace_back(data, dist);
+        }
+        
+        // Sort distances in ascending order
+        sort(distances.begin(), distances.end(), [](const auto& a, const auto& b) {
+            return a.second < b.second;
+        });
+
         for (size_t i = 0; i < static_cast<size_t>(k); i++) {
             expected_neighbors.push_back(distances[i].first);
         }
@@ -144,4 +135,5 @@ void check_results_manually(const Dataset &dataset, const Data &query, const Gra
         if (found) {foundC++;}
     }
     cout << " || Number of neighbors found in expected neighbors: " << foundC << ".\n";
+    cout << " || Recall@k: " << (double)(100*foundC/k) << "%." << endl;
 }
