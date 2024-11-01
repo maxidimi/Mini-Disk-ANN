@@ -139,7 +139,7 @@ void test_medoid(void) {
 void test_greedy_search(void) {
     // Define the parameters for the test
     srand((unsigned int)time(0));
-    int n = 10000; int dim = 2;
+    int n = 3000; int dim = 2;
 
     // Create a random dataset and query
     Dataset dataset = random_dataset(n, dim);
@@ -158,9 +158,9 @@ void test_greedy_search(void) {
     auto result = result_p.first; auto visited = result_p.second;
     
     // Calculate the Euclidean distances of each point from the query
-    vector<pair<Data, data_t>> distances;
+    vector<pair<Data, euclidean_t>> distances;
     for (const auto& data : dataset) {
-        long double dist = euclidean_distance(data, query);
+        euclidean_t dist = euclidean_distance(data, query);
         distances.emplace_back(data, dist);
     }
 

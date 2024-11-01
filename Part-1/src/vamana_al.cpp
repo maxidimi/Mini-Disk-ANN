@@ -16,16 +16,16 @@ int medoid(const Dataset &P) {
     
     size_t n = P.size(); int medoid_index = -1;
 
-    long double min_sum = numeric_limits<long double>::max();
+    euclidean_t min_sum = numeric_limits<euclidean_t>::max();
 
     // Initialize the sum vector
-    vector<long double> sum(n, 0.0L);
+    vector<euclidean_t> sum(n, 0.0L);
 
     for (size_t i = 0; i < n; i++) {
         for (size_t j = i + 1; j < n; j++) {
             if (i != j) {
                 // Store the distance between points i and j in each sum
-                long double dist = euclidean_distance(P[i], P[j]);
+                euclidean_t dist = euclidean_distance(P[i], P[j]);
                 sum[i] += dist;
                 sum[j] += dist;
             }
