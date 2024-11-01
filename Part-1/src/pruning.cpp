@@ -1,10 +1,8 @@
 #include "../include/header.h"
 
-Graph robust_pruning(Graph &G, Data &p, Dataset &V, double a, int R) {
+Graph robust_pruning(Graph &G, Data &p, Dataset &V, double a, int R, Graph_Node &p_node) {
     
     // V <- (V U N_out(p)) \ {p} withouth duplicates
-    Graph_Node p_node = find_node_in_graph(G, p);
-
     for (const auto& node : p_node->out_neighbours) {
         if (find(V.begin(), V.end(), node->data) == V.end()) {
             V.push_back(node->data);
@@ -22,10 +20,10 @@ Graph robust_pruning(Graph &G, Data &p, Dataset &V, double a, int R) {
 
         // Find p* <- argmin_{p \in V} d(p,q)
         Data p_star = {};
-        long double min_distance = numeric_limits<long double>::max();
+        euclidean_t min_distance = numeric_limits<euclidean_t>::max();
         
         for (const auto& p_tmp : V) {
-            long double distance = euclidean_distance(p, p_tmp);
+            euclidean_t distance = euclidean_distance(p, p_tmp);
             if (distance < min_distance) {
                 min_distance = distance;
                 p_star = p_tmp;
@@ -44,7 +42,7 @@ Graph robust_pruning(Graph &G, Data &p, Dataset &V, double a, int R) {
         Dataset V_tmp = V;
         for (const auto& p_tmp : V_tmp) {
             // If a*d(p*,p') <= d(p,p') then remove p' from V
-            if (static_cast<long double>(a * euclidean_distance(p_star, p_tmp)) <= euclidean_distance(p, p_tmp)) {
+            if (static_cast<euclidean_t>(a * euclidean_distance(p_star, p_tmp)) <= euclidean_distance(p, p_tmp)) {
                 V.erase(find(V.begin(), V.end(), p_tmp));
             }
         }
