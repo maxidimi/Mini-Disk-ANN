@@ -12,7 +12,9 @@
 
 using namespace std;
 
-typedef long double data_t;
+typedef float data_t;
+
+typedef float euclidean_t;
 
 typedef vector<data_t> Data;
 
@@ -40,13 +42,13 @@ void print_out_neighbours(const Graph_Node &node);
 
 /* Helper functions */
 
-long double euclidean_distance(const Data &d1, const Data &d2);
+euclidean_t euclidean_distance(const Data &d1, const Data &d2);
 vector<int> random_permutation(int n);
 Dataset get_data(const Graph &graph);
 Data random_query(int dim);
 Dataset random_dataset(int n, int dim);
 void print_results(const Dataset &dataset, const Data &query, const vector<Data> &expected_neighbors,\
-                   const Graph &result, const vector<pair<Data, data_t>> &distances);
+                   const Graph &result, const vector<pair<Data, euclidean_t>> &distances);
 void check_results(const Dataset &dataset, const Data &query, const Graph &result,\
                    int k, vector<int> expected_neighbors_g);
 
