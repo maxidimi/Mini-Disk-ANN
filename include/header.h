@@ -36,7 +36,7 @@ typedef vector<Graph_Node> Graph;
 Graph_Node create_graph_node(const Data &data, int R);
 void add_node_to_graph(Graph &graph, const Graph_Node &node);
 void add_edge_to_graph(Graph_Node &from, const Graph_Node &to);
-Graph_Node find_node_in_graph(Graph &graph, const Data &data);
+Graph_Node find_data_in_graph(Graph &graph, const Data &data);
 void print_graph(const Graph &graph);
 void print_out_neighbours(const Graph_Node &node);
 

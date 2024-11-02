@@ -31,7 +31,7 @@ Graph robust_pruning(Graph &G, Data &p, Dataset &V, double a, int R, Graph_Node 
         }
 
         // Find node p* in graph and add it to N_out(p) if not already present
-        Graph_Node p_star_node = find_node_in_graph(G, p_star);
+        Graph_Node p_star_node = find_data_in_graph(G, p_star);
 
         p_node->out_neighbours.insert(p_star_node);
         

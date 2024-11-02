@@ -19,7 +19,7 @@ void add_edge_to_graph(Graph_Node &from, const Graph_Node &to) {
 }
 
 // Finds a node in the graph
-Graph_Node find_node_in_graph(Graph &graph, const Data &data) {
+Graph_Node find_data_in_graph(Graph &graph, const Data &data) {
     auto it = find_if(graph.begin(), graph.end(), [&data](Graph_Node node) {
         return node->data == data;
     });

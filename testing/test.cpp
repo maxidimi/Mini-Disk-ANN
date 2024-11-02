@@ -46,23 +46,23 @@ void test_add_edge_to_graph(void) {
     TEST_CHECK(node->out_neighbours.size() == 1);
 }
 
-void test_find_node_in_graph(void){
+void test_find_data_in_graph(void){
     Data data = {1, 2, 3};
     Graph_Node node = create_graph_node(data, 2);
     Graph graph = {node};
 
     // Test for a data that is in the graph
-    Graph_Node found = find_node_in_graph(graph, data);
+    Graph_Node found = find_data_in_graph(graph, data);
     TEST_CHECK(found == node);
 
     // Test for changing the data of the node
     Data new_data = {4, 5, 6};
     found->data = new_data;
-    Graph_Node found_changed = find_node_in_graph(graph, new_data);
+    Graph_Node found_changed = find_data_in_graph(graph, new_data);
     TEST_CHECK(found_changed->data == new_data);
 
     // Test for a data that is not in the graph
-    Graph_Node snot_found = find_node_in_graph(graph, data);
+    Graph_Node snot_found = find_data_in_graph(graph, data);
     TEST_CHECK(snot_found == nullptr);
 }
 
@@ -200,7 +200,7 @@ TEST_LIST = {
     {"test_create_graph_node", test_create_graph_node },
     {"test_add_node_to_graph", test_add_node_to_graph},
     {"test_add_edge_to_graph", test_add_edge_to_graph},
-    {"test_find_node_in_graph", test_find_node_in_graph},
+    {"test_find_data_in_graph", test_find_data_in_graph},
     {"test_euclidean_distance", test_euclidean_distance},
     {"test_random_permutation", test_random_permutation},
     {"test_get_data", test_get_data},
