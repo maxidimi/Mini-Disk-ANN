@@ -9,9 +9,10 @@
     R=10
     L=20
     a=1.5
-    n=10000
-    d=128
-    n and d are used for generating random datasets and queries.
+    n=
+    d=
+    Set n and d to -1 (or blank) to use the provided files.
+    Set n and d to size and dimension of the dataset to generate random dataset and query.
     Then run the program with the configuration file as an argument.
 */
 
@@ -55,20 +56,23 @@ int main(int argc, char *argv[]) {
     }
     configFile.close();
     
-    // Read the dataset
-    Dataset dataset;
+    // Check if user wants to generate random dataset and query
+    // or use the provided files
+    Dataset dataset; Data query;
     vector<int> groundtruth;
-    Data query;
-    int ind = rand() % 100;
+    
     if (n != -1 && d != -1) {
+        // Generate random dataset and query
         dataset = random_dataset(n, d);
         query = random_query(d);
         groundtruth = {};
     } else {
+        // Select a random index from the provided dataset
+        int ind = rand() % 100;
         dataset = fvecs_read(dataset_f);
         query = fvecs_read(query_f).at(ind);
         Dataset groundtruth_d = ivecs_read(groundtruth_f);
-        //convert groundtruth.at(ind) to vector<int>
+        // Convert groundtruth to vector<int> from Data
         for (const auto &i : groundtruth_d.at(ind)) {
             groundtruth.push_back(i);
         }
@@ -105,11 +109,10 @@ int main(int argc, char *argv[]) {
     // End the timer
     clock_t end = clock();
     double elapsed_time = double(end - start) / CLOCKS_PER_SEC;
-    cout << " || Time taken: " << elapsed_time << " seconds.\n";
+    cout << " || Time taken: " << elapsed_time << " seconds (= " << elapsed_time/60 << " minutes)" << endl;
     
-    check_results_manually(dataset, query, result, k, groundtruth);
-    cout << "====================================================================\n";
-    check_results_manually(dataset, query, result, k, {});
+    // Print the results
+    check_results(dataset, query, result, k, groundtruth);
     
     // Free the memory allocated for the graph
     for (const auto &node : G) {

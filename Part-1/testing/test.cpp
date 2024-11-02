@@ -4,7 +4,7 @@
 void test_create_graph_node(void) {
     Data data = {1, 2, 3};
 
-    Graph_Node node = create_graph_node(data);
+    Graph_Node node = create_graph_node(data, 1);
 
     TEST_CHECK(node->data == data);
 
@@ -14,13 +14,13 @@ void test_create_graph_node(void) {
 void test_add_node_to_graph(void) {
     Data data = {1, 2, 3};
 
-    Graph_Node node = create_graph_node(data);
+    Graph_Node node = create_graph_node(data, 1);
 
     Graph graph = {node};
 
     Data data1 = {4, 5, 6};
 
-    Graph_Node node1 = create_graph_node(data1);
+    Graph_Node node1 = create_graph_node(data1, 1);
 
     add_node_to_graph(graph, node1);
 
@@ -31,11 +31,11 @@ void test_add_node_to_graph(void) {
 void test_add_edge_to_graph(void) {
     Data data = {1, 2, 3};
 
-    Graph_Node node = create_graph_node(data);
+    Graph_Node node = create_graph_node(data, 2);
 
     Data data1 = {4, 5, 6};
 
-    Graph_Node node1 = create_graph_node(data1);
+    Graph_Node node1 = create_graph_node(data1, 2);
 
     add_edge_to_graph(node, node1);
 
@@ -48,7 +48,7 @@ void test_add_edge_to_graph(void) {
 
 void test_find_node_in_graph(void){
     Data data = {1, 2, 3};
-    Graph_Node node = create_graph_node(data);
+    Graph_Node node = create_graph_node(data, 2);
     Graph graph = {node};
 
     // Test for a data that is in the graph
@@ -66,26 +66,26 @@ void test_find_node_in_graph(void){
     TEST_CHECK(snot_found == nullptr);
 }
 
-void test_euclidean_distance(void){
+void test_euclidean_distance(void){//squared euclidean distance
     Data d1 = {20};
     Data d2 = {10};
     //Test for 1D
-    TEST_CHECK(fabs(euclidean_distance(d1, d2) - 10) < 1e-6);
+    TEST_CHECK(fabs(euclidean_distance(d1, d2) - 100) < 1e-6);
     
     d1 = {2, 5};
     d2 = {3, 4};
     //Test for 2D
-    TEST_CHECK(fabs(euclidean_distance(d1, d2) - sqrt(2)) < 1e-6);
+    TEST_CHECK(fabs(euclidean_distance(d1, d2) - 2) < 1e-6);
 
     d1 = {3, 6, 9};
     d2 = {2, 4, 6};
     //Test for 3D
-    TEST_CHECK(fabs(euclidean_distance(d1, d2) - sqrt(14)) < 1e-6);
+    TEST_CHECK(fabs(euclidean_distance(d1, d2) - 14) < 1e-6);
     
     d1 = {3, 6, 9, 12};
     d2 = {2, 4, 6, 8};
     //Test for 4D
-    TEST_CHECK(fabs(euclidean_distance(d1, d2) - sqrt(30)) < 1e-6);
+    TEST_CHECK(fabs(euclidean_distance(d1, d2) - 30) < 1e-6);
 }
 
 void test_random_permutation(void){
@@ -110,6 +110,22 @@ void test_random_permutation(void){
     TEST_CHECK(perm3 != perm4);
 }
 
+void test_get_data(void) {
+    Data data = {1, 2, 3};
+    Data data1 = {4, 5, 6};
+
+    Graph_Node node = create_graph_node(data, 1);
+    Graph_Node node1 = create_graph_node(data1, 1);
+
+    Graph graph = {node, node1};
+
+    Dataset dataset = get_data(graph);
+
+    TEST_CHECK(dataset.size() == 2);
+    TEST_CHECK(dataset[0] == data);
+    TEST_CHECK(dataset[1] == data1);
+}
+
 void test_medoid(void) {
     Dataset P = {{0, 0}, {0, 4}, {2, 3}, {4, 4}, {4, 0}};
     
@@ -123,31 +139,28 @@ void test_medoid(void) {
 void test_greedy_search(void) {
     // Define the parameters for the test
     srand((unsigned int)time(0));
-    int n = 500; int dim = 2;
+    int n = 3000; int dim = 2;
 
-    // Create a dataset of points
+    // Create a random dataset and query
     Dataset dataset = random_dataset(n, dim);
-
-    // Query point to search nearest neighbors for
     Data query = random_query(dim);
 
     // Parameters for the Vamana indexing
-    int k = 8;
-    int L = k + rand()/(RAND_MAX/100);
-    int R = log2(n) + rand()/(RAND_MAX/100);
-    double a = 2.0;
+    int k = 100; int L = 100;
+    int R = 15; double a = 1.2;
 
     // Create the Vamana index
     Graph G = vamana_indexing(dataset, a, L, R);
 
     // Perform greedy search starting from the first node
-    auto result_p = greedy_search(G.front(), query, k, L);
+    Graph_Node s = G.front();
+    auto result_p = greedy_search(s, query, k, L);
     auto result = result_p.first; auto visited = result_p.second;
     
     // Calculate the Euclidean distances of each point from the query
-    vector<pair<Data, data_t>> distances;
+    vector<pair<Data, euclidean_t>> distances;
     for (const auto& data : dataset) {
-        long double dist = euclidean_distance(data, query);
+        euclidean_t dist = euclidean_distance(data, query);
         distances.emplace_back(data, dist);
     }
 
@@ -163,7 +176,7 @@ void test_greedy_search(void) {
     }
 
     // Check if the number of neighbors found matches k
-    TEST_CHECK(result.size() == static_cast<size_t>(k));
+    TEST_CHECK(static_cast<int>(result.size()) == k);
     
     // Check if the neighbor is in the expected neighbors
     for (const auto& node : result) {
@@ -190,6 +203,7 @@ TEST_LIST = {
     {"test_find_node_in_graph", test_find_node_in_graph},
     {"test_euclidean_distance", test_euclidean_distance},
     {"test_random_permutation", test_random_permutation},
+    {"test_get_data", test_get_data},
     {"test_medoid", test_medoid},
     {"test_greedy_search", test_greedy_search},
     { 0 }
