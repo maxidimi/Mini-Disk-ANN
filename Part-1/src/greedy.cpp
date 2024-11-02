@@ -1,19 +1,18 @@
 #include "../include/header.h"
 
 // L\V operation, returns the elements in L that are not in V
-Graph L_m_V(Graph &L, Graph &V) {
+void L_m_V(const Graph &L, const Graph &V, Graph &LV) {
+    
     unordered_set<Graph_Node> v_set(V.begin(), V.end());
-    Graph result;
+    LV.clear(); LV.reserve(L.size());
 
     for (const auto& node : L) {
         // If the node is not in V, add it to the result
         auto it = v_set.find(node);
         if (it == v_set.end()) {
-            result.push_back(node);
+            LV.push_back(node);
         }
     }
-
-    return result;
 }
 
 // Greedy Algorithm - returning [k-nearest aprx. points, visited points]
@@ -31,10 +30,10 @@ pair<Graph,Graph> greedy_search(Graph_Node s, Data q, int k, int L_s){
     while (!L_not_V.empty()) {
 
         // Find p* <- argmin_{p \in L \ V} d(p,q)
-        data_t min_dist = numeric_limits<data_t>::max();
+        euclidean_t min_dist = numeric_limits<euclidean_t>::max();
         Graph_Node p_star = nullptr;
         for (const auto &p : L_not_V) {
-            data_t dist = euclidean_distance(p->data, q);
+            euclidean_t dist = euclidean_distance(p->data, q);
             if (dist < min_dist) {
                 min_dist = dist;
                 p_star = p;
@@ -58,7 +57,7 @@ pair<Graph,Graph> greedy_search(Graph_Node s, Data q, int k, int L_s){
         }
 
         // Update L \ V
-        L_not_V = L_m_V(L, V);
+        L_m_V(L, V, L_not_V);
     }
     
     // Return the first k elements of L

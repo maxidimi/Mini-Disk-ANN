@@ -1,15 +1,15 @@
 #include "../include/header.h"
 
 // Computes the Euclidean distance between two data points
-long double euclidean_distance(const Data &d1, const Data &d2) {
+
+euclidean_t euclidean_distance(const Data &d1, const Data &d2) {
     if (d1.size() != d2.size()) {
         cerr << "Data points have different dimensions\n";
         exit(1);
     }
 
     size_t dim = d1.size();
-    long double distance = 0.0L;
-
+    euclidean_t distance = 0.0L;
     for (size_t i = 0; i < dim; i++) {
         distance += (d2[i] - d1[i]) * (d2[i] - d1[i]);
     }
@@ -67,7 +67,7 @@ Dataset random_dataset(int n, int dim) {
 
 // Prints the results of the Vamana indexing and Greedy search
 void print_results(const Dataset &dataset, const Data &query, const vector<Data> &expected_neighbors,\
-                     const Graph &result, const vector<pair<Data, data_t>> &distances) {
+                     const Graph &result, const vector<pair<Data, euclidean_t>> &distances) {
     // Print the distances with corresponding points
     cout << "\n\nDistances from query point (" << query[0] << ", " << query[1] << "):\n";
     for (const auto &[point, distance] : distances) {
@@ -93,9 +93,9 @@ void check_results(const Dataset &dataset, const Data &query, const Graph &resul
     vector<Data> expected_neighbors; expected_neighbors.reserve(k);
     if (expected_neighbors_g.empty()) {
         // Calculate the Euclidean distances of each point from the query
-        vector<pair<Data, data_t>> distances; distances.reserve(dataset.size());
+        vector<pair<Data, euclidean_t>> distances; distances.reserve(dataset.size());
         for (const auto &data : dataset) {
-            long double dist = euclidean_distance(data, query);
+            euclidean_t dist = euclidean_distance(data, query);
             distances.emplace_back(data, dist);
         }
         
@@ -115,8 +115,9 @@ void check_results(const Dataset &dataset, const Data &query, const Graph &resul
     }
 
     // Check if the number of neighbors found matches k
-    if (static_cast<int>(result.size()) == k) cout << " || Number of neighbors is k.\n";
-    else {cerr << " || Number of neighbors found is not k. Found: " << result.size() << " Expected: " << k << ".\n";}
+
+    if (static_cast<int>(result.size()) == k) cout << " || Size of neighbors found matches k.\n";
+    else {cerr << " || Size of neighbors found is not k. Found: " << result.size() << " Expected: " << k << ".\n";}
     int foundC = 0;
     
     // Check if the neighbor is in the expected neighbors
