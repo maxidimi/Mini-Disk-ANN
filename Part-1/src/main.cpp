@@ -9,10 +9,10 @@
     R=10
     L=20
     a=1.5
-    n=10000
-    d=128
-    If L and R are not provided, they will be set to k+10 and log2(k)-1 respectively.
-    n and d are used for generating random datasets and queries.
+    n=
+    d=
+    Set n and d to -1 (or blank) to use the provided files.
+    Set n and d to size and dimension of the dataset to generate random dataset and query.
     Then run the program with the configuration file as an argument.
 */
 
@@ -29,9 +29,11 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    srand((unsigned int)time(0));
+
     // Read the configuration file and set the parameters
     string dataset_f, query_f, groundtruth_f;
-    int k = 0, R = -1, L = -1, n = -1, d = -1; float a = 0.0;
+    int k = 0, R = -1, L = -1, n = -1, d = -1; double a = 0.0;
     
     string line;
     while (getline(configFile, line)) {
@@ -46,22 +48,42 @@ int main(int argc, char *argv[]) {
                 else if (key == "k") k = stoi(value);
                 else if (key == "R") R = stoi(value);
                 else if (key == "L") L = stoi(value);
-                else if (key == "a") a = stof(value);
+                else if (key == "a") a = stod(value);
                 else if (key == "n") n = stoi(value);
                 else if (key == "d") d = stoi(value);
             }
         }
     }
     configFile.close();
+    
+    // Check if user wants to generate random dataset and query
+    // or use the provided files
+    Dataset dataset; Data query;
+    vector<int> groundtruth;
+    
+    if (n != -1 && d != -1) {
+        // Generate random dataset and query
+        dataset = random_dataset(n, d);
+        query = random_query(d);
+        groundtruth = {};
+    } else {
+        // Select a random index from the provided dataset
+        int ind = rand() % 100;
+        dataset = fvecs_read(dataset_f);
+        query = fvecs_read(query_f).at(ind);
+        Dataset groundtruth_d = ivecs_read(groundtruth_f);
+        // Convert groundtruth to vector<int> from Data
+        for (const auto &i : groundtruth_d.at(ind)) {
+            groundtruth.push_back(i);
+        }
+    }
 
-    // Read the dataset
-    Dataset dataset = random_dataset(n, d);
-    //Dataset dataset = fvecs_read(dataset_f);
-
-    n = (int)dataset.size();
-    if (R == -1) R = log2(n) - 1;
-    if (L == -1) L = k + 10;
-
+    n = static_cast<int>(dataset.size());
+    if (R == -1  || L == -1 || k  < 0 || a < 1.0) {
+        cerr << "Invalid parametrization!" << endl;
+        return 1;
+    }
+    
     cout << " || Dataset: " << dataset_f << endl;
     cout << " || Query: " << query_f << endl;
     cout << " || Groundtruth: " << groundtruth_f << endl;
@@ -71,11 +93,7 @@ int main(int argc, char *argv[]) {
     cout << " || a: " << a << endl;
     cout << " || Size: " << dataset.size() << endl;
     cout << " || Dimension: " << dataset.front().size() << endl;
-    cout << "====================================================================\n";    
-
-    // Query point to search nearest neighbors for
-    Data query = random_query(d);
-    //Data query = fvecs_read(query_f).front();
+    cout << "====================================================================\n";
     
     // Start the timer
     clock_t start = clock();
@@ -91,10 +109,10 @@ int main(int argc, char *argv[]) {
     // End the timer
     clock_t end = clock();
     double elapsed_time = double(end - start) / CLOCKS_PER_SEC;
-    cout << " || Time taken: " << elapsed_time << " seconds.\n";
+    cout << " || Time taken: " << elapsed_time << " seconds (= " << elapsed_time/60 << " minutes)" << endl;
     
-    Dataset groundtruth = ivecs_read(groundtruth_f);
-    check_results_manually(dataset, query, result, k, {});
+    // Print the results
+    check_results(dataset, query, result, k, groundtruth);
     
     // Free the memory allocated for the graph
     for (const auto &node : G) {

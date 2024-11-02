@@ -1,6 +1,7 @@
 #include "../include/header.h"
 
 // Computes the Euclidean distance between two data points
+
 euclidean_t euclidean_distance(const Data &d1, const Data &d2) {
     if (d1.size() != d2.size()) {
         cerr << "Data points have different dimensions\n";
@@ -9,7 +10,6 @@ euclidean_t euclidean_distance(const Data &d1, const Data &d2) {
 
     size_t dim = d1.size();
     euclidean_t distance = 0.0L;
-
     for (size_t i = 0; i < dim; i++) {
         distance += (d2[i] - d1[i]) * (d2[i] - d1[i]);
     }
@@ -115,6 +115,7 @@ void check_results(const Dataset &dataset, const Data &query, const Graph &resul
     }
 
     // Check if the number of neighbors found matches k
+
     if (static_cast<int>(result.size()) == k) cout << " || Size of neighbors found matches k.\n";
     else {cerr << " || Size of neighbors found is not k. Found: " << result.size() << " Expected: " << k << ".\n";}
     int foundC = 0;

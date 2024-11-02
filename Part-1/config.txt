@@ -1,9 +1,9 @@
 dataset=data/ANN_SIFT10K/siftsmall_base.fvecs
 query=data/ANN_SIFT10K/siftsmall_query.fvecs
 groundtruth=data/ANN_SIFT10K/siftsmall_groundtruth.ivecs
-k=40
-R=
-L=60
+k=100
+R=14
+L=100
 a=1.2
-n=10000
-d=128
+n=
+d=
