@@ -24,7 +24,7 @@ Dataset bvecs_read(string file_name_s){
     // Calculate the number of vectors
     long veccount = ftell(file) / vecsizeof;
     
-    Dataset arr;
+    Dataset arr; arr.reserve(veccount);
     fseek(file, 0, SEEK_SET);
 
     //We have a loop to read every vector
@@ -67,7 +67,7 @@ Dataset fvecs_read(string file_name_s){
 
     // Calculate the number of vectors
     long veccount = ftell(file) / vecsizeof;
-    Dataset arr;
+    Dataset arr; arr.reserve(veccount);
     fseek(file, 0, SEEK_SET);
 
     //We have a loop to read every vector
@@ -111,7 +111,7 @@ Dataset ivecs_read(string Filename_s) {
     fseek(fid , 0, SEEK_END);
 
     long vecnum = ftell(fid) / vecsizeof;
-    Dataset arr;
+    Dataset arr; arr.reserve(vecnum);
 
     fseek(fid, 0, SEEK_SET);
 
