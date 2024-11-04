@@ -26,8 +26,9 @@ vector<int> random_permutation(int n) {
         perm[i] = i;
     }
 
-    random_shuffle(perm.begin(), perm.end());
-
+    random_device rd; mt19937 g(rd());
+    shuffle(perm.begin(), perm.end(), g);
+    
     return perm;
 }
 
