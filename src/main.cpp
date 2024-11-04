@@ -9,10 +9,7 @@
     R=10
     L=20
     a=1.5
-    n=
-    d=
-    Set n and d to -1 (or blank) to use the provided files.
-    Set n and d to size and dimension of the dataset to generate random dataset and query.
+    q_idx=
     Then run the program with the configuration file as an argument.
 */
 
@@ -33,7 +30,7 @@ int main(int argc, char *argv[]) {
 
     // Read the configuration file and set the parameters
     string dataset_f, query_f, groundtruth_f;
-    int k = 0, R = -1, L = -1, n = -1, d = -1; double a = 0.0;
+    int k = 0, R = -1, L = -1, q_idx = -1; double a = 0.0;
     
     string line;
     while (getline(configFile, line)) {
@@ -49,37 +46,53 @@ int main(int argc, char *argv[]) {
                 else if (key == "R") R = stoi(value);
                 else if (key == "L") L = stoi(value);
                 else if (key == "a") a = stod(value);
-                else if (key == "n") n = stoi(value);
-                else if (key == "d") d = stoi(value);
+                else if (key == "q_idx") q_idx = stoi(value);
+                else {
+                    cerr << "Invalid configuration key: " << key << endl;
+                    return 1;
+                }
             }
         }
     }
     configFile.close();
     
-    // Check if user wants to generate random dataset and query
-    // or use the provided files
-    Dataset dataset; Data query;
-    vector<int> groundtruth;
+    // Read the dataset, queries and groundtruth
+    Dataset dataset = fvecs_read(dataset_f);
+    Dataset queries = fvecs_read(query_f);
+    Dataset groundtruth_d = ivecs_read(groundtruth_f);
+    Dataset queries_to_test;
+    vector<vector<int>> groundtruth;
+
+    // Cast groundtruth to vector<vector<int>>
+    vector<vector<int>> groundtruth_i;
+    for (const auto &g : groundtruth_d) {
+        groundtruth_i.push_back(vector<int>(g.begin(), g.end()));
+    }
     
-    if (n != -1 && d != -1) {
-        // Generate random dataset and query
-        dataset = random_dataset(n, d);
-        query = random_query(d);
-        groundtruth = {};
-    } else {
-        // Select a random index from the provided dataset
-        int ind = rand() % 100;
-        dataset = fvecs_read(dataset_f);
-        query = fvecs_read(query_f).at(ind);
-        Dataset groundtruth_d = ivecs_read(groundtruth_f);
-        // Convert groundtruth to vector<int> from Data
-        for (const auto &i : groundtruth_d.at(ind)) {
-            groundtruth.push_back(i);
+    // Set queries and groundtruth to test
+    if (q_idx == -1) { // Test all queries in the query file
+        queries_to_test = queries;
+        groundtruth = groundtruth_i;
+        
+    } else if (q_idx == -2) { // Test a random query
+        int idx = rand() % queries.size();
+        queries_to_test.push_back(queries[idx]);
+        groundtruth.push_back(groundtruth_i[idx]);
+
+    } else { // Test a specific query
+        if (q_idx < 0 || q_idx >= static_cast<int>(queries.size())) {
+            cerr << "Invalid query index, give [0, " << queries.size() - 1 << "]" << endl;
+            return 1;
+        } else {
+            queries_to_test.push_back(queries[q_idx]);
+            groundtruth.push_back(groundtruth_i[q_idx]);
         }
     }
-
-    n = static_cast<int>(dataset.size());
-    if (R == -1  || L == -1 || k  < 0 || a < 1.0) {
+    
+    // Check that parametres are valid
+    int n = static_cast<int>(dataset.size());
+    int d = static_cast<int>(dataset.front().size());
+    if (R < 1 || L < k || k <= 0 || a < 1.0 || n <= 0) {
         cerr << "Invalid parametrization!" << endl;
         return 1;
     }
@@ -91,29 +104,38 @@ int main(int argc, char *argv[]) {
     cout << " || R: " << R << endl;
     cout << " || L: " << L << endl;
     cout << " || a: " << a << endl;
-    cout << " || Size: " << dataset.size() << endl;
-    cout << " || Dimension: " << dataset.front().size() << endl;
-    cout << "====================================================================\n";
+    cout << " || Size: " << n << endl;
+    cout << " || Dimension: " << d << endl;
+    cout << "=======================================================================================\n";
     
     // Start the timer
     clock_t start = clock();
     
     // Create the Vamana index
     Graph G = vamana_indexing(dataset, a, L, R);
+    time_elapsed(start, "Vamana Indexing");
+    cout << "=======================================================================================\n";
     
-    // Perform greedy search starting from the first node
-    Graph_Node s = G.front();
-    auto result_p = greedy_search(s, query, k, L);
-    auto result = result_p.first; auto visited = result_p.second;
+    for (size_t i = 0; i < queries_to_test.size(); i++) {
+        Data query = queries_to_test[i];
+        vector<int> groundtruth_t;
+        clock_t gr_start = clock();
 
-    // End the timer
-    clock_t end = clock();
-    double elapsed_time = double(end - start) / CLOCKS_PER_SEC;
-    cout << " || Time taken: " << elapsed_time << " seconds (= " << elapsed_time/60 << " minutes)" << endl;
+        // Perform greedy search starting from the first node of the graphß
+        Graph_Node s = G.front();
+        auto result_p = greedy_search(s, query, k, L);
+        auto result = result_p.first; auto visited = result_p.second;
+
+        // Print time for each Greedy call
+        time_elapsed(gr_start, "Greedy Search " + to_string(i + 1) + "/" + to_string(queries_to_test.size()));
+        
+        // Print the results
+        check_results(dataset, query, result, k, groundtruth_t);
+    }
     
-    // Print the results
-    check_results(dataset, query, result, k, groundtruth);
-    
+    // Print time for both Vamana and Greedy calls
+    time_elapsed(start, "both Vamana and Greedy calls");
+
     // Free the memory allocated for the graph
     for (const auto &node : G) {
         delete node;

@@ -9,6 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <iomanip>
 
 using namespace std;
 
@@ -51,6 +52,7 @@ void print_results(const Dataset &dataset, const Data &query, const vector<Data>
                    const Graph &result, const vector<pair<Data, euclidean_t>> &distances);
 void check_results(const Dataset &dataset, const Data &query, const Graph &result,\
                    int k, vector<int> expected_neighbors_g);
+void time_elapsed(clock_t start, string message);
 
 /* Greedy Search | s start node, q query, k result size, L search list size */
 

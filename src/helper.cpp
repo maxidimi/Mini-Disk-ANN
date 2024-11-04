@@ -117,8 +117,8 @@ void check_results(const Dataset &dataset, const Data &query, const Graph &resul
 
     // Check if the number of neighbors found matches k
 
-    if (static_cast<int>(result.size()) == k) cout << " || Size of neighbors found matches k.\n";
-    else {cerr << " || Size of neighbors found is not k. Found: " << result.size() << " Expected: " << k << ".\n";}
+    if (static_cast<int>(result.size()) == k) cout << " || Size of neighbours list found matches k.\n";
+    else {cerr << " || Size of neighbours list found doesn't match k. Found: " << result.size() << " Expected: " << k << ".\n";}
     int foundC = 0;
     
     // Check if the neighbor is in the expected neighbors
@@ -136,6 +136,18 @@ void check_results(const Dataset &dataset, const Data &query, const Graph &resul
         }
         if (found) {foundC++;}
     }
-    cout << " || Number of neighbors found in expected neighbors: " << foundC << ".\n";
+    cout << " || Number of neighbours found in expected neighbors: " << foundC << "/" << k << ".\n";
     cout << " || Recall@k: " << (double)(100*foundC/k) << "%." << endl;
+    cout << "=======================================================================================\n";
+}
+
+void time_elapsed(clock_t start, string message) {
+    clock_t end = clock();
+    double elapsed_seconds = double(end - start) / CLOCKS_PER_SEC;
+
+    double minutes = static_cast<int>(elapsed_seconds) / 60.0;
+    
+    cout << fixed << setprecision(2);
+    cout << " || Total time taken for " << message << ": " << elapsed_seconds <<\
+     " seconds (= " << minutes << " minutes)" << endl;
 }
