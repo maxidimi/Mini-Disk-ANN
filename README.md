@@ -1,9 +1,9 @@
 # Software-Development-for-Information-Systems
 Project for class of Software Development for Information Systems, DIT UOA, 2024.
 Team members:
-  - Dimitris Dimochronis | 1115202100034
-  - Nikos Pentasilis | 1115202100152 
-  - Giorgos Ragkos | 1115202100167
+  - Dimitris Dimochronis | 1115202100034 | sdi2100034@di.uoa.gr
+  - Nikos Pentasilis     | 1115202100152 | sdi2100152@di.uoa.gr
+  - Giorgos Ragkos       | 1115202100167 | sdi2100167@di.uoa.gr
 
 ## Build and Run project
 
