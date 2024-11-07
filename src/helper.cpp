@@ -20,10 +20,10 @@ euclidean_t euclidean_distance(const Data &d1, const Data &d2) {
 }
 
 // Generates a random permutation of integers from 0 to n-1
-vector<int> random_permutation(int n) {
+vector<int> random_permutation(size_t n) {
     vector<int> perm(n);
-    for (int i = 0; i < n; i++) {
-        perm[i] = i;
+    for (size_t i = 0; i < n; i++) {
+        perm[i] = int(i);
     }
 
     random_device rd; mt19937 g(rd());
@@ -66,29 +66,8 @@ Dataset random_dataset(int n, int dim) {
     return dataset;
 }
 
-// Prints the results of the Vamana indexing and Greedy search
-void print_results(const Dataset &dataset, const Data &query, const vector<Data> &expected_neighbors,\
-                     const Graph &result, const vector<pair<Data, euclidean_t>> &distances) {
-    // Print the distances with corresponding points
-    cout << "\n\nDistances from query point (" << query[0] << ", " << query[1] << "):\n";
-    for (const auto &[point, distance] : distances) {
-        cout << "Point: (" << point[0] << ", " << point[1] << ") - Distance: " << distance << endl;
-    }
-    cout << "\nExpected nearest neighbors:\n";
-    for (const auto &neighbor : expected_neighbors) {
-        cout << "\tPoint: (" << neighbor[0] << ", " << neighbor[1] << ")\n";
-    }
-    cout << "Greedy search results:\n";
-    for (const auto &node : result) {
-        if (node == nullptr) {
-            cout << "\tPoint: (nullptr)\n";
-        } else 
-        {cout << "\tPoint: (" << node->data[0] << ", " << node->data[1] << ")\n";}
-    }
-}
-
 // Checks the results of the Greedy search manually
-void check_results(const Dataset &dataset, const Data &query, const Graph &result, int k, vector<int> expected_neighbors_g) {
+void check_results(const Dataset &dataset, Data query, const Graph &result, int k, vector<int> expected_neighbors_g) {
     
     // Get the expected nearest neighbors (if not provided)
     vector<Data> expected_neighbors; expected_neighbors.reserve(k);
@@ -116,9 +95,8 @@ void check_results(const Dataset &dataset, const Data &query, const Graph &resul
     }
 
     // Check if the number of neighbors found matches k
-
-    if (static_cast<int>(result.size()) == k) cout << " || Size of neighbours list found matches k.\n";
-    else {cerr << " || Size of neighbours list found doesn't match k. Found: " << result.size() << " Expected: " << k << ".\n";}
+    if (static_cast<int>(result.size()) != k) {
+        cerr << " || Size of neighbours list found doesn't match k. Found: " << result.size() << " Expected: " << k << ".\n";}
     int foundC = 0;
     
     // Check if the neighbor is in the expected neighbors
@@ -150,4 +128,17 @@ void time_elapsed(clock_t start, string message) {
     cout << fixed << setprecision(2);
     cout << " || Total time taken for " << message << ": " << elapsed_seconds <<\
      " seconds (= " << minutes << " minutes)" << endl;
+}
+
+Graph_Node find_min_dist(const Graph &G, const Data &q) {
+    euclidean_t min_dist = numeric_limits<euclidean_t>::max();
+    Graph_Node p_star = nullptr;
+    for (const auto &p : G) {
+        euclidean_t dist = euclidean_distance(p->data, q);
+        if (dist < min_dist) {
+            min_dist = dist;
+            p_star = p;
+        }
+    }
+    return p_star;
 }

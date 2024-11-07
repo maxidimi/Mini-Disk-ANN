@@ -59,23 +59,18 @@ int main(int argc, char *argv[]) {
     // Read the dataset, queries and groundtruth
     Dataset dataset = fvecs_read(dataset_f);
     Dataset queries = fvecs_read(query_f);
-    Dataset groundtruth_d = ivecs_read(groundtruth_f);
-    Dataset queries_to_test;
+    vector<vector<int>> groundtruth_i = ivecs_read(groundtruth_f);
     vector<vector<int>> groundtruth;
-
-    // Cast groundtruth to vector<vector<int>>
-    vector<vector<int>> groundtruth_i;
-    for (const auto &g : groundtruth_d) {
-        groundtruth_i.push_back(vector<int>(g.begin(), g.end()));
-    }
+    Dataset queries_to_test;
     
     // Set queries and groundtruth to test
+    int idx = 0;
     if (q_idx == -1) { // Test all queries in the query file
         queries_to_test = queries;
         groundtruth = groundtruth_i;
         
     } else if (q_idx == -2) { // Test a random query
-        int idx = rand() % queries.size();
+        idx = rand() % queries.size();
         queries_to_test.push_back(queries[idx]);
         groundtruth.push_back(groundtruth_i[idx]);
 
@@ -106,13 +101,23 @@ int main(int argc, char *argv[]) {
     cout << " || a: " << a << endl;
     cout << " || Size: " << n << endl;
     cout << " || Dimension: " << d << endl;
+    if (q_idx == -1) {
+        cout << " || Queries: All" << endl;
+    } else {
+        cout << " || Queries: " << idx << endl;
+    }
     cout << "=======================================================================================\n";
     
     // Start the timer
     clock_t start = clock();
     
     // Create the Vamana index
-    Graph G = vamana_indexing(dataset, a, L, R);
+    Graph G = read_graph("graph.bin");
+    if (G.empty()) {
+        G = vamana_indexing(dataset, a, L, R);
+        store_graph(G, "graph.bin");
+    }
+    
     time_elapsed(start, "Vamana Indexing");
     cout << "=======================================================================================\n";
     
@@ -123,7 +128,7 @@ int main(int argc, char *argv[]) {
 
         // Perform greedy search starting from the first node of the graphß
         Graph_Node s = G.front();
-        auto result_p = greedy_search(s, query, k, L);
+        auto result_p = greedy_search(G, s, query, k, L);
         auto result = result_p.first; auto visited = result_p.second;
 
         // Print time for each Greedy call
@@ -140,6 +145,8 @@ int main(int argc, char *argv[]) {
     for (const auto &node : G) {
         delete node;
     }
+
+    //_CrtDumpMemoryLeaks();
 
     return 0;
 }

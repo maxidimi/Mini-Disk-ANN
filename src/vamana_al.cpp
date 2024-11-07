@@ -43,7 +43,7 @@ int medoid(const Dataset &P) {
 
 // Vamana Indexing Algorithm
 Graph vamana_indexing(const Dataset &P, double a, int L, int R) {
-    int n = static_cast<int>(P.size());
+    size_t n = P.size();
 
     // Initialize G to a random R-regular directed graph
     Graph G; G.reserve(n);
@@ -68,7 +68,7 @@ Graph vamana_indexing(const Dataset &P, double a, int L, int R) {
         }
 
         for (const auto &idx : random_indices) {
-            add_edge_to_graph(node, create_graph_node(P[idx], R));
+            add_edge_to_graph(node, idx);
         }i++;
     }
     
@@ -90,7 +90,7 @@ Graph vamana_indexing(const Dataset &P, double a, int L, int R) {
         Data p_d = P[i];
 
         // Run greedy_search, V are the visited nodes, L_res are the nearest neighbours
-        pair<Graph, Graph> result = greedy_search(s, p_d, 1, L);
+        pair<Graph, Graph> result = greedy_search(G, s, p_d, 1, L);
 
         Graph L = result.first; Graph V = result.second;
 
@@ -102,21 +102,21 @@ Graph vamana_indexing(const Dataset &P, double a, int L, int R) {
         // For all points j in N_out(σ(i)) do
         for (auto j : p->out_neighbours) {
             // |N_out(j) U {σ(i)}|
-            auto N_out_j_p = j->out_neighbours;
-            N_out_j_p.insert(p);
+            auto N_out_j_p = G[j]->out_neighbours;
+            N_out_j_p.insert(i);
 
             // If |N_out(σ(i)) U {σ(i)}| > R then
             if (static_cast<int>(N_out_j_p.size()) > R) {
                 // Run robust_prune to update out-neighbours of j
                 Dataset N_out_j_p_d;
                 for (const auto &node : N_out_j_p) {
-                    N_out_j_p_d.push_back(node->data);
+                    N_out_j_p_d.push_back(G[node]->data);
                 }
 
-                G = robust_pruning(G, j->data, N_out_j_p_d, a, R, j);
+                G = robust_pruning(G, G[j]->data, N_out_j_p_d, a, R, G[j]);
             } else {
                 // Add σ(i) to out-neighbours of j
-                j->out_neighbours.insert(p);
+                G[j]->out_neighbours.insert(i);
             }
         }
     }
