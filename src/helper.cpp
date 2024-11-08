@@ -15,7 +15,6 @@ euclidean_t euclidean_distance(const Data &d1, const Data &d2) {
     }
     
     //distance = sqrt(distance);
-    
     return distance;
 }
 
@@ -55,7 +54,7 @@ Data random_query(int dim) {
 // Generates a random dataset of the given size and dimension
 Dataset random_dataset(int n, int dim) {
 
-    Dataset dataset;
+    Dataset dataset; dataset.reserve(n);
     for (int i = 0; i < n; i++) {
         Data data;
         for (int j = 0; j < dim; j++) {
@@ -67,78 +66,52 @@ Dataset random_dataset(int n, int dim) {
 }
 
 // Checks the results of the Greedy search manually
-void check_results(const Dataset &dataset, Data query, const Graph &result, int k, vector<int> expected_neighbors_g) {
-    
-    // Get the expected nearest neighbors (if not provided)
-    vector<Data> expected_neighbors; expected_neighbors.reserve(k);
-    if (expected_neighbors_g.empty()) {
-        // Calculate the Euclidean distances of each point from the query
-        vector<pair<Data, euclidean_t>> distances; distances.reserve(dataset.size());
-        for (const auto &data : dataset) {
-            euclidean_t dist = euclidean_distance(data, query);
-            distances.emplace_back(data, dist);
-        }
-        
-        // Sort distances in ascending order
-        sort(distances.begin(), distances.end(), [](const auto& a, const auto& b) {
-            return a.second < b.second;
-        });
-
-        for (size_t i = 0; i < static_cast<size_t>(k); i++) {
-            expected_neighbors.push_back(distances[i].first);
-        }
-    } else {
-        // Here expected_neighbors_g is the groundtruth that contains the indices of the expected neighbors.
-        for (const auto &index : expected_neighbors_g) {
-            expected_neighbors.push_back(dataset[index]);
-        }
-    }
+double check_results(const Dataset &dataset, Data query, const vector<int> &result, int k, vector<int> expected_neighbors, bool print) {
 
     // Check if the number of neighbors found matches k
-    if (static_cast<int>(result.size()) != k) {
-        cerr << " || Size of neighbours list found doesn't match k. Found: " << result.size() << " Expected: " << k << ".\n";}
-    int foundC = 0;
+    if (result.size() != (size_t)k) {
+        cerr << " || Size of neighbours list found doesn't match k. Found: " << result.size() << " Expected: " << k << ".\n";
+        return 0.0;
+    }
     
     // Check if the neighbor is in the expected neighbors
-    for (const auto &node : result) {
-        if (node == nullptr) {
-            cerr << "Error: nullptr\n";
-            continue;
+    int foundC = 0;
+    for (int i = 0; i < k; i++) {
+        if (find(expected_neighbors.begin(), expected_neighbors.end(), result[i]) != expected_neighbors.end()) {
+            foundC++;
         }
-        bool found = false;
-        for (const auto &expected : expected_neighbors) {
-            if (node->data == expected) {
-                found = true;
-                break;
-            }
-        }
-        if (found) {foundC++;}
     }
-    cout << " || Number of neighbours found in expected neighbors: " << foundC << "/" << k << ".\n";
-    cout << " || Recall@k: " << (double)(100*foundC/k) << "%." << endl;
-    cout << "=======================================================================================\n";
+    if (print) {
+        cout << " || Number of neighbours found in expected neighbors: " << foundC << "/" << k << ".\n";
+        cout << " || Recall@k: " << (double)(100*foundC/k) << "%." << endl;
+        cout << "=======================================================================================\n";
+    }
+    
+    return (double)(100*foundC/k);
 }
 
+// Prints the time taken for a given operation
 void time_elapsed(clock_t start, string message) {
     clock_t end = clock();
     double elapsed_seconds = double(end - start) / CLOCKS_PER_SEC;
 
-    double minutes = static_cast<int>(elapsed_seconds) / 60.0;
+    double minutes = (int)elapsed_seconds / 60.0;
     
     cout << fixed << setprecision(2);
     cout << " || Total time taken for " << message << ": " << elapsed_seconds <<\
      " seconds (= " << minutes << " minutes)" << endl;
 }
 
-Graph_Node find_min_dist(const Graph &G, const Data &q) {
-    euclidean_t min_dist = numeric_limits<euclidean_t>::max();
-    Graph_Node p_star = nullptr;
-    for (const auto &p : G) {
-        euclidean_t dist = euclidean_distance(p->data, q);
+// Finds the node in L with the minimum distance to q
+int find_min_dist(const Graph G, vector<int> L, Data q) {
+    int min_indx = -1;
+    double min_dist = numeric_limits<double>::max();
+    for (const auto &node : L) {
+        double dist = euclidean_distance(G[node]->data, q);
         if (dist < min_dist) {
             min_dist = dist;
-            p_star = p;
+            min_indx = node;
         }
     }
-    return p_star;
+    return min_indx;
 }

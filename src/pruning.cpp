@@ -1,6 +1,7 @@
 #include "../include/header.h"
 
-Graph robust_pruning(Graph &G, Data &p, Dataset &V, double a, int R, Graph_Node &p_node) {
+Graph robust_pruning(Graph &G, Graph_Node &p_node, Dataset &V, double a, int R) {
+    Data p = p_node->data;
     
     // Add N_out(p) to V without duplicates
     for (const auto& neighbor_index : p_node->out_neighbours) {
@@ -39,12 +40,12 @@ Graph robust_pruning(Graph &G, Data &p, Dataset &V, double a, int R, Graph_Node 
         }
 
         // If N_out(p) reaches size R, break
-        if (static_cast<int>(p_node->out_neighbours.size()) == R) break;
+        if (p_node->out_neighbours.size() == (size_t)R) break;
 
         // For each p' in V, check distance condition and remove if met
         Dataset V_tmp = V;
         for (const auto& p_tmp : V_tmp) {
-            if (static_cast<euclidean_t>(a * euclidean_distance(p_star, p_tmp)) <= euclidean_distance(p, p_tmp)) {
+            if (a * euclidean_distance(p_star, p_tmp) <= euclidean_distance(p, p_tmp)) {
                 auto it = find(V.begin(), V.end(), p_tmp);
                 if (it != V.end()) {
                     V.erase(it);

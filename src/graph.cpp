@@ -1,10 +1,10 @@
 #include "../include/header.h"
 
 // Creates a graph node
-Graph_Node create_graph_node(const Data &data, int R) {
+Graph_Node create_graph_node(const Data &data) {
     Graph_Node node = new graph_node;
     node->data = data;
-    node->out_neighbours.reserve(R);
+    
     return node;
 }
 
@@ -16,7 +16,8 @@ void add_node_to_graph(Graph &graph, Graph_Node &node) {
 
 // Adds an edge to the graph
 void add_edge_to_graph(Graph_Node &from, int to) {
-    from->out_neighbours.insert(to);
+    if (from->indx != to) // Avoid self-loops
+        from->out_neighbours.insert(to);
 }
 
 // Finds a node in the graph

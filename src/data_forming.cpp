@@ -138,18 +138,18 @@ void store_graph(const Graph &G, string filename) {
     if (!file) return;
 
     // Write the number of nodes
-    int num_nodes = static_cast<int>(G.size());
+    int num_nodes = (int)G.size();
     file.write(reinterpret_cast<char*>(&num_nodes), sizeof(int));
 
     // Write the data and the out neighbours of each node
     for (const auto &node : G) {
         // Write the data
-        int dim = static_cast<int>(node->data.size());
+        int dim = (int)node->data.size();
         file.write(reinterpret_cast<char*>(&dim), sizeof(int));
         file.write(reinterpret_cast<char*>(node->data.data()), dim * sizeof(data_t));
 
         // Write the number of out neighbours
-        int num_neighbours = static_cast<int>(node->out_neighbours.size());
+        int num_neighbours = (int)node->out_neighbours.size();
         file.write(reinterpret_cast<char*>(&num_neighbours), sizeof(int));
 
         // Write the out neighbours indices
@@ -168,7 +168,6 @@ Graph read_graph(string filename) {
     Graph G;
     ifstream file(filename, ios::binary);
     if (!file) {
-        cerr << "Error: Unable to open the file " << filename << endl;
         return G;
     }
 
@@ -185,7 +184,10 @@ Graph read_graph(string filename) {
         file.read(reinterpret_cast<char*>(data.data()), dim * sizeof(data_t));
 
         // Create the node
-        Graph_Node node = create_graph_node(data, 0);
+        Graph_Node node = create_graph_node(data);
+
+        // Read the index of the node
+        node->indx = i;
 
         // Read the number of out neighbours
         int num_neighbours;

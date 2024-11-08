@@ -60,12 +60,12 @@ clean:
 
 # run program with valgrind for errors
 valgrind: $(OUT)
-	valgrind $(OUT)
+	valgrind $(OUT) config.txt
 
 # run program with valgrind for leak checks
 valgrind_leakcheck: $(OUT)
-	valgrind --leak-check=full $(OUT)
+	valgrind --leak-check=full -s $(OUT) config.txt
 
 # run program with valgrind for leak checks (extreme)
 valgrind_extreme: $(OUT)
-	valgrind --leak-check=full --show-leak-kinds=all --leak-resolution=high --track-origins=yes --vgdb=yes $(OUT)
+	valgrind --leak-check=full -s --show-leak-kinds=all --leak-resolution=high --track-origins=yes --vgdb=yes $(OUT) config.txt

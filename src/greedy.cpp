@@ -1,9 +1,9 @@
 #include "../include/header.h"
 
 // L\V operation, returns the elements in L that are not in V
-void L_m_V(const Graph &L, const Graph &V, Graph &LV) {
+void L_m_V(const vector<int> &L, const vector<int> &V, vector<int> &LV) {
     
-    unordered_set<Graph_Node> v_set(V.begin(), V.end());
+    unordered_set<int> v_set(V.begin(), V.end());
     LV.clear(); LV.reserve(L.size());
 
     for (const auto& node : L) {
@@ -16,33 +16,33 @@ void L_m_V(const Graph &L, const Graph &V, Graph &LV) {
 }
 
 // Greedy Algorithm - returning [k-nearest aprx. points, visited points]
-pair<Graph,Graph> greedy_search(const Graph &G, Graph_Node s, Data q, int k, int L_s){
+pair<vector<int>, vector<int>> greedy_search(const Graph &G, Graph_Node s, Data q, int k, int L_s){
 
     // Initialize sets L<-{s}, V<-{}
-    Graph L = {s};
-    Graph V = {};
+    vector<int> L; L.push_back(s->indx);
+    vector<int> V;
 
     // Initialize L \ V = {s}
-    Graph L_not_V = {s};
+    vector<int> L_not_V = {s->indx};
     
     // While L \ V is not empty
     while (!L_not_V.empty()) {
 
         // Find p* <- argmin_{p \in L \ V} d(p,q)
-        Graph_Node p_star = find_min_dist(L_not_V, q);
+        int p_star = find_min_dist(G, L_not_V, q);
 
         // Update L <- L U N_out(p*), V <- V U {p*}
-        for (const auto &p : p_star->out_neighbours) {
-            if (find_if(L.begin(), L.end(), [&](Graph_Node n) { return n->indx == p; }) == L.end()) {
-                L.push_back(G[p]);
+        for (const auto &p : G[p_star]->out_neighbours) {
+            if (find_if(L.begin(), L.end(), [p](int i) { return i == p; }) == L.end()) {
+                L.push_back(p);
             }
         }
         V.push_back(p_star);
 
         // If |L| > L_s then update L to retain closest L_s points to q
-        if (L.size() > static_cast<size_t>(L_s)) {
-            sort(L.begin(), L.end(), [q](const Graph_Node &a, const Graph_Node &b) {
-                return euclidean_distance(a->data, q) < euclidean_distance(b->data, q);
+        if (L.size() > (size_t)L_s) {
+            sort(L.begin(), L.end(), [&q, &G](int a, int b) {
+                return euclidean_distance(G[a]->data, q) < euclidean_distance(G[b]->data, q);
             });
             L.resize(L_s);
         }
@@ -52,9 +52,9 @@ pair<Graph,Graph> greedy_search(const Graph &G, Graph_Node s, Data q, int k, int
     }
     
     // Return the first k elements of L
-    if (L.size() > static_cast<size_t>(k)) {
-        sort(L.begin(), L.end(), [&q](const Graph_Node &a, const Graph_Node &b) {
-            return euclidean_distance(a->data, q) < euclidean_distance(b->data, q);
+    if (L.size() > (size_t)k) {
+        sort(L.begin(), L.end(), [&q, &G](int a, int b) {
+            return euclidean_distance(G[a]->data, q) < euclidean_distance(G[b]->data, q);
         });
         L.resize(k);
     }
