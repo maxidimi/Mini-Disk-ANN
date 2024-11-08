@@ -95,30 +95,21 @@ Graph vamana_indexing(const Dataset &P, double a, int L, int R) {
         vector<int> L = result.first; vector<int> V = result.second;
 
         // Run robust_prune to update out-neighbours of s_i
-        //Dataset V_d = get_data(V);
-        Dataset V_d;
-        for (const auto &node : V) {
-            V_d.push_back(G[node]->data);
-        }
-
-        G = robust_pruning(G, p, V_d, a, R);
+        G = robust_pruning(G, p, V, a, R);
 
         // For all points j in N_out(σ(i)) do
         for (auto j : p->out_neighbours) {
             // |N_out(j) U {σ(i)}|
-            auto N_out_j_p = G[j]->out_neighbours;
-            N_out_j_p.insert(i);
+            vector<int> N_out_j_p(G[j]->out_neighbours.begin(), G[j]->out_neighbours.end());
+            N_out_j_p.push_back(i);
 
             // If |N_out(σ(i)) U {σ(i)}| > R then
             if (N_out_j_p.size() > (size_t)R) {
-                // Run robust_prune to update out-neighbours of j
-                Dataset N_out_j_p_d;
-                for (const auto &node : N_out_j_p) {
-                    N_out_j_p_d.push_back(G[node]->data);
-                }
 
-                G = robust_pruning(G, G[j], N_out_j_p_d, a, R);
+                // Run robust_prune to update out-neighbours of j
+                G = robust_pruning(G, G[j], N_out_j_p, a, R);
             } else {
+                
                 // Add σ(i) to out-neighbours of j
                 G[j]->out_neighbours.insert(i);
             }

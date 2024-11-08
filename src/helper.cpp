@@ -1,7 +1,6 @@
 #include "../include/header.h"
 
 // Computes the Euclidean distance between two data points
-
 euclidean_t euclidean_distance(const Data &d1, const Data &d2) {
     if (d1.size() != d2.size()) {
         cerr << "Data points have different dimensions\n";
@@ -31,38 +30,19 @@ vector<int> random_permutation(size_t n) {
     return perm;
 }
 
-// Given a graph node list, returns the corresponding dataset
-Dataset get_data(const Graph &graph) {
-    Dataset data; data.reserve(graph.size());
-    for (const auto &node : graph) {
-        data.push_back(node->data);
-    }
-    return data;
-}
-
-// Generates a random query of the given dimension
-Data random_query(int dim) {
-    Data query;
-
-    for (int i = 0; i < dim; i++) {
-        query.push_back((data_t)rand() / RAND_MAX);
-    }
-
-    return query;
-}
-
-// Generates a random dataset of the given size and dimension
-Dataset random_dataset(int n, int dim) {
-
-    Dataset dataset; dataset.reserve(n);
-    for (int i = 0; i < n; i++) {
-        Data data;
-        for (int j = 0; j < dim; j++) {
-            data.push_back((data_t)rand() / RAND_MAX);
+// Finds the node in L with the minimum distance to q
+int find_min_dist(const Graph G, vector<int> L, Data q) {
+    int min_indx = -1;
+    double min_dist = numeric_limits<double>::max();
+    for (const auto &node : L) {
+        double dist = euclidean_distance(G[node]->data, q);
+        if (dist < min_dist) {
+            min_dist = dist;
+            min_indx = node;
         }
-        dataset.push_back(data);
     }
-    return dataset;
+    
+    return min_indx;
 }
 
 // Checks the results of the Greedy search manually
@@ -102,16 +82,26 @@ void time_elapsed(clock_t start, string message) {
      " seconds (= " << minutes << " minutes)" << endl;
 }
 
-// Finds the node in L with the minimum distance to q
-int find_min_dist(const Graph G, vector<int> L, Data q) {
-    int min_indx = -1;
-    double min_dist = numeric_limits<double>::max();
-    for (const auto &node : L) {
-        double dist = euclidean_distance(G[node]->data, q);
-        if (dist < min_dist) {
-            min_dist = dist;
-            min_indx = node;
-        }
+// Generates a random query of the given dimension
+Data random_query(int dim) {
+    Data query;
+
+    for (int i = 0; i < dim; i++) {
+        query.push_back((data_t)rand() / RAND_MAX);
     }
-    return min_indx;
+
+    return query;
+}
+
+// Generates a random dataset of the given size and dimension
+Dataset random_dataset(int n, int dim) {
+    Dataset dataset; dataset.reserve(n);
+    for (int i = 0; i < n; i++) {
+        Data data;
+        for (int j = 0; j < dim; j++) {
+            data.push_back((data_t)rand() / RAND_MAX);
+        }
+        dataset.push_back(data);
+    }
+    return dataset;
 }
