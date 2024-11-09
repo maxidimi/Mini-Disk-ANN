@@ -43,13 +43,13 @@ int medoid(const Dataset &P) {
 
 // Vamana Indexing Algorithm
 Graph vamana_indexing(const Dataset &P, double a, int L, int R) {
-    int n = static_cast<int>(P.size());
+    size_t n = P.size();
 
     // Initialize G to a random R-regular directed graph
     Graph G; G.reserve(n);
 
     for (auto &p : P) {
-        Graph_Node node = create_graph_node(p, R);
+        Graph_Node node = create_graph_node(p);
         add_node_to_graph(G, node);
     }
     
@@ -59,7 +59,7 @@ Graph vamana_indexing(const Dataset &P, double a, int L, int R) {
         
         set<int> random_indices;
 
-        while (static_cast<int>(random_indices.size()) < R) {
+        while (random_indices.size() < (size_t)R) {
             int random_idx = rand() % n;
 
             if (random_idx == i) continue;
@@ -68,7 +68,7 @@ Graph vamana_indexing(const Dataset &P, double a, int L, int R) {
         }
 
         for (const auto &idx : random_indices) {
-            add_edge_to_graph(node, create_graph_node(P[idx], R));
+            add_edge_to_graph(node, idx);
         }i++;
     }
     
@@ -90,33 +90,28 @@ Graph vamana_indexing(const Dataset &P, double a, int L, int R) {
         Data p_d = P[i];
 
         // Run greedy_search, V are the visited nodes, L_res are the nearest neighbours
-        pair<Graph, Graph> result = greedy_search(s, p_d, 1, L);
+        pair<vector<int>, vector<int>> result = greedy_search(G, s, p_d, L, L);
 
-        Graph L = result.first; Graph V = result.second;
+        vector<int> L = result.first; vector<int> V = result.second;
 
         // Run robust_prune to update out-neighbours of s_i
-        Dataset V_d = get_data(V);
-
-        G = robust_pruning(G, p_d, V_d, a, R, p);
+        G = robust_pruning(G, p, V, a, R);
 
         // For all points j in N_out(σ(i)) do
         for (auto j : p->out_neighbours) {
             // |N_out(j) U {σ(i)}|
-            auto N_out_j_p = j->out_neighbours;
-            N_out_j_p.insert(p);
+            vector<int> N_out_j_p(G[j]->out_neighbours.begin(), G[j]->out_neighbours.end());
+            N_out_j_p.push_back(i);
 
             // If |N_out(σ(i)) U {σ(i)}| > R then
-            if (static_cast<int>(N_out_j_p.size()) > R) {
-                // Run robust_prune to update out-neighbours of j
-                Dataset N_out_j_p_d;
-                for (const auto &node : N_out_j_p) {
-                    N_out_j_p_d.push_back(node->data);
-                }
+            if (N_out_j_p.size() > (size_t)R) {
 
-                G = robust_pruning(G, j->data, N_out_j_p_d, a, R, j);
+                // Run robust_prune to update out-neighbours of j
+                G = robust_pruning(G, G[j], N_out_j_p, a, R);
             } else {
+                
                 // Add σ(i) to out-neighbours of j
-                j->out_neighbours.insert(p);
+                G[j]->out_neighbours.insert(i);
             }
         }
     }

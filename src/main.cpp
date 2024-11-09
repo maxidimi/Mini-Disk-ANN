@@ -30,7 +30,9 @@ int main(int argc, char *argv[]) {
 
     // Read the configuration file and set the parameters
     string dataset_f, query_f, groundtruth_f;
-    int k = 0, R = -1, L = -1, q_idx = -1; double a = 0.0;
+    int k = 0, R = -1, L = -1, q_idx = -1;
+    double a = 0.0;
+    bool print = false;
     
     string line;
     while (getline(configFile, line)) {
@@ -59,28 +61,23 @@ int main(int argc, char *argv[]) {
     // Read the dataset, queries and groundtruth
     Dataset dataset = fvecs_read(dataset_f);
     Dataset queries = fvecs_read(query_f);
-    Dataset groundtruth_d = ivecs_read(groundtruth_f);
-    Dataset queries_to_test;
+    vector<vector<int>> groundtruth_i = ivecs_read(groundtruth_f);
     vector<vector<int>> groundtruth;
-
-    // Cast groundtruth to vector<vector<int>>
-    vector<vector<int>> groundtruth_i;
-    for (const auto &g : groundtruth_d) {
-        groundtruth_i.push_back(vector<int>(g.begin(), g.end()));
-    }
+    Dataset queries_to_test;
     
     // Set queries and groundtruth to test
+    int idx = 0;
     if (q_idx == -1) { // Test all queries in the query file
         queries_to_test = queries;
         groundtruth = groundtruth_i;
         
     } else if (q_idx == -2) { // Test a random query
-        int idx = rand() % queries.size();
+        idx = rand() % queries.size();
         queries_to_test.push_back(queries[idx]);
         groundtruth.push_back(groundtruth_i[idx]);
 
     } else { // Test a specific query
-        if (q_idx < 0 || q_idx >= static_cast<int>(queries.size())) {
+        if (q_idx < 0 || q_idx >= (int)queries.size()) {
             cerr << "Invalid query index, give [0, " << queries.size() - 1 << "]" << endl;
             return 1;
         } else {
@@ -90,8 +87,8 @@ int main(int argc, char *argv[]) {
     }
     
     // Check that parametres are valid
-    int n = static_cast<int>(dataset.size());
-    int d = static_cast<int>(dataset.front().size());
+    int n = (int)dataset.size();
+    int d = (int)dataset.front().size();
     if (R < 1 || L < k || k <= 0 || a < 1.0 || n <= 0) {
         cerr << "Invalid parametrization!" << endl;
         return 1;
@@ -106,35 +103,52 @@ int main(int argc, char *argv[]) {
     cout << " || a: " << a << endl;
     cout << " || Size: " << n << endl;
     cout << " || Dimension: " << d << endl;
+    if (q_idx == -1) {
+        cout << " || Queries: All" << endl;
+    } else {
+        print = true;
+        cout << " || Queries: " << idx << endl;
+    }
     cout << "=======================================================================================\n";
     
     // Start the timer
     clock_t start = clock();
     
     // Create the Vamana index
-    Graph G = vamana_indexing(dataset, a, L, R);
+    Graph G = read_graph("graph.bin");
+    if (G.empty()) {
+        G = vamana_indexing(dataset, a, L, R);
+        store_graph(G, "graph.bin");
+    }
+    
     time_elapsed(start, "Vamana Indexing");
     cout << "=======================================================================================\n";
     
+    double recall_sum = 0.0;
     for (size_t i = 0; i < queries_to_test.size(); i++) {
         Data query = queries_to_test[i];
-        vector<int> groundtruth_t;
+        vector<int> groundtruth_t = groundtruth[i];
         clock_t gr_start = clock();
 
         // Perform greedy search starting from the first node of the graphß
         Graph_Node s = G.front();
-        auto result_p = greedy_search(s, query, k, L);
+        auto result_p = greedy_search(G, s, query, k, L);
         auto result = result_p.first; auto visited = result_p.second;
 
         // Print time for each Greedy call
-        time_elapsed(gr_start, "Greedy Search " + to_string(i + 1) + "/" + to_string(queries_to_test.size()));
+        if (print) time_elapsed(gr_start, "Greedy Search " + to_string(i + 1) + "/" + to_string(queries_to_test.size()));
         
         // Print the results
-        check_results(dataset, query, result, k, groundtruth_t);
+        recall_sum += check_results(dataset, query, result, k, groundtruth_t, true);
     }
     
     // Print time for both Vamana and Greedy calls
     time_elapsed(start, "both Vamana and Greedy calls");
+
+    // Print the average recall
+    cout << "=======================================================================================\n";
+    cout << "===> Average Recall@k: " << (double)(recall_sum/queries_to_test.size()) << "%" << endl;
+    cout << "=======================================================================================\n";
 
     // Free the memory allocated for the graph
     for (const auto &node : G) {

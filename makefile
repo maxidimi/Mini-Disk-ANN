@@ -57,3 +57,15 @@ clean:
 	rm -f $(TEST_OUT)
 	rm -rf ./build
 	rm -rf ./bin
+
+# run program with valgrind for errors
+valgrind: $(OUT)
+	valgrind $(OUT) config.txt
+
+# run program with valgrind for leak checks
+valgrind_leakcheck: $(OUT)
+	valgrind --leak-check=full -s $(OUT) config.txt
+
+# run program with valgrind for leak checks (extreme)
+valgrind_extreme: $(OUT)
+	valgrind --leak-check=full -s --show-leak-kinds=all --leak-resolution=high --track-origins=yes --vgdb=yes $(OUT) config.txt
