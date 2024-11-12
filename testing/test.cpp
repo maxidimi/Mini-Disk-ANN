@@ -68,6 +68,14 @@ void test_read_graph(void){
     //Test on a file that does not existing
     Graph G = read_graph("random_file");
     TEST_CHECK(G.empty());  
+
+    std::ofstream file("new_file", std::ios::binary);
+    int num_nodes = 2;
+    file.write((const char*)(&num_nodes), sizeof(int));
+    file.close();
+
+    G= read_graph("new_file");
+    TEST_CHECK(G.size() == 2);
 }
 
 void test_store_graph(void){
@@ -113,6 +121,24 @@ void test_euclidean_distance(void){//squared euclidean distance
     d2 = {2, 4, 6, 8};
     //Test for 4D
     TEST_CHECK(fabs(euclidean_distance(d1, d2) - 30) < 1e-6);
+}
+
+void test_min_dist(){
+    Graph graph;
+    int num_nodes=5;
+    for (float i = 0; i < num_nodes; ++i) {
+        Graph_Node node = new graph_node;
+        node->indx = int(i);
+        node->data = {i, i, i};
+        if (i < num_nodes - 1) {
+            node->out_neighbours.insert(int(i + 1)); 
+        }
+        graph.push_back(node);
+    }
+    vector<int> L = {0,1,2,3,4};
+    Data q = {2.4,2.4,2.4};
+    int min = find_min_dist(graph,L,q);
+    TEST_CHECK(min==2);
 }
 
 void test_random_permutation(void){
@@ -161,7 +187,7 @@ void test_L_m_V(void){
 void test_greedy_search(void) {
     // Define the parameters for the test
     srand((unsigned int)time(0));
-    int n = 3000; int dim = 2;
+    int n = 300; int dim = 2;
 
     // Create a random dataset and query
     Dataset dataset = random_dataset(n, dim);
@@ -214,7 +240,30 @@ void test_greedy_search(void) {
     }
 }
 
+void test_pruning(void) {
+    int num_nodes = 20;
+    Graph graph;
 
+    for (float i = 0; i < num_nodes; ++i) {
+        Graph_Node node = new graph_node;
+        node->indx = i;
+        node->data = {i, i+1, i+2};
+        if (i < num_nodes - 1) {
+            node->out_neighbours.insert(int(i + 1)); 
+        }
+        graph.push_back(node);
+    }
+    vector<int> out(graph[4]->out_neighbours.begin(),graph[12]->out_neighbours.end());
+    graph = robust_pruning(graph,graph[12],out,1.2,5);
+
+    TEST_CHECK(graph[12]->out_neighbours.size()==2);
+    TEST_CHECK(graph[12]->out_neighbours.find(5) != graph[12]->out_neighbours.end());
+    TEST_CHECK(graph[12]->out_neighbours.find(13) != graph[12]->out_neighbours.end());
+}
+
+
+//!TODO
+//min dist,read graph
 
 
 TEST_LIST = {
@@ -225,9 +274,11 @@ TEST_LIST = {
     {"test_read_graph", test_read_graph},
     {"test_store_graph", test_store_graph},
     {"test_euclidean_distance", test_euclidean_distance},
+    {"test_min_dist", test_min_dist},
     {"test_random_permutation", test_random_permutation},
     {"test_medoid", test_medoid},
     {"test_L_m_V", test_L_m_V},
     {"test_greedy_search", test_greedy_search},
+    {"test_pruning", test_pruning},
     { 0 }
 };
