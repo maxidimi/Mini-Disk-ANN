@@ -61,6 +61,8 @@ int medoid(const Dataset &P);
 Graph vamana_indexing(const Dataset &P, double a, int L, int R);
 
 /* File Reading and Storing */
+pair<Dataset, vector<int>> read_sigmod_queries(string file_name);
+pair<Dataset, vector<int>> read_sigmod_dataset(string file_name);
 Dataset bvecs_read(string file_name);
 Dataset fvecs_read(string file_name);
 vector<vector<int>> ivecs_read(string Filename_s);
