@@ -1,5 +1,115 @@
 #include "../include/header.h"
 
+// Read queries from the SIGMOD contest (Dataset: data, vector<int> attributes)
+pair<Dataset, vector<int>> read_sigmod_queries(string file_name_s) {
+    // Open the file
+    char* file_name = &file_name_s[0];
+    auto *file = fopen(file_name, "r");
+    if (file == nullptr) {
+        cout << "Error, can not open the file " << file_name << endl;
+        return {};
+    }
+
+    // Reading the number of the vectors
+    uint32_t num_u;
+    size_t r = fread(&num_u, sizeof(uint32_t), (size_t)1, file);
+    if (r != (size_t)1) {
+        cerr << "Error_01, can not read the file " << file_name << endl;
+        exit(1);
+    }
+    int num = (int)num_u;
+
+    // Vectors have 104 dimensions (float32): the first is query_type, the second is V, 
+    // ignore third and fourth and the rest are the features
+    Dataset arr; arr.reserve(num);
+    vector<int> V_arr; V_arr.reserve(num);
+
+    // Loop to read every vector
+    for (int i = 0; i < num; i++) {
+
+        // Read the whole vector
+        vector<float> v(104);
+        r = fread(v.data(), sizeof(float), (size_t)104, file);
+        if (r != (size_t)104) {
+            cerr << "Error_02, can not read the file " << file_name << endl;
+            exit(1);
+        }
+
+        // Store the query type and V
+        int query_type = (int)v[0];
+        int V = (int)v[1];
+
+        // If the query does not have categorical attribute, ignore it
+        if (V == -1) {
+            continue;
+        }
+
+        // Keep only the data
+        vector<data_t> v2(v.begin() + 4, v.end());
+
+        // Store the vector and the filter
+        arr.push_back(v2);
+        V_arr.push_back(V);
+    }
+
+    fclose(file);
+
+    // Return the dataset and the filters
+    return make_pair(arr, V_arr);
+}
+
+// Reading the dataset from the SIGMOD contest
+pair<Dataset, vector<int>> read_sigmod_dataset(string file_name_s) {
+
+    // Open the file
+    char* file_name = &file_name_s[0];
+    auto *file = fopen(file_name, "r");
+    if (file == nullptr) {
+        cout << "Error, can not open the file " << file_name << endl;
+        return {};
+    }
+
+    // Reading the number of the vectors
+    uint32_t num_u;
+    size_t r = fread(&num_u, sizeof(uint32_t), (size_t)1, file);
+    if (r != (size_t)1) {
+        cerr << "Error_01, can not read the file " << file_name << endl;
+        exit(1);
+    }
+    int num = (int)num_u;
+
+    // Each vector has 102 dimensions (float32):  the first is C, the second is T(ignore it) and the rest are the features
+    Dataset arr; arr.reserve(num);
+    vector<int> filters; filters.reserve(num);
+
+    // Loop to read every vector
+    for (int i = 0; i < num; i++) {
+
+        // Read the whole vector
+        vector<float> v(102);
+        r = fread(v.data(), sizeof(float), (size_t)102, file);
+        
+
+        int C = (int)v[0];
+
+        vector<data_t> v2(v.begin() + 2, v.end());
+
+        if (r != (size_t)102) {
+            cerr << "Error_02, can not read the file " << file_name << endl;
+            exit(1);
+        }
+
+        // Store the vector and the filter
+        arr.push_back(v2);
+        filters.push_back(C);
+    }
+
+    fclose(file);
+
+    // Return the dataset and the filters
+    return make_pair(arr, filters);
+}
+
 // Reading vectors from files of .bvecs format
 Dataset bvecs_read(string file_name_s){
     char* file_name = &file_name_s[0];

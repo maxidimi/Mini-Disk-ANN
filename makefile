@@ -45,6 +45,10 @@ build_dir:
 ./build/test.o: $(TEST_SRC)
 	$(CC) $(FLAGS) $(TEST_SRC) -o ./build/test.o
 
+# Run the program with the config file
+run: all
+	./$(OUT) config.txt
+
 # Link object files (excluding main.o) and run tests
 test: build_dir $(TEST_OBJS)
 	$(CC) -g $(TEST_OBJS) -o $(TEST_OUT)

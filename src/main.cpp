@@ -14,6 +14,28 @@
 */
 
 int main(int argc, char *argv[]) {
+    // read file data/SIGMOD/1M_DS/contest-data-release-1m.bin
+    auto r = read_sigmod_dataset("data/SIGMOD/1M_DS/contest-data-release-1m.bin");
+    Dataset d = r.first; vector<int> f = r.second;
+    cout << "Size of the dataset: " << d.size() << endl;
+    cout << "Dimension of the dataset: " << d[0].size() << endl;
+
+    cout << "Size of the filters: " << f.size() << endl;
+    cout << "First filter: " << f[0] << endl;
+
+    cout << "=======================================================================================\n";
+
+    r = read_sigmod_queries("data/SIGMOD/1M_DS/contest-queries-release-1m.bin");
+    Dataset q = r.first; vector<int> v = r.second;
+    cout << "Size of the queries: " << q.size() << endl;
+    cout << "Dimension of the queries: " << q[0].size() << endl;
+
+    cout << "Size of the filters: " << v.size() << endl;
+    cout << "First filter: " << v[0] << endl;
+
+    return 0;
+    
+    /*
     // Read the configuration file name from the command line
     if (argc != 2) {
         cerr << "Usage: " << argv[0] << " <config_file>" << endl;
@@ -153,7 +175,7 @@ int main(int argc, char *argv[]) {
     // Free the memory allocated for the graph
     for (const auto &node : G) {
         delete node;
-    }
+    }*/
 
     return 0;
 }
