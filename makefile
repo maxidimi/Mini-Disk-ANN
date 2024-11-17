@@ -47,12 +47,12 @@ build_dir:
 
 # Run the program with the config file
 run: all
-	./$(OUT) config.txt
+	$(OUT) config.txt
 
 # Link object files (excluding main.o) and run tests
 test: build_dir $(TEST_OBJS)
 	$(CC) -g $(TEST_OBJS) -o $(TEST_OUT)
-	./$(TEST_OUT)
+	$(TEST_OUT)
 
 # Clean command to remove object files and binary
 clean:
@@ -64,7 +64,7 @@ clean:
 	rm -f random_file  
 	rm -f new_file     
 	rm -f test_graph.dat
-	rm -f test_graph.bin
+	rm -f *.bin
 
 # run program with valgrind for errors
 valgrind: $(OUT)

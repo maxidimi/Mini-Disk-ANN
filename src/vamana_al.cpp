@@ -1,5 +1,133 @@
 #include "../include/header.h"
 
+// Find Medoid
+unordered_map<int, int> find_medoid(const Dataset &P, vector<vector<int>> F, int threshold) {
+    // F is a matrix of size n x FILTERS, where F[i][f] = 1 if point i matches filter f
+    size_t n = P.size();
+
+    // Initialize M be an empty map
+    unordered_map<int, int> M; M.reserve(FILTERS);
+
+    // Initialize T to a zero map, T is intended as a counter
+    unordered_map<int, int> T; T.reserve(n);
+    for (size_t i = 0; i < n; i++) T[i] = 0;
+
+    // Foreach f \in F do
+    for (int f = 0; f < FILTERS; f++) {
+
+        // Let P_f denote the ids of all points matching filter f
+        unordered_set<int> P_f;
+        for (size_t i = 0; i < n; i++) {
+            if (F[i][f] == 1) P_f.insert(i);
+        }
+
+        // Let R_F <- τ randomly sampled data point ids from P_f
+        vector<int> R_f(P_f.begin(), P_f.end());
+        random_shuffle(R_f.begin(), R_f.end());
+        R_f.resize(threshold);
+
+        // p* <- argmin_{p \in R_F} T[p]
+        int p_star = -1;
+        euclidean_t min_dist = numeric_limits<euclidean_t>::max();
+        for (const auto &p : R_f) {
+            if (T[p] < min_dist) {
+                min_dist = T[p];
+                p_star = p;
+            }
+        }
+        
+        // Update M[f] <- p*
+        M[f] = p_star;
+
+        // Update T[p*] <- T[p*] + 1
+        T[p_star]++;
+    }
+
+    return M;
+}
+
+// Filtered Vamana Indexing Algorithm
+Graph filtered_vamana_indexing(const Dataset &P, vector<vector<int>> F_x, double a, int L, int R) {
+    int n = (int)P.size();
+
+    // Initialize G to an empty graph
+    Graph G; G.reserve(n);
+
+    // Let s denote the medoid of P
+    int s = medoid(P);
+
+    // Let st(f) denote the start node of filter label f for every f \in F
+    unordered_map<int, int> st = find_medoid(P, F_x, 1);
+
+    // Let σ denote a random permutation of |n|
+    vector<int> sigma = random_permutation(n);
+
+    // Let F_x be the label-set for every x \in P
+
+    // Foreach i \in |n| do
+    for (int i = 0; i < n; i++) {
+        int s_i = sigma[i];
+
+        // Let S_F_σ_(i) = {st(f) | f \in F_x_σ_(i)}
+        set<int> S_F_i;
+        for (int f = 0; f < FILTERS; f++) {
+            if (F_x[s_i][f] == 1) S_F_i.insert(st[f]);
+        }
+
+        // Let [{}, V_F_x_σ_(i)] = filtered_greedy_search(G, S_F_σ_(i), p_x_σ_(i), 0, L, F_x_σ_(i))
+        pair<vector<int>, vector<int>> result = greedy_search(G, G[s_i], P[s_i], 0, L);
+        vector<int> V_F_i = result.second;
+
+        //? V = V U V_F_x_σ_(i)
+
+        // G = filtered_robust_pruning(G, p_x_σ_(i), V_F_x_σ_(i), a, R, F_x_σ_(i))
+        G = robust_pruning(G, G[s_i], V_F_i, a, R);
+
+        // Foreach j \in N_out(σ(i)) do
+        for (int j : G[s_i]->out_neighbours) {
+
+            // Update N_out(j) <- N_out(j) U {σ(i)}
+            G[j]->out_neighbours.insert(s_i);
+
+            // If |N_out(j)| > R then
+            if (G[j]->out_neighbours.size() > (size_t)R) {
+                // G = filtered_robust_pruning(G, j, N_out(j), a, R, F_x_σ_(i))
+            }
+        }
+    }
+
+    return G;
+}
+
+Graph stiched_vamana_indexing(const Dataset &P, vector<vector<int>> F_x, double a, int L_small, int R_small, int R_stiched) {
+    
+    // Initialize G = (V, E) to an empty graph
+    Graph G;
+    G.reserve(P.size());
+
+    // Let F_x be the label-set for every x \in P
+
+    // Let P_f be the set of points with label f \in F
+    vector<unordered_set<int>> P_f(FILTERS);
+    for (size_t i = 0; i < P.size(); i++) {
+        for (int f = 0; f < FILTERS; f++) {
+            if (F_x[i][f] == 1) P_f[f].insert(i);
+        }
+    }
+
+    // foreach f \in F do
+    for (int f = 0; f < FILTERS; f++) {
+        // Let G_f = vamana_indexing(P_f, a, L_small, R_small)
+        Graph G_f = vamana_indexing(P, a, L_small, R_small);
+    }
+
+    // foreach v \in V(G_f) do
+    for (auto &v : G) {
+        // Let G = robust_pruning(G, v, V(G_f), a, R_stiched, F)
+    }
+    return G;
+}
+
 // Vamana Indexing Algorithm
 // Gets database P, a, L, R
 // Returns directed graph G over P with out-degree <= R

@@ -1,6 +1,6 @@
-dataset=data/ANN_SIFT10K/siftsmall_base.fvecs
-query=data/ANN_SIFT10K/siftsmall_query.fvecs
-groundtruth=data/ANN_SIFT10K/siftsmall_groundtruth.ivecs
+dataset=data/SIGMOD/1M_DS/contest-data-release-1m.bin
+query=data/SIGMOD/1M_DS/contest-queries-release-1m.bin
+groundtruth=data/SIGMOD/1M_DS/contest-groundtruth-release-1m.bin
 k=100
 R=16
 L=100
