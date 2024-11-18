@@ -16,19 +16,21 @@ void L_m_V(const vector<int> &L, const vector<int> &V, vector<int> &LV) {
 }
 
 // Greedy Algorithm - returning [k-nearest aprx. points, visited points]
-pair<vector<int>, vector<int>> greedy_search(const Graph &G, list<Graph_Node> S, Data q, int k, int L_s,float Filter){
+pair<vector<int>, vector<int>> greedy_search(const Graph &G, list<Graph_Node> S, Data q, int k, int L_s,vector<float> Filter, float fq){
 
     // Initialize sets L<-{}, V<-{}
     vector<int> L; 
     vector<int> V;
+    int i=0;
 
     //for s e S
     for (auto s = S.begin(); s != S.end(); ++s) {
             //If (Fs intersection Fx) != {}
-            if ((*s)->data[0] == Filter) {
+            if (q[0] == Filter[i]) {
                 //L <- L U {s}
                 L.push_back((*s)->indx);
         }
+        i++;
     }      
     // Initialize L \ V = {s}
     vector<int> L_not_V;
@@ -46,10 +48,15 @@ pair<vector<int>, vector<int>> greedy_search(const Graph &G, list<Graph_Node> S,
         V.push_back(p_star);
 
         //Let N'_out(p*) <- p' ε N_out(p*) : (Fp' intersectiob Fq != {}), p' not belongs to V
-        unordered_set<int> N_; 
-
+        unordered_set<int> N_;
+        for(const auto &p : G[p_star]->out_neighbours){
+            if(fq == Filter[p] && find(V.begin() , V.end() , G[p]->indx) == V.end()){
+                N_.insert(p);
+            }
+        }
+        
         // Update L <- L U N'_out(p*)
-        for (const auto &p : G[p_star]->out_neighbours) {
+        for (const auto &p : N_) {
             if (find_if(L.begin(), L.end(), [p](int i) { return i == p; }) == L.end()) {
                 L.push_back(p);
             }
