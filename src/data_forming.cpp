@@ -1,5 +1,102 @@
 #include "../include/header.h"
 
+// Find the groundtruth for the datasets of SIGMOD contest with brute force, for k = 100
+void find_store_groundtruth(string dataset_f, string query_f, string groundtruth_f) {
+
+    // Read the dataset and the queries
+    auto r = read_sigmod_dataset(dataset_f); auto r2 = read_sigmod_queries(query_f);
+    Dataset dataset = r.first; vector<int> C = r.second;
+    Dataset queries = r2.first; vector<int> V = r2.second;
+
+    // Write the groundtruth to "data/SIGMOD/1M_DS/contest-groundtruth-release-1m.bin"
+    ofstream file(groundtruth_f, ios::binary);
+    if (!file) {
+        cerr << "Error, can not open the file data/SIGMOD/1M_DS/contest-groundtruth-release-1m.bin" << endl;
+        exit(1);
+    }
+
+    // Write the number of queries
+    uint32_t num_u = (uint32_t)queries.size();
+    file.write(reinterpret_cast<char*>(&num_u), sizeof(uint32_t));
+
+    // Find the groundtruth for each query
+    for (int i = 0; i < (int)queries.size(); i++) {
+        Data query = queries[i];
+        int V_i = V[i];
+        
+        // Find the distances to all the vectors
+        vector<pair<int, double>> distances;
+        for (size_t j = 0; j < dataset.size(); j++) {
+            if (V_i != -1 && C[j] != V_i) continue;
+            double dist = euclidean_distance(query, dataset[j]);
+            distances.emplace_back((int)j, dist);
+        }
+
+        // Sort the distances
+        sort(distances.begin(), distances.end(), [](const pair<int, double> &a, const pair<int, double> &b) {
+            return a.second < b.second;
+        });
+
+        // Store the k nearest neighbours (or less)
+        vector<int> neighbours;
+        for (size_t j = 0; j < distances.size() && j < 100; j++) {
+            neighbours.push_back(distances[j].first);
+        }
+
+        // Write the number of neighbours
+        int num_neighbours = neighbours.size();
+        file.write(reinterpret_cast<char*>(&num_neighbours), sizeof(int));
+
+        // Write the neighbours
+        file.write(reinterpret_cast<char*>(neighbours.data()), 100 * sizeof(int));
+    }
+}
+
+// Read the groundtruth from the SIGMOD contest (Dataset: data, vector<int> attributes)
+vector<vector<int>> read_sigmod_groundtruth(string file_name_s) {
+    char* file_name = &file_name_s[0];
+    auto *file = fopen(file_name, "r");
+    if (file == nullptr) {
+        cout << "Error, can not open the file " << file_name << endl;
+        return {};
+    }
+
+    // Reading the number of the vectors
+    uint32_t num_u;
+    size_t r = fread(&num_u, sizeof(uint32_t), (size_t)1, file);
+    if (r != (size_t)1) {
+        cerr << "Error_01, can not read the file " << file_name << endl;
+        exit(1);
+    }
+    int num = (int)num_u;
+
+    // Loop to read every vector
+    vector<vector<int>> groundtruth; groundtruth.reserve(num);
+    for (int i = 0; i < num; i++) {
+        // Read the number of neighbours
+        int num_neighbours;
+        r = fread(&num_neighbours, sizeof(int), (size_t)1, file);
+        if (r != (size_t)1) {
+            cerr << "Error_02, can not read the file " << file_name << endl;
+            exit(1);
+        }
+
+        // Read the neighbours
+        vector<int> neighbours(num_neighbours);
+        r = fread(neighbours.data(), sizeof(int), (size_t)num_neighbours, file);
+        if (r != (size_t)num_neighbours) {
+            cerr << "Error_03, can not read the file " << file_name << endl;
+            exit(1);
+        }
+        // Store the neighbours
+        groundtruth.push_back(neighbours);
+    }
+
+    fclose(file);
+
+    return groundtruth;
+}
+
 // Read queries from the SIGMOD contest (Dataset: data, vector<int> attributes)
 pair<Dataset, vector<int>> read_sigmod_queries(string file_name_s) {
     // Open the file
@@ -19,8 +116,7 @@ pair<Dataset, vector<int>> read_sigmod_queries(string file_name_s) {
     }
     int num = (int)num_u;
 
-    // Vectors have 104 dimensions (float32): the first is query_type, the second is V, 
-    // ignore third and fourth and the rest are the features
+    // Vectors have 104 dimensions (float32): the first is query_type, the second is V
     Dataset arr; arr.reserve(num);
     vector<int> V_arr; V_arr.reserve(num);
 
@@ -35,14 +131,17 @@ pair<Dataset, vector<int>> read_sigmod_queries(string file_name_s) {
             exit(1);
         }
 
-        // Store the query type and V
-        int query_type = (int)v[0];
+        // Store the target categorical attribute
         int V = (int)v[1];
 
-        // If the query does not have categorical attribute, ignore it
-        if (V == -1) {
-            continue;
-        }
+        // Store the query type and V
+        int query_type = (int)v[0];
+
+        //// If we search for only the timestamp, look only for the ANN
+        if (query_type == 2) continue;//query_type = 0;
+
+        //// If we search for both timestamp and categorical attribute, look only for the categorical attribute
+        if (query_type == 3) continue;//query_type = 1;
 
         // Keep only the data
         vector<data_t> v2(v.begin() + 4, v.end());
@@ -78,7 +177,7 @@ pair<Dataset, vector<int>> read_sigmod_dataset(string file_name_s) {
     }
     int num = (int)num_u;
 
-    // Each vector has 102 dimensions (float32):  the first is C, the second is T(ignore it) and the rest are the features
+    // Each vector has 102 dimensions (float32):  C, T, 100 features
     Dataset arr; arr.reserve(num);
     vector<int> filters; filters.reserve(num);
 
@@ -88,16 +187,14 @@ pair<Dataset, vector<int>> read_sigmod_dataset(string file_name_s) {
         // Read the whole vector
         vector<float> v(102);
         r = fread(v.data(), sizeof(float), (size_t)102, file);
-        
-
-        int C = (int)v[0];
-
-        vector<data_t> v2(v.begin() + 2, v.end());
-
         if (r != (size_t)102) {
             cerr << "Error_02, can not read the file " << file_name << endl;
             exit(1);
         }
+        
+        int C = (int)v[0];
+        
+        vector<data_t> v2(v.begin() + 2, v.end());
 
         // Store the vector and the filter
         arr.push_back(v2);
@@ -238,83 +335,4 @@ vector<vector<int>> ivecs_read(string Filename_s) {
     fclose(fid);
 
     return arr;
-}
-
-// Storing the graph in a binary file
-void store_graph(const Graph &G, string filename) {
-    
-    // Open the file
-    ofstream file(filename, ios::binary);
-    if (!file) return;
-
-    // Write the number of nodes
-    int num_nodes = (int)G.size();
-    file.write(reinterpret_cast<char*>(&num_nodes), sizeof(int));
-
-    // Write the data and the out neighbours of each node
-    for (const auto &node : G) {
-        // Write the data
-        int dim = (int)node->data.size();
-        file.write(reinterpret_cast<char*>(&dim), sizeof(int));
-        file.write(reinterpret_cast<char*>(node->data.data()), dim * sizeof(data_t));
-
-        // Write the number of out neighbours
-        int num_neighbours = (int)node->out_neighbours.size();
-        file.write(reinterpret_cast<char*>(&num_neighbours), sizeof(int));
-
-        // Write the out neighbours indices
-        for (auto neighbour : node->out_neighbours) {
-            file.write(reinterpret_cast<char*>(&neighbour), sizeof(int));
-        }
-    }
-
-    file.close();
-
-    return;
-}
-
-// Reading the graph from a binary file
-Graph read_graph(string filename) {
-    Graph G;
-    ifstream file(filename, ios::binary);
-    if (!file) {
-        return G;
-    }
-
-    // Read the number of nodes
-    int num_nodes;
-    file.read(reinterpret_cast<char*>(&num_nodes), sizeof(int));
-
-    // Read the data and the out neighbours of each node
-    for (int i = 0; i < num_nodes; i++) {
-        // Read the data
-        int dim;
-        file.read(reinterpret_cast<char*>(&dim), sizeof(int));
-        Data data(dim);
-        file.read(reinterpret_cast<char*>(data.data()), dim * sizeof(data_t));
-
-        // Create the node
-        Graph_Node node = create_graph_node(data);
-
-        // Read the index of the node
-        node->indx = i;
-
-        // Read the number of out neighbours
-        int num_neighbours;
-        file.read(reinterpret_cast<char*>(&num_neighbours), sizeof(int));
-
-        // Read the out neighbours indices
-        for (int j = 0; j < num_neighbours; j++) {
-            int neighbour;
-            file.read(reinterpret_cast<char*>(&neighbour), sizeof(int));
-            node->out_neighbours.insert(neighbour);
-        }
-
-        // Add the node to the graph
-        add_node_to_graph(G, node);
-    }
-
-    file.close();
-
-    return G;
 }

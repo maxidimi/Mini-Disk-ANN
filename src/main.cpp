@@ -1,5 +1,4 @@
 #include "../include/header.h"
-
 /*
     Make a configuration file with the following format:
     dataset=dataset.fvecs
@@ -11,31 +10,11 @@
     a=1.5
     q_idx=
     Then run the program with the configuration file as an argument.
+    If query type is 0 (so V == -1), then we search just for the ANN
+    If query type is 1 (so V != -1), then we search for the ANN with categorical attribute V
 */
 
 int main(int argc, char *argv[]) {
-    // read file data/SIGMOD/1M_DS/contest-data-release-1m.bin
-    auto r = read_sigmod_dataset("data/SIGMOD/1M_DS/contest-data-release-1m.bin");
-    Dataset d = r.first; vector<int> f = r.second;
-    cout << "Size of the dataset: " << d.size() << endl;
-    cout << "Dimension of the dataset: " << d[0].size() << endl;
-
-    cout << "Size of the filters: " << f.size() << endl;
-    cout << "First filter: " << f[0] << endl;
-
-    cout << "=======================================================================================\n";
-
-    r = read_sigmod_queries("data/SIGMOD/1M_DS/contest-queries-release-1m.bin");
-    Dataset q = r.first; vector<int> v = r.second;
-    cout << "Size of the queries: " << q.size() << endl;
-    cout << "Dimension of the queries: " << q[0].size() << endl;
-
-    cout << "Size of the filters: " << v.size() << endl;
-    cout << "First filter: " << v[0] << endl;
-
-    return 0;
-    
-    /*
     // Read the configuration file name from the command line
     if (argc != 2) {
         cerr << "Usage: " << argv[0] << " <config_file>" << endl;
@@ -53,7 +32,7 @@ int main(int argc, char *argv[]) {
     // Read the configuration file and set the parameters
     string dataset_f, query_f, groundtruth_f;
     int k = 0, R = -1, L = -1, q_idx = -1;
-    double a = 0.0;
+    double a = 0.0; string vam_func = "filtered";
     bool print = false;
     
     string line;
@@ -71,6 +50,7 @@ int main(int argc, char *argv[]) {
                 else if (key == "L") L = stoi(value);
                 else if (key == "a") a = stod(value);
                 else if (key == "q_idx") q_idx = stoi(value);
+                else if (key == "vamana_function") vam_func = value;
                 else {
                     cerr << "Invalid configuration key: " << key << endl;
                     return 1;
@@ -81,12 +61,28 @@ int main(int argc, char *argv[]) {
     configFile.close();
     
     // Read the dataset, queries and groundtruth
-    Dataset dataset = fvecs_read(dataset_f);
-    Dataset queries = fvecs_read(query_f);
-    vector<vector<int>> groundtruth_i = ivecs_read(groundtruth_f);
-    vector<vector<int>> groundtruth;
-    Dataset queries_to_test;
+    auto r = read_sigmod_dataset(dataset_f); 
+    Dataset dataset = r.first; vector<int> C = r.second;
+
+    auto r2 = read_sigmod_queries(query_f);
+    Dataset queries = r2.first; vector<int> V = r2.second;
+
+    auto groundtruth_i = read_sigmod_groundtruth(groundtruth_f);
+    if (groundtruth_i.empty()) {
+        find_store_groundtruth(dataset_f, query_f, groundtruth_f);
+        groundtruth_i = read_sigmod_groundtruth(groundtruth_f);
+    }
     
+    vector<vector<int>> groundtruth;
+
+    Dataset queries_to_test;
+
+    // Find count of unique values in C
+    vector<int> c_tmp = C;
+    sort(c_tmp.begin(), c_tmp.end());
+    size_t c_len = unique(c_tmp.begin(), c_tmp.end()) - c_tmp.begin();
+    vector<int> C_unique(c_tmp.begin(), c_tmp.begin() + c_len);
+
     // Set queries and groundtruth to test
     int idx = 0;
     if (q_idx == -1) { // Test all queries in the query file
@@ -139,7 +135,16 @@ int main(int argc, char *argv[]) {
     // Create the Vamana index
     Graph G = read_graph("graph.bin");
     if (G.empty()) {
-        G = vamana_indexing(dataset, a, L, R);
+        if (vam_func == "vamana") {
+            G = vamana_indexing(dataset, a, L, R);
+        } else if (vam_func == "filtered") {
+            G = filtered_vamana_indexing(dataset, C, a, L, R, C_unique);
+        } else if (vam_func == "stiched") {
+            G = stiched_vamana_indexing(dataset, C, a, L, R, R, C_unique);
+        } else {
+            cerr << "Invalid Vamana function!" << endl;
+            return 1;
+        }
         store_graph(G, "graph.bin");
     }
     
@@ -173,9 +178,7 @@ int main(int argc, char *argv[]) {
     cout << "=======================================================================================\n";
 
     // Free the memory allocated for the graph
-    for (const auto &node : G) {
-        delete node;
-    }*/
+    for (const auto &node : G) delete node;
 
     return 0;
 }
