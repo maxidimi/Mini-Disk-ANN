@@ -51,7 +51,7 @@ Dataset random_dataset(int n, int dim);
 
 /* Greedy Search | s start node, q query, k result size, L search list size */
 void L_m_V(const vector<int> &L, const vector<int> &V, vector<int> &LV);
-pair<vector<int>, vector<int>> filtered_greedy_search(const Graph &G, list<Graph_Node> S, Data q, int k, int L_s,float filter, float fq);
+pair<vector<int>, vector<int>> filtered_greedy_search(const Graph &G, list<Graph_Node> S, Data q, int k, int L_s,vector<int> filter, int fq);
 pair<vector<int>, vector<int>> greedy_search(const Graph &G, Graph_Node s, Data q, int k, int L_s);
 /* Robust Pruning */
 Graph robust_pruning(Graph &G, Graph_Node &p_node, vector<int> &V, double a, int R);
