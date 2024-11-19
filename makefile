@@ -8,7 +8,7 @@ FLAGS    = -g3 -c -Wall -O3 -std=c++17
 # Add variables for test source and objects
 # Remove main.o from the test object files to avoid conflict with main.cpp
 TEST_SRC = ./testing/test.cpp
-TEST_OBJS = ./build/greedy.o ./build/graph.o ./build/helper.o ./build/pruning.o ./build/vamana_al.o ./build/data_forming.o ./build/test.o
+TEST_OBJS = ./build/greedy.o ./build/graph.o ./build/helper.o ./build/pruning.o ./build/vamana_al.o ./build/test.o ./build/data_forming.o
 TEST_OUT = ./bin/test
 
 all: build_dir $(OBJS)

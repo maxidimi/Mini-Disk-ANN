@@ -184,7 +184,79 @@ void test_L_m_V(void){
     TEST_CHECK(exp == LV);
 }
 
-void test_greedy_search(void) {
+void test_filtered_greedy_search(void) {
+    // Define the parameters for the test
+    srand((unsigned int)time(0));
+    int n = 300;
+    int dim = 2;
+
+    // Create a random dataset and query
+    Dataset dataset = random_dataset(n, dim);
+    Data query = random_query(dim);
+
+    int k = 3; 
+    int L_s = 5;  // L_s is the maximum size of L during search
+    vector<int> filter;
+    filter.push_back(1); 
+    filter.push_back(2);
+    filter.push_back(1);
+    filter.push_back(1);
+    filter.push_back(1);
+    int fq = 1;
+    int num_nodes = 5; 
+    Graph G;
+    // Create graph nodes and add them to the graph
+    for (int i = 0; i < num_nodes; ++i) {
+        Graph_Node node = new graph_node; // Create a new node
+        node->indx = i;
+        node->data = {static_cast<float>(i), static_cast<float>(i)}; // 2D points (0,0), (1,1), etc.
+        G.push_back(node);
+    }
+
+    // Add edges (neighbors) manually
+    G[0]->out_neighbours = {1, 2}; 
+    G[1]->out_neighbours = {0, 3}; 
+    G[2]->out_neighbours = {0, 3, 4}; 
+    G[3]->out_neighbours = {1, 2}; 
+    G[4]->out_neighbours = {2}; 
+
+    // Perform greedy search starting from the first node
+    std::list<Graph_Node> s = {G[1]}; 
+    auto result_p = filtered_greedy_search(G, s, query, k, L_s, filter, fq);
+    auto L_result = result_p.first;    
+    auto visited = result_p.second;
+    
+    // Calculate the Euclidean distances of each point from the query
+    vector<pair<int, euclidean_t>> distances;
+    for (size_t i = 0; i < dataset.size(); i++) {
+        euclidean_t dist = euclidean_distance(dataset[i], query);
+        if(filter[i]==fq){
+            distances.emplace_back(i, dist);
+        }
+    }
+
+    // Sort distances in ascending order
+    sort(distances.begin(), distances.end(), [](const auto& a, const auto& b) {
+        return a.second < b.second;
+    });
+    
+    // Get the expected nearest neighbors
+    vector<int> expected_neighbors;
+    for (size_t i = 0; i < static_cast<size_t>(k); i++) {
+        expected_neighbors.push_back(distances[i].first);
+    }
+
+    std::cout << "Returned Neighbors: ";
+    for (const auto& index : L_result) {
+        std::cout << index << " ";
+    }
+    std::cout << std::endl;
+
+    // Check if the number of neighbors found matches k
+    TEST_CHECK(static_cast<int>(L_result.size()) <= k);
+}
+
+void test_greedy_search(void){
     // Define the parameters for the test
     srand((unsigned int)time(0));
     int n = 300; int dim = 2;
@@ -262,10 +334,6 @@ void test_pruning(void) {
 }
 
 
-//!TODO
-//min dist,read graph
-
-
 TEST_LIST = {
     {"test_create_graph_node", test_create_graph_node },
     {"test_add_node_to_graph", test_add_node_to_graph},
@@ -278,6 +346,7 @@ TEST_LIST = {
     {"test_random_permutation", test_random_permutation},
     {"test_medoid", test_medoid},
     {"test_L_m_V", test_L_m_V},
+    {"test_filtered_greedy_search", test_filtered_greedy_search},
     {"test_greedy_search", test_greedy_search},
     {"test_pruning", test_pruning},
     { 0 }
