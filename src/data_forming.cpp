@@ -37,14 +37,14 @@ void find_store_groundtruth(string dataset_f, string query_f, string groundtruth
             return a.second < b.second;
         });
 
-        // Store the k nearest neighbours
+        // Store the k nearest neighbours (or less)
         vector<int> neighbours;
-        for (int j = 0; j < 100; j++) {
+        for (size_t j = 0; j < distances.size() && j < 100; j++) {
             neighbours.push_back(distances[j].first);
         }
 
         // Write the number of neighbours
-        int num_neighbours = 100;
+        int num_neighbours = neighbours.size();
         file.write(reinterpret_cast<char*>(&num_neighbours), sizeof(int));
 
         // Write the neighbours

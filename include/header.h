@@ -62,6 +62,9 @@ Graph robust_pruning(Graph &G, Graph_Node &p_node, vector<int> &V, double a, int
 /* Vamana Indexing Algorithm */
 int medoid(const Dataset &P);
 Graph vamana_indexing(const Dataset &P, double a, int L, int R);
+unordered_map<int, int> find_medoid(const Dataset &P, vector<int> C, int threshold, vector<int> F);
+Graph filtered_vamana_indexing(const Dataset &P, vector<int> C, double a, int L, int R, vector<int> F); 
+Graph stiched_vamana_indexing(const Dataset &P, vector<int> C, double a, int L_small, int R_small, int R_stiched, vector<int> F);
 
 /* File Reading and Storing */
 pair<Dataset, vector<int>> read_sigmod_queries(string file_name);

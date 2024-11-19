@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
     // Read the configuration file and set the parameters
     string dataset_f, query_f, groundtruth_f;
     int k = 0, R = -1, L = -1, q_idx = -1;
-    double a = 0.0;
+    double a = 0.0; string vam_func = "filtered";
     bool print = false;
     
     string line;
@@ -50,6 +50,7 @@ int main(int argc, char *argv[]) {
                 else if (key == "L") L = stoi(value);
                 else if (key == "a") a = stod(value);
                 else if (key == "q_idx") q_idx = stoi(value);
+                else if (key == "vamana_function") vam_func = value;
                 else {
                     cerr << "Invalid configuration key: " << key << endl;
                     return 1;
@@ -60,17 +61,28 @@ int main(int argc, char *argv[]) {
     configFile.close();
     
     // Read the dataset, queries and groundtruth
-    auto r = read_sigmod_dataset(dataset_f); auto r2 = read_sigmod_queries(query_f);
+    auto r = read_sigmod_dataset(dataset_f); 
     Dataset dataset = r.first; vector<int> C = r.second;
+
+    auto r2 = read_sigmod_queries(query_f);
     Dataset queries = r2.first; vector<int> V = r2.second;
+
     auto groundtruth_i = read_sigmod_groundtruth(groundtruth_f);
     if (groundtruth_i.empty()) {
         find_store_groundtruth(dataset_f, query_f, groundtruth_f);
         groundtruth_i = read_sigmod_groundtruth(groundtruth_f);
     }
-    vector<vector<int>> groundtruth;
-    Dataset queries_to_test;
     
+    vector<vector<int>> groundtruth;
+
+    Dataset queries_to_test;
+
+    // Find count of unique values in C
+    vector<int> c_tmp = C;
+    sort(c_tmp.begin(), c_tmp.end());
+    size_t c_len = unique(c_tmp.begin(), c_tmp.end()) - c_tmp.begin();
+    vector<int> C_unique(c_tmp.begin(), c_tmp.begin() + c_len);
+
     // Set queries and groundtruth to test
     int idx = 0;
     if (q_idx == -1) { // Test all queries in the query file
@@ -123,7 +135,16 @@ int main(int argc, char *argv[]) {
     // Create the Vamana index
     Graph G = read_graph("graph.bin");
     if (G.empty()) {
-        G = vamana_indexing(dataset, a, L, R);
+        if (vam_func == "vamana") {
+            G = vamana_indexing(dataset, a, L, R);
+        } else if (vam_func == "filtered") {
+            G = filtered_vamana_indexing(dataset, C, a, L, R, C_unique);
+        } else if (vam_func == "stiched") {
+            G = stiched_vamana_indexing(dataset, C, a, L, R, R, C_unique);
+        } else {
+            cerr << "Invalid Vamana function!" << endl;
+            return 1;
+        }
         store_graph(G, "graph.bin");
     }
     

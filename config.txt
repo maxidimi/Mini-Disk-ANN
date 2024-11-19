@@ -6,3 +6,4 @@ R=16
 L=100
 a=1.2
 q_idx=-1
+vamana_function=vamana
