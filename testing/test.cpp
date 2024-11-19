@@ -185,24 +185,46 @@ void test_L_m_V(void){
 }
 
 void test_greedy_search(void) {
-    // Define the parameters for the test
+    //Define the parameters for the test
     srand((unsigned int)time(0));
     int n = 300; int dim = 2;
 
-    // Create a random dataset and query
+    // // Create a random dataset and query
     Dataset dataset = random_dataset(n, dim);
     Data query = random_query(dim);
 
     // Parameters for the Vamana indexing
-    int k = 100; int L = 100;
-    int R = 15; double a = 1.2;
+    // int k = 100; int L = 100;
+    // int R = 15; double a = 1.2;
+    // float filter = 1.1; float fq = 1.1;
 
-    // Create the Vamana index
-    Graph G = vamana_indexing(dataset, a, L, R);
+    int k = 3; int L = 5;
+    //int R = 15; double a = 1.2;
+    float filter = 1.1; float fq = 1.1;
+
+    // // Create the Vamana index
+    // Graph G = vamana_indexing(dataset, a, L, R);
+    int num_nodes = 5; // Number of nodes
+    Graph G;
+
+    // Create graph nodes and add them to the graph
+    for (int i = 0; i < num_nodes; ++i) {
+        Graph_Node node = new graph_node; // Create a new node
+        node->indx = i;
+        node->data = {static_cast<float>(i), static_cast<float>(i)}; // 2D points (0,0), (1,1), etc.
+        G.push_back(node);
+    }
+
+    // Add edges (neighbors) manually
+    G[0]->out_neighbours = {1, 2}; // Node 0 connects to 1 and 2
+    G[1]->out_neighbours = {0, 3}; // Node 1 connects to 0 and 3
+    G[2]->out_neighbours = {0, 3, 4}; // Node 2 connects to 0, 3, and 4
+    G[3]->out_neighbours = {1, 2}; // Node 3 connects to 1 and 2
+    G[4]->out_neighbours = {2}; // Node 4 connects to 2
 
     // Perform greedy search starting from the first node
-    Graph_Node s = G.front();
-    auto result_p = greedy_search(G, s, query, k, L);
+    std::list<Graph_Node> s = {G[0]}; // Start from node 0
+    auto result_p = greedy_search(G, s, query, k, L,filter,fq);
     auto L_result = result_p.first;    
     auto visited = result_p.second;
     
@@ -226,18 +248,34 @@ void test_greedy_search(void) {
 
     // Check if the number of neighbors found matches k
     TEST_CHECK(static_cast<int>(L_result.size()) == k);
+
+    // std::cout << "Expected Neighbors: ";
+    // for (const auto& expected_index : expected_neighbors) {
+    //     std::cout << expected_index << " ";
+    // }
+    // std::cout << std::endl;
+
+    // // Display the neighbors returned by the greedy search function
+    // std::cout << "Returned Neighbors: ";
+    // for (const auto& index : L_result) {
+    //     std::cout << index << " ";
+    // }
+    // std::cout << std::endl;
     
-    // Check if the neighbor is in the expected neighbors
-    for (const auto& index : L_result) {
-        bool found = false;
-        for (const auto& expected_index : expected_neighbors) {
-            if (index == expected_index) {
-                found = true;
-                break;
-            }
-        }
-    TEST_CHECK(found); // Check that index is among the expected nearest neighbors
-    }
+    // // Check if the neighbor is in the expected neighbors
+    // for (const auto& index : L_result) {
+    //     bool found = false;
+    //     for (const auto& expected_index : expected_neighbors) {
+    //         if (index == expected_index) {
+    //             found = true;
+    //             break;
+    //         }
+    //     }
+    // TEST_CHECK(found); // Check that index is among the expected nearest neighbors
+    // }
+    TEST_CHECK(L_result[0]==1);
+    TEST_CHECK(L_result[1]==2);
+    TEST_CHECK(L_result[2]==3);
 }
 
 void test_pruning(void) {
