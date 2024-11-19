@@ -90,7 +90,7 @@ Graph vamana_indexing(const Dataset &P, double a, int L, int R) {
         Data p_d = P[i];
 
         // Run greedy_search, V are the visited nodes, L_res are the nearest neighbours
-        pair<vector<int>, vector<int>> result = greedy_search_part1(G, s, p_d, L, L);
+        pair<vector<int>, vector<int>> result = greedy_search(G, s, p_d, L, L);
 
         vector<int> L = result.first; vector<int> V = result.second;
 

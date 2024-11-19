@@ -184,7 +184,7 @@ void test_L_m_V(void){
     TEST_CHECK(exp == LV);
 }
 
-void test_greedy_search(void) {
+void test_filtered_greedy_search(void) {
     //Define the parameters for the test
     srand((unsigned int)time(0));
     int n = 300; int dim = 2;
@@ -215,7 +215,7 @@ void test_greedy_search(void) {
 
     // Perform greedy search starting from the first node
     std::list<Graph_Node> s = {G[0]}; // Start from node 0
-    auto result_p = greedy_search(G, s, query, k, L,filter,fq);
+    auto result_p = filtered_greedy_search(G, s, query, k, L,filter,fq);
     auto L_result = result_p.first;    
     auto visited = result_p.second;
     
@@ -244,7 +244,7 @@ void test_greedy_search(void) {
     TEST_CHECK(L_result[2]==3);
 }
 
-void test_greedy_search_part1(void){
+void test_greedy_search(void){
     // Define the parameters for the test
     srand((unsigned int)time(0));
     int n = 300; int dim = 2;
@@ -262,7 +262,7 @@ void test_greedy_search_part1(void){
 
     // Perform greedy search starting from the first node
     Graph_Node s = G.front();
-    auto result_p = greedy_search_part1(G, s, query, k, L);
+    auto result_p = greedy_search(G, s, query, k, L);
     auto L_result = result_p.first;    
     auto visited = result_p.second;
     
@@ -322,10 +322,6 @@ void test_pruning(void) {
 }
 
 
-//!TODO
-//min dist,read graph
-
-
 TEST_LIST = {
     {"test_create_graph_node", test_create_graph_node },
     {"test_add_node_to_graph", test_add_node_to_graph},
@@ -338,8 +334,8 @@ TEST_LIST = {
     {"test_random_permutation", test_random_permutation},
     {"test_medoid", test_medoid},
     {"test_L_m_V", test_L_m_V},
+    {"test_filtered_greedy_search", test_filtered_greedy_search},
     {"test_greedy_search", test_greedy_search},
-    {"test_greedy_search_part1", test_greedy_search_part1},
     {"test_pruning", test_pruning},
     { 0 }
 };
