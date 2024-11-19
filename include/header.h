@@ -55,6 +55,7 @@ pair<vector<int>, vector<int>> greedy_search(const Graph &G, Graph_Node s, Data 
 
 /* Robust Pruning */
 Graph robust_pruning(Graph &G, Graph_Node &p_node, vector<int> &V, double a, int R);
+Graph filtered_robust_pruning(Graph &G, Graph_Node &p_node, vector<int> &V, double a, int R,vector<int> filters);
 
 /* Vamana Indexing Algorithm */
 int medoid(const Dataset &P);
