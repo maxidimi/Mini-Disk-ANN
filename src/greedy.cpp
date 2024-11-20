@@ -22,12 +22,11 @@ pair<vector<int>, vector<int>> filtered_greedy_search(const Graph &G, list<Graph
     vector<int> V;
     int i=0;
     //for s e S
-    for (auto s = S.begin(); s != S.end(); ++s) {
+    for (const auto &s:S) {
             //If (Fs intersection Fx) != {}
-            if (q[0] == filter[i]) {
+            if (fq == filter[s->indx]) {
                 //L <- L U {s}
-                L.push_back((*s)->indx);
-                cout<<"HERE";
+                L.push_back(s->indx);
         }
         i++;
     }      
