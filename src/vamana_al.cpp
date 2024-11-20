@@ -141,7 +141,7 @@ Graph stiched_vamana_indexing(const Dataset &P, vector<int> C, double a, int L_s
     // foreach v \in V do
     for (auto v : G) {
         // Let G = filtered_robust_pruning(v, N_out(v), a, R_stiched)
-        vector<int> N_out_v(v->out_neighbours.begin(), v->out_neighbours.end());
+        //vector<int> N_out_v(v->out_neighbours.begin(), v->out_neighbours.end());
         //G[f] = filtered_robust_pruning(G[f], v, N_out_v, a, R_stiched, F);
     }
 
