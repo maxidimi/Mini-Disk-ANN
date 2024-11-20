@@ -221,7 +221,7 @@ void test_filtered_greedy_search(void) {
     G[4]->out_neighbours = {2}; 
 
     // Perform greedy search starting from the first node
-    std::list<Graph_Node> s = {G[1]}; 
+    std::vector<Graph_Node> s = {G[1]}; 
     auto result_p = filtered_greedy_search(G, s, query, k, L_s, filter, fq);
     auto L_result = result_p.first;    
     auto visited = result_p.second;

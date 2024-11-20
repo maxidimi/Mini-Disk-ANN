@@ -16,7 +16,7 @@ void L_m_V(const vector<int> &L, const vector<int> &V, vector<int> &LV) {
 }
 
 // Greedy Algorithm - returning [k-nearest aprx. points, visited points]
-pair<vector<int>, vector<int>> filtered_greedy_search(const Graph &G, list<Graph_Node> S, Data q, int k, int L_s,vector<int> filter, int fq){
+pair<vector<int>, vector<int>> filtered_greedy_search(const Graph &G, vector<Graph_Node> S, Data q, int k, int L_s,vector<int> filter, int fq){
     // Initialize sets L<-{}, V<-{}
     vector<int> L; 
     vector<int> V;
