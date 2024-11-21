@@ -246,14 +246,11 @@ void test_filtered_greedy_search(void) {
         expected_neighbors.push_back(distances[i].first);
     }
 
-    std::cout << "Returned Neighbors: ";
-    for (const auto& index : L_result) {
-        std::cout << index << " ";
-    }
-    std::cout << std::endl;
-
     // Check if the number of neighbors found matches k
     TEST_CHECK(static_cast<int>(L_result.size()) <= k);
+    TEST_CHECK(L_result[0]==0);
+    TEST_CHECK(L_result[1]==2);
+    TEST_CHECK(L_result[2]==3);
 }
 
 void test_greedy_search(void){
