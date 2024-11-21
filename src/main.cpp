@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
     sort(c_tmp.begin(), c_tmp.end());
     size_t c_len = unique(c_tmp.begin(), c_tmp.end()) - c_tmp.begin();
     vector<int> C_unique(c_tmp.begin(), c_tmp.begin() + c_len);
-
+    
     // Set queries and groundtruth to test
     int idx = 0;
     if (q_idx == -1) { // Test all queries in the query file
@@ -157,13 +157,22 @@ int main(int argc, char *argv[]) {
         vector<int> groundtruth_t = groundtruth[i];
         clock_t gr_start = clock();
 
-        // Perform greedy search starting from the first node of the graphß
-        Graph_Node s = G.front();
-        auto result_p = greedy_search(G, s, query, k, L);
+        // Perform greedy search starting from the first node of the graph
+        pair<vector<int>, vector<int>> result_p;
+        
+        if (vam_func == "vamana") {
+            Graph_Node s = G.front();
+            result_p = greedy_search(G, s, query, k, L);
+        } else {
+            auto medoid_s = find_medoid(dataset, C, 1, C_unique);
+            auto medoid_node = G[medoid_s[V[i]]];
+            result_p = filtered_greedy_search(G, {medoid_node}, query, k, L, C_unique, V[i]);
+        }
         auto result = result_p.first; auto visited = result_p.second;
 
         // Print time for each Greedy call
         if (print) time_elapsed(gr_start, "Greedy Search " + to_string(i + 1) + "/" + to_string(queries_to_test.size()));
+        cout << " || Result's size: " << result.size() << endl;
         
         // Print the results
         recall_sum += check_results(dataset, query, result, k, groundtruth_t, true);

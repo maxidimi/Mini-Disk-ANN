@@ -47,27 +47,28 @@ int find_min_dist(const Graph G, vector<int> L, Data q) {
 
 // Checks the results of the Greedy search manually
 double check_results(const Dataset &dataset, Data query, const vector<int> &result, int k, vector<int> expected_neighbors, bool print) {
+    int n_size = (int)expected_neighbors.size();
 
-    // Check if the number of neighbors found matches k
-    if (result.size() != (size_t)k) {
-        cerr << " || Size of neighbours list found doesn't match k. Found: " << result.size() << " Expected: " << k << ".\n";
+    // Check if the number of neighbors found matches k (or the expected neighbors)
+    if (result.size() != (size_t)k && result.size() != expected_neighbors.size()) {
+        cerr << " || Size of neighbours list is not the expected. Found: " << result.size() << " Expected: " << k << ".\n";
         return 0.0;
     }
     
-    // Check if the neighbor is in the expected neighbors
+    // Check if the results neighbor is in the expected neighbors
     int foundC = 0;
-    for (int i = 0; i < k; i++) {
+    for (int i = 0; i < (int)result.size(); i++) {
         if (find(expected_neighbors.begin(), expected_neighbors.end(), result[i]) != expected_neighbors.end()) {
             foundC++;
         }
     }
     if (print) {
-        cout << " || Number of neighbours found in expected neighbors: " << foundC << "/" << k << ".\n";
-        cout << " || Recall@k: " << (double)(100*foundC/k) << "%." << endl;
+        cout << " || Number of neighbours found in expected neighbors: " << foundC << "/" << n_size << ".\n";
+        cout << " || Recall@k: " << (double)(100*foundC/n_size) << "%." << endl;
         cout << "=======================================================================================\n";
     }
     
-    return (double)(100*foundC/k);
+    return (double)(100*foundC/n_size);
 }
 
 // Prints the time taken for a given operation

@@ -15,26 +15,22 @@ void L_m_V(const vector<int> &L, const vector<int> &V, vector<int> &LV) {
     }
 }
 
-// Greedy Algorithm - returning [k-nearest aprx. points, visited points]
-pair<vector<int>, vector<int>> filtered_greedy_search(const Graph &G, vector<Graph_Node> S, Data q, int k, int L_s,vector<int> filter, int fq){
+// Filtered Greedy Algorithm - returning [k-nearest aprx. points, visited points]
+pair<vector<int>, vector<int>> filtered_greedy_search(const Graph &G, vector<Graph_Node> S, Data q, int k, int L_s, vector<int> C, int fq){
     // Initialize sets L<-{}, V<-{}
     vector<int> L; 
     vector<int> V;
-    int i=0;
-    //for s e S
-    for (const auto &s:S) {
-            //If (Fs intersection Fx) != {}
-            if (fq == filter[s->indx]) {
-                //L <- L U {s}
-                L.push_back(s->indx);
+
+    // for s \in S do
+    for (const auto &s : S) {
+        // If F_s \cap F_x != {} then L <- L U {s}
+        if (C[s->indx] == fq) {
+            L.push_back(s->indx);
         }
-        i++;
-    }      
-    // Initialize L \ V = {s}
-    vector<int> L_not_V;
-    for(auto s = S.begin(); s != S.end(); ++s){
-        L_not_V.push_back((*s)->indx);
     }
+    
+    // Initialize L \ V = L, as V is empty
+    vector<int> L_not_V = L;
     
     // While L \ V is not empty
     while (!L_not_V.empty()) {
@@ -45,10 +41,10 @@ pair<vector<int>, vector<int>> filtered_greedy_search(const Graph &G, vector<Gra
         //V <- V U (p*)
         V.push_back(p_star);
 
-        //Let N'_out(p*) <- p' ε N_out(p*) : (Fp' intersectiob Fq != {}), p' not belongs to V
+        // Let N'_out(p*) <- p' \in N_out(p*) : (F_p' \cap F_q != {}), p' not belongs to V
         unordered_set<int> N_;
-        for(const auto &p : G[p_star]->out_neighbours){
-            if(fq == filter[p] && find(V.begin() , V.end() , G[p]->indx) == V.end()){
+        for (const auto &p : G[p_star]->out_neighbours){
+            if(fq == C[p] && find(V.begin() , V.end() , G[p]->indx) == V.end()){
                 N_.insert(p);
             }
         }

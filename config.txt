@@ -1,9 +1,9 @@
-dataset=data/SIGMOD/1M_DS/contest-data-release-1m.bin
-query=data/SIGMOD/1M_DS/contest-queries-release-1m.bin
-groundtruth=data/SIGMOD/1M_DS/contest-groundtruth-release-1m.bin
+dataset=data/SIGMOD/DUMMY/dummy-data.bin
+query=data/SIGMOD/DUMMY/dummy-queries.bin
+groundtruth=data/SIGMOD/DUMMY/dummy-groundtruth.bin
 k=100
 R=16
 L=100
 a=1.2
-q_idx=-1
-vamana_function=vamana
+q_idx=-2
+vamana_function=filtered

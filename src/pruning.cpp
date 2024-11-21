@@ -1,6 +1,5 @@
 #include "../include/header.h"
 
-
 Graph robust_pruning(Graph &G, Graph_Node &p_node, vector<int> &V, double a, int R) {
     Data p = p_node->data;
     
@@ -42,9 +41,7 @@ Graph robust_pruning(Graph &G, Graph_Node &p_node, vector<int> &V, double a, int
     return G;
 }
 
-
-
-Graph filtered_robust_pruning(Graph &G, Graph_Node &p_node, vector<int> &V, double a, int R,vector<int> filters) {
+Graph filtered_robust_pruning(Graph &G, Graph_Node &p_node, vector<int> &V, double a, int R, vector<int> C) {
     Data p = p_node->data;
     
     // Add N_out(p) to V without duplicates
@@ -66,25 +63,24 @@ Graph filtered_robust_pruning(Graph &G, Graph_Node &p_node, vector<int> &V, doub
         // Find p* <- argmin_{p ∈ V} d(p, q)
         int p_star = find_min_dist(G, V, p);
 
-        // Find node p* in graph and add it to N_out(p) if not already present
-        Graph_Node p_star_node = G[p_star];
-
-        if (p_star_node) {
-            p_node->out_neighbours.insert(p_star_node->indx);
-        }
+        // Add p* to N_out(p)
+        p_node->out_neighbours.insert(p_star);
 
         // If N_out(p) reaches size R, break
         if (p_node->out_neighbours.size() == (size_t)R) break;
-        auto i = V.begin();
-        for(auto p_tmp : V){
-            if(filters[p_node->indx] == filters[p_tmp] && filters[p_tmp] == filters[p_star]){
-                if(a * euclidean_distance(G[p_star]->data, G[p_tmp]->data) <= euclidean_distance(p, G[p_tmp]->data)) V.erase(i);
-            }
-            i++;
-        }
 
-        // For each p' in V and delete p' if a * d(p*, p') <= d(p, p')
-        
+        // For each p' in V
+        auto V_tmp = V;
+        for (const auto &p_tmp : V_tmp) {
+            // If (F_p' == F_p) != F_p* continue
+            if ((C[p_tmp] == C[p_node->indx]) && (C[p_tmp] != C[p_star])) {
+                continue;
+            } 
+            // If a * d(p*, p') <= d(p, p') then delete p' from V
+            if (a * euclidean_distance(G[p_star]->data, G[p_tmp]->data) <= euclidean_distance(p, G[p_tmp]->data)) {
+                V.erase(remove(V.begin(), V.end(), p_tmp), V.end());
+            }
+        }
     }
 
     return G;
