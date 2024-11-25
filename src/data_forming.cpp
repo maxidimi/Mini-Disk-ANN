@@ -1,17 +1,14 @@
 #include "../include/header.h"
 
 // Find the groundtruth for the datasets of SIGMOD contest with brute force, for k = 100
-void find_store_groundtruth(string dataset_f, string query_f, string groundtruth_f) {
-
-    // Read the dataset and the queries
-    auto r = read_sigmod_dataset(dataset_f); auto r2 = read_sigmod_queries(query_f);
+vector<vector<int>> find_store_groundtruth(pair<Dataset, vector<int>> r, pair<Dataset, vector<int>> r2, string groundtruth_f) {
     Dataset dataset = r.first; vector<int> C = r.second;
     Dataset queries = r2.first; vector<int> V = r2.second;
 
-    // Write the groundtruth to "data/SIGMOD/1M_DS/contest-groundtruth-release-1m.bin"
+    // Write the groundtruth to groundtruth_f
     ofstream file(groundtruth_f, ios::binary);
     if (!file) {
-        cerr << "Error, can not open the file data/SIGMOD/1M_DS/contest-groundtruth-release-1m.bin" << endl;
+        cerr << "Error, can not open the file " << groundtruth_f << endl;
         exit(1);
     }
 
@@ -19,28 +16,30 @@ void find_store_groundtruth(string dataset_f, string query_f, string groundtruth
     uint32_t num_u = (uint32_t)queries.size();
     file.write(reinterpret_cast<char*>(&num_u), sizeof(uint32_t));
 
+    vector<vector<int>> groundtruth; groundtruth.reserve(queries.size());
+
     // Find the groundtruth for each query
     for (int i = 0; i < (int)queries.size(); i++) {
         Data query = queries[i];
         int V_i = V[i];
         
         // Find the distances to all the vectors
-        vector<pair<int, double>> distances;
+        vector<pair<int, euclidean_t>> distances;
         for (size_t j = 0; j < dataset.size(); j++) {
             if (V_i != -1 && C[j] != V_i) continue;
-            double dist = euclidean_distance(query, dataset[j]);
+            euclidean_t dist = euclidean_distance(query, dataset[j]);
             distances.emplace_back((int)j, dist);
         }
 
         // Sort the distances
-        sort(distances.begin(), distances.end(), [](const pair<int, double> &a, const pair<int, double> &b) {
+        sort(distances.begin(), distances.end(), [](const pair<int, euclidean_t> &a, const pair<int, euclidean_t> &b) {
             return a.second < b.second;
         });
 
         // Store the k nearest neighbours (or less)
         vector<int> neighbours;
         for (size_t j = 0; j < distances.size() && j < 100; j++) {
-            neighbours.push_back(distances[j].first);
+            neighbours.insert(neighbours.end(), distances[j].first);
         }
 
         // Write the number of neighbours
@@ -48,8 +47,15 @@ void find_store_groundtruth(string dataset_f, string query_f, string groundtruth
         file.write(reinterpret_cast<char*>(&num_neighbours), sizeof(int));
 
         // Write the neighbours
-        file.write(reinterpret_cast<char*>(neighbours.data()), 100 * sizeof(int));
+        file.write(reinterpret_cast<char*>(neighbours.data()), sizeof(int) * num_neighbours);
+
+        // Store the neighbours
+        groundtruth.push_back(neighbours);
     }
+
+    file.close();
+
+    return groundtruth;
 }
 
 // Read the groundtruth from the SIGMOD contest (Dataset: data, vector<int> attributes)
@@ -57,7 +63,9 @@ vector<vector<int>> read_sigmod_groundtruth(string file_name_s) {
     char* file_name = &file_name_s[0];
     auto *file = fopen(file_name, "r");
     if (file == nullptr) {
-        cout << "Error, can not open the file " << file_name << endl;
+        // if the error is that the file does not exist continue
+        if (errno != ENOENT)
+            cout << "Error, can not open the file " << file_name << endl;
         return {};
     }
 
@@ -72,7 +80,9 @@ vector<vector<int>> read_sigmod_groundtruth(string file_name_s) {
 
     // Loop to read every vector
     vector<vector<int>> groundtruth; groundtruth.reserve(num);
+
     for (int i = 0; i < num; i++) {
+
         // Read the number of neighbours
         int num_neighbours;
         r = fread(&num_neighbours, sizeof(int), (size_t)1, file);
@@ -88,6 +98,7 @@ vector<vector<int>> read_sigmod_groundtruth(string file_name_s) {
             cerr << "Error_03, can not read the file " << file_name << endl;
             exit(1);
         }
+
         // Store the neighbours
         groundtruth.push_back(neighbours);
     }
@@ -131,17 +142,17 @@ pair<Dataset, vector<int>> read_sigmod_queries(string file_name_s) {
             exit(1);
         }
 
-        // Store the target categorical attribute
-        int V = (int)v[1];
-
         // Store the query type and V
         int query_type = (int)v[0];
 
-        //// If we search for only the timestamp, look only for the ANN
-        if (query_type == 2) continue;//query_type = 0;
+        // Ignore the queries of type 2 and 3
+        if (query_type == 2 || query_type == 3) continue;
 
-        //// If we search for both timestamp and categorical attribute, look only for the categorical attribute
-        if (query_type == 3) continue;//query_type = 1;
+        // Store the target categorical attribute
+        int V = (int)v[1];
+
+        //? Ignore the queries with V = -1 (later we will search only for the ANN)
+        if (V == -1) continue;
 
         // Keep only the data
         vector<data_t> v2(v.begin() + 4, v.end());

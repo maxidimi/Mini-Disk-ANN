@@ -52,6 +52,7 @@ double check_results(const Dataset &dataset, Data query, const vector<int> &resu
     // Check if the number of neighbors found matches k (or the expected neighbors)
     if (result.size() != (size_t)k && result.size() != expected_neighbors.size()) {
         cerr << " || Size of neighbours list is not the expected. Found: " << result.size() << " Expected: " << k << ".\n";
+        cout << "=======================================================================================\n";
         return 0.0;
     }
     

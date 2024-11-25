@@ -68,10 +68,7 @@ int main(int argc, char *argv[]) {
     Dataset queries = r2.first; vector<int> V = r2.second;
 
     auto groundtruth_i = read_sigmod_groundtruth(groundtruth_f);
-    if (groundtruth_i.empty()) {
-        find_store_groundtruth(dataset_f, query_f, groundtruth_f);
-        groundtruth_i = read_sigmod_groundtruth(groundtruth_f);
-    }
+    if (groundtruth_i.empty()) groundtruth_i = find_store_groundtruth(r, r2, groundtruth_f);
     
     vector<vector<int>> groundtruth;
 
@@ -133,7 +130,7 @@ int main(int argc, char *argv[]) {
     clock_t start = clock();
     
     // Create the Vamana index
-    Graph G = read_graph("graph.bin");
+    Graph G = read_graph(vam_func + "_graph.bin");
     if (G.empty()) {
         if (vam_func == "vamana") {
             G = vamana_indexing(dataset, a, L, R);
@@ -145,12 +142,17 @@ int main(int argc, char *argv[]) {
             cerr << "Invalid Vamana function!" << endl;
             return 1;
         }
-        store_graph(G, "graph.bin");
+        store_graph(G, vam_func + "_graph.bin");
     }
     
     time_elapsed(start, "Vamana Indexing");
     cout << "=======================================================================================\n";
     
+    auto medoid_s = find_medoid(dataset, C, 10000, C_unique);
+
+    Graph S;
+    for (const auto &m : medoid_s) S.push_back(G[m.second]);
+
     double recall_sum = 0.0;
     for (size_t i = 0; i < queries_to_test.size(); i++) {
         Data query = queries_to_test[i];
@@ -164,15 +166,12 @@ int main(int argc, char *argv[]) {
             Graph_Node s = G.front();
             result_p = greedy_search(G, s, query, k, L);
         } else {
-            auto medoid_s = find_medoid(dataset, C, 1, C_unique);
-            auto medoid_node = G[medoid_s[V[i]]];
-            result_p = filtered_greedy_search(G, {medoid_node}, query, k, L, C_unique, V[i]);
+            result_p = filtered_greedy_search(G, S, query, k, L, C_unique, V[i]);
         }
         auto result = result_p.first; auto visited = result_p.second;
 
         // Print time for each Greedy call
         if (print) time_elapsed(gr_start, "Greedy Search " + to_string(i + 1) + "/" + to_string(queries_to_test.size()));
-        cout << " || Result's size: " << result.size() << endl;
         
         // Print the results
         recall_sum += check_results(dataset, query, result, k, groundtruth_t, true);

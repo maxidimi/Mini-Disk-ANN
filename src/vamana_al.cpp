@@ -12,10 +12,11 @@ unordered_map<int, int> find_medoid(const Dataset &P, vector<int> C, int thresho
     unordered_map<int, int> T; T.reserve(n);
     for (size_t i = 0; i < n; i++) T[i] = 0;
 
-    vector<unordered_set<int>> P_fs(f_size);
-    for (size_t i = 0; i < n; i++) {
-        P_fs[C[i]].insert(i);
-    }random_device rd; mt19937 g(rd());
+    // Let P_fs be a map from filter f to the set of points matching filter f
+    unordered_map<int, unordered_set<int>> P_fs; P_fs.reserve(f_size);
+    for (size_t i = 0; i < n; i++) P_fs[C[i]].insert(i);
+
+    random_device rd; mt19937 g(rd());
 
     // Foreach f \in F do
     for (auto f : F) {
@@ -25,7 +26,9 @@ unordered_map<int, int> find_medoid(const Dataset &P, vector<int> C, int thresho
         // Let R_F <- τ randomly sampled data point ids from P_f
         vector<int> R_f(P_f.begin(), P_f.end());
         shuffle(R_f.begin(), R_f.end(), g);
-        R_f.resize(threshold);
+
+        // Let size of R_f be min{τ, |P_f|} and keep only the first threshold elements
+        if (threshold < (int)R_f.size()) R_f.resize(threshold);
 
         // p* <- argmin_{p \in R_F} T[p]
         int p_star = -1;
@@ -50,6 +53,7 @@ unordered_map<int, int> find_medoid(const Dataset &P, vector<int> C, int thresho
 // Filtered Vamana Indexing Algorithm
 Graph filtered_vamana_indexing(const Dataset &P, vector<int> C, double a, int L, int R, vector<int> F) {
     int n = (int)P.size();
+    size_t f_size = F.size();
 
     // Add the nodes to the graph G
     Graph G; G.reserve(n);
@@ -58,15 +62,18 @@ Graph filtered_vamana_indexing(const Dataset &P, vector<int> C, double a, int L,
         add_node_to_graph(G, node);
     }
     
-    // Add 5 edges to each node to nodes with same filter
-    vector<unordered_set<int>> P_fs(F.size());
-    for (size_t i = 0; i < n; i++) P_fs[C[i]].insert(i);
+    // Let P_fs be a map from filter f to the set of points matching filter f
+    unordered_map<int, unordered_set<int>> P_fs; P_fs.reserve(f_size);
+    for (int i = 0; i < n; i++) P_fs[C[i]].insert(i);
+
+    // Add R edges to each node to nodes with same filter
     for (auto &node : G) {
         int i = node->indx;
         set<int> random_indices;
         
         // If there are more than 1 points with the same filter
         if (P_fs[C[i]].size() > 1) {
+            // Select up to R unique random neighbours (if possible)
             while (random_indices.size() < P_fs[C[i]].size() - 1 && (int)random_indices.size() < R) {
                 int random_idx = rand() % n;
 
@@ -85,7 +92,7 @@ Graph filtered_vamana_indexing(const Dataset &P, vector<int> C, double a, int L,
     //int s = medoid(P);
     
     // Let st(f) denote the start node of filter label f for every f \in F
-    unordered_map<int, int> st = find_medoid(P, C, 200, F);
+    unordered_map<int, int> st = find_medoid(P, C, 10000, F);
     
     // Let σ denote a random permutation of |n|
     vector<int> sigma = random_permutation(n);
