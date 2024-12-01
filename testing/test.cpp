@@ -46,24 +46,6 @@ void test_add_edge_to_graph(void) {
     TEST_CHECK(node->out_neighbours.size() == 1);
 }
 
-void test_find_data_in_graph(void){
-    Graph graph;
-
-    Data data = {4, 5, 6};
-    Graph_Node node = create_graph_node(data);
-    graph.push_back(node);
-
-    //Test for existing data
-    Graph_Node result = find_data_in_graph(graph, data);
-    TEST_CHECK(result == node);
-
-    //Test for not existing data
-    Data data1 = {7,8,9};
-    result = find_data_in_graph(graph, data1);
-    TEST_CHECK(result == nullptr);
-
-}
-
 void test_read_graph(void){
     //Test on a file that does not existing
     Graph G = read_graph("random_file");
@@ -194,47 +176,35 @@ void test_filtered_greedy_search(void) {
     Dataset dataset = random_dataset(n, dim);
     Data query = random_query(dim);
 
-    int k = 3; 
-    int L_s = 5;  // L_s is the maximum size of L during search
-    vector<int> filter;
-    filter.push_back(1); 
-    filter.push_back(2);
-    filter.push_back(1);
-    filter.push_back(1);
-    filter.push_back(1);
-    int fq = 1;
-    int num_nodes = 5; 
-    Graph G;
-    // Create graph nodes and add them to the graph
-    for (int i = 0; i < num_nodes; ++i) {
-        Graph_Node node = new graph_node; // Create a new node
-        node->indx = i;
-        node->data = {static_cast<float>(i), static_cast<float>(i)}; // 2D points (0,0), (1,1), etc.
-        G.push_back(node);
+    // Parameters for the Vamana indexing
+    int k = 100; int L = 100;
+    int R = 15; double a = 1.2;
+    vector<int> F = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    vector<int> C; C.reserve(n);
+    for (int i = 0; i < n; i++) {
+        C.push_back(F[rand() % F.size()]);
     }
+    vector<int> fq = {F[rand() % F.size()]};
 
-    // Add edges (neighbors) manually
-    G[0]->out_neighbours = {1, 2}; 
-    G[1]->out_neighbours = {0, 3}; 
-    G[2]->out_neighbours = {0, 3, 4}; 
-    G[3]->out_neighbours = {1, 2}; 
-    G[4]->out_neighbours = {2}; 
+    // Create the Filtered Vamana index
+    Graph G = filtered_vamana_indexing(dataset, C, a, L, R, F);
 
-    // Perform greedy search starting from the first node
-    std::vector<Graph_Node> s = {G[1]}; 
-    auto result_p = filtered_greedy_search(G, s, query, k, L_s, filter, fq);
+    // Perform greedy search
+    auto medoid_index = find_medoid(dataset, C, 1, F);
+    vector<int> S = {medoid_index[0]};
+    auto result_p = filtered_greedy_search(G, S, query, k, L, C, fq); 
     auto L_result = result_p.first;    
     auto visited = result_p.second;
-    
+ 
     // Calculate the Euclidean distances of each point from the query
     vector<pair<int, euclidean_t>> distances;
     for (size_t i = 0; i < dataset.size(); i++) {
         euclidean_t dist = euclidean_distance(dataset[i], query);
-        if(filter[i]==fq){
+        if (C[i] == fq[0]) {
             distances.emplace_back(i, dist);
         }
     }
-
+  
     // Sort distances in ascending order
     sort(distances.begin(), distances.end(), [](const auto& a, const auto& b) {
         return a.second < b.second;
@@ -242,15 +212,24 @@ void test_filtered_greedy_search(void) {
     
     // Get the expected nearest neighbors
     vector<int> expected_neighbors;
-    for (size_t i = 0; i < static_cast<size_t>(k); i++) {
+    for (size_t i = 0; i < (size_t)k && i < distances.size(); i++) {
         expected_neighbors.push_back(distances[i].first);
     }
 
     // Check if the number of neighbors found matches k
-    TEST_CHECK(static_cast<int>(L_result.size()) <= k);
-    TEST_CHECK(L_result[0]==0);
-    TEST_CHECK(L_result[1]==2);
-    TEST_CHECK(L_result[2]==3);
+    TEST_CHECK((L_result.size() == (size_t)k) || (L_result.size() == distances.size()));
+
+    // Check if the neighbor is in the expected neighbors
+    for (const auto& index : L_result) {
+        bool found = false;
+        for (const auto& expected_index : expected_neighbors) {
+            if (index == expected_index) {
+                found = true;
+                break;
+            }
+        }
+        TEST_CHECK(found); // Check that index is among the expected nearest neighbors
+    }
 }
 
 void test_greedy_search(void){
@@ -289,12 +268,12 @@ void test_greedy_search(void){
     
     // Get the expected nearest neighbors
     vector<int> expected_neighbors;
-    for (size_t i = 0; i < static_cast<size_t>(k); i++) {
+    for (size_t i = 0; i < (size_t)k; i++) {
         expected_neighbors.push_back(distances[i].first);
     }
 
     // Check if the number of neighbors found matches k
-    TEST_CHECK(static_cast<int>(L_result.size()) == k);
+    TEST_CHECK(L_result.size() == (size_t)k);
     
     // Check if the neighbor is in the expected neighbors
     for (const auto& index : L_result) {
@@ -305,7 +284,7 @@ void test_greedy_search(void){
                 break;
             }
         }
-    TEST_CHECK(found); // Check that index is among the expected nearest neighbors
+        TEST_CHECK(found); // Check that index is among the expected nearest neighbors
     }
 }
 
@@ -335,7 +314,6 @@ TEST_LIST = {
     {"test_create_graph_node", test_create_graph_node },
     {"test_add_node_to_graph", test_add_node_to_graph},
     {"test_add_edge_to_graph", test_add_edge_to_graph},
-    {"test_find_data_in_graph", test_find_data_in_graph},
     {"test_read_graph", test_read_graph},
     {"test_store_graph", test_store_graph},
     {"test_euclidean_distance", test_euclidean_distance},

@@ -9,9 +9,8 @@
     L=20
     a=1.5
     q_idx=
+    vamana_function=vamana/filtered/stiched
     Then run the program with the configuration file as an argument.
-    If query type is 0 (so V == -1), then we search just for the ANN
-    If query type is 1 (so V != -1), then we search for the ANN with categorical attribute V
 */
 
 int main(int argc, char *argv[]) {
@@ -59,37 +58,56 @@ int main(int argc, char *argv[]) {
         }
     }
     configFile.close();
-    
-    // Read the dataset, queries and groundtruth
-    auto r = read_sigmod_dataset(dataset_f); 
-    Dataset dataset = r.first; vector<int> C = r.second;
 
-    auto r2 = read_sigmod_queries(query_f);
-    Dataset queries = r2.first; vector<int> V = r2.second;
+    // Read the dataset, queries and groundtruth etc.
+    Dataset dataset, queries; vector<vector<int>> groundtruth_i;
+    vector<int> C, V, F;
+    if (vam_func == "vamana") {
+        dataset = fvecs_read(dataset_f);
 
-    auto groundtruth_i = read_sigmod_groundtruth(groundtruth_f);
-    if (groundtruth_i.empty()) groundtruth_i = find_store_groundtruth(r, r2, groundtruth_f);
-    
-    vector<vector<int>> groundtruth;
+        queries = fvecs_read(query_f);
 
-    Dataset queries_to_test;
+        groundtruth_i = ivecs_read(groundtruth_f);
+    } else {
+        auto r = read_sigmod_dataset(dataset_f); 
+        dataset = r.first; C = r.second;
 
-    // Find count of unique values in C
-    vector<int> c_tmp = C;
-    sort(c_tmp.begin(), c_tmp.end());
-    size_t c_len = unique(c_tmp.begin(), c_tmp.end()) - c_tmp.begin();
-    vector<int> C_unique(c_tmp.begin(), c_tmp.begin() + c_len);
+        auto r2 = read_sigmod_queries(query_f);
+        queries = r2.first; V = r2.second;
+
+        groundtruth_i = read_sigmod_groundtruth(groundtruth_f);
+        if (groundtruth_i.empty()) groundtruth_i = find_store_groundtruth(r, r2, groundtruth_f);
+
+        set<int> C_set(C.begin(), C.end());
+        for (int c : C_set) F.push_back(c);
+    }
+
+    // Check that parametres are valid
+    int n = (int)dataset.size();
+    int d = (int)dataset.front().size();
+    if (R < 1 || L < k || k <= 0 || a < 1.0 || n <= 0) {
+        cerr << "Invalid parametrization!" << endl;
+        return 1;
+    }
+    if (vam_func != "vamana" && vam_func != "filtered" && vam_func != "stiched") {
+        cerr << "Invalid Vamana function!" << endl;
+        return 1;
+    }
     
     // Set queries and groundtruth to test
-    int idx = 0;
+    vector<vector<int>> groundtruth; int idx = 0;
+    vector<int> V_to_test; Dataset queries_to_test;
+    
     if (q_idx == -1) { // Test all queries in the query file
         queries_to_test = queries;
         groundtruth = groundtruth_i;
+        if (vam_func != "vamana") V_to_test = V;
         
     } else if (q_idx == -2) { // Test a random query
         idx = rand() % queries.size();
         queries_to_test.push_back(queries[idx]);
         groundtruth.push_back(groundtruth_i[idx]);
+        if (vam_func != "vamana") V_to_test.push_back(V[idx]);
 
     } else { // Test a specific query
         if (q_idx < 0 || q_idx >= (int)queries.size()) {
@@ -98,15 +116,8 @@ int main(int argc, char *argv[]) {
         } else {
             queries_to_test.push_back(queries[q_idx]);
             groundtruth.push_back(groundtruth_i[q_idx]);
+            if (vam_func != "vamana") V_to_test.push_back(V[q_idx]);
         }
-    }
-    
-    // Check that parametres are valid
-    int n = (int)dataset.size();
-    int d = (int)dataset.front().size();
-    if (R < 1 || L < k || k <= 0 || a < 1.0 || n <= 0) {
-        cerr << "Invalid parametrization!" << endl;
-        return 1;
     }
     
     cout << " || Dataset: " << dataset_f << endl;
@@ -129,44 +140,72 @@ int main(int argc, char *argv[]) {
     // Start the timer
     clock_t start = clock();
     
-    // Create the Vamana index
+    // Create the Vamana index based on the prefered function and store it
     Graph G = read_graph(vam_func + "_graph.bin");
     if (G.empty()) {
+
         if (vam_func == "vamana") {
             G = vamana_indexing(dataset, a, L, R);
+
         } else if (vam_func == "filtered") {
-            G = filtered_vamana_indexing(dataset, C, a, L, R, C_unique);
+            G = filtered_vamana_indexing(dataset, C, a, L, R, F);
+
         } else if (vam_func == "stiched") {
-            G = stiched_vamana_indexing(dataset, C, a, L, R, R, C_unique);
+            G = stiched_vamana_indexing(dataset, C, a, L, R, R, F);
+
         } else {
             cerr << "Invalid Vamana function!" << endl;
             return 1;
         }
+
         store_graph(G, vam_func + "_graph.bin");
     }
     
     time_elapsed(start, "Vamana Indexing");
     cout << "=======================================================================================\n";
     
-    auto medoid_s = find_medoid(dataset, C, 10000, C_unique);
+    // Find the medoid(s) of the dataset based on the prefered function
+    unordered_map<int, int> medoid_map; medoid_map.reserve(F.size());
+    int medoid_index = -1;
 
-    Graph S;
-    for (const auto &m : medoid_s) S.push_back(G[m.second]);
+    if (vam_func == "vamana") { // Find the medoid of the dataset
+        medoid_index = medoid(dataset);
 
+    } else { // Find the medoid of the dataset for each unique label
+        medoid_map = find_medoid(dataset, C, 1, F);
+    }
+    
+    // Perform the Greedy search for each query
     double recall_sum = 0.0;
     for (size_t i = 0; i < queries_to_test.size(); i++) {
         Data query = queries_to_test[i];
+
         vector<int> groundtruth_t = groundtruth[i];
+        
+        int V_i = V_to_test[i];
+
         clock_t gr_start = clock();
 
-        // Perform greedy search starting from the first node of the graph
+        // Perform greedy search starting based on the prefered function
         pair<vector<int>, vector<int>> result_p;
-        
+
         if (vam_func == "vamana") {
-            Graph_Node s = G.front();
+            Graph_Node s = G.front();//? = G[medoid_index];
+
             result_p = greedy_search(G, s, query, k, L);
+
         } else {
-            result_p = filtered_greedy_search(G, S, query, k, L, C_unique, V[i]);
+            vector<int> fq, S;
+            if (V[i] == -1) { // Search for classic ANN
+                for (const auto &medoid : medoid_map) S[medoid.first] = medoid.second;
+                fq = F;
+
+            } else {
+                S.push_back(medoid_map[V[i]]);
+                fq.push_back(V[i]);
+            }
+            cout << " || V[i]: " << V[i] << endl;
+            result_p = filtered_greedy_search(G, S, query, k, L, C, fq);
         }
         auto result = result_p.first; auto visited = result_p.second;
 

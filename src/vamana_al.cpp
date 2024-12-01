@@ -12,30 +12,27 @@ unordered_map<int, int> find_medoid(const Dataset &P, vector<int> C, int thresho
     unordered_map<int, int> T; T.reserve(n);
     for (size_t i = 0; i < n; i++) T[i] = 0;
 
-    // Let P_fs be a map from filter f to the set of points matching filter f
-    unordered_map<int, unordered_set<int>> P_fs; P_fs.reserve(f_size);
-    for (size_t i = 0; i < n; i++) P_fs[C[i]].insert(i);
-
-    random_device rd; mt19937 g(rd());
-
     // Foreach f \in F do
     for (auto f : F) {
         // Let P_f denote the ids of all points matching filter f
-        unordered_set<int> P_f = P_fs[f];
+        unordered_set<int> P_f;
+        for (size_t i = 0; i < n; i++) {
+            if (C[i] == f) P_f.insert(i);
+        }
 
         // Let R_F <- τ randomly sampled data point ids from P_f
         vector<int> R_f(P_f.begin(), P_f.end());
-        shuffle(R_f.begin(), R_f.end(), g);
+        shuffle(R_f.begin(), R_f.end(), mt19937(random_device()()));
 
         // Let size of R_f be min{τ, |P_f|} and keep only the first threshold elements
         if (threshold < (int)R_f.size()) R_f.resize(threshold);
 
         // p* <- argmin_{p \in R_F} T[p]
         int p_star = -1;
-        euclidean_t min_dist = numeric_limits<euclidean_t>::max();
+        int min_counter = numeric_limits<int>::max();
         for (const auto &p : R_f) {
-            if (T[p] < min_dist) {
-                min_dist = T[p];
+            if (T[p] <= min_counter) {
+                min_counter = T[p];
                 p_star = p;
             }
         }
@@ -53,7 +50,6 @@ unordered_map<int, int> find_medoid(const Dataset &P, vector<int> C, int thresho
 // Filtered Vamana Indexing Algorithm
 Graph filtered_vamana_indexing(const Dataset &P, vector<int> C, double a, int L, int R, vector<int> F) {
     int n = (int)P.size();
-    size_t f_size = F.size();
 
     // Add the nodes to the graph G
     Graph G; G.reserve(n);
@@ -62,37 +58,8 @@ Graph filtered_vamana_indexing(const Dataset &P, vector<int> C, double a, int L,
         add_node_to_graph(G, node);
     }
     
-    // Let P_fs be a map from filter f to the set of points matching filter f
-    unordered_map<int, unordered_set<int>> P_fs; P_fs.reserve(f_size);
-    for (int i = 0; i < n; i++) P_fs[C[i]].insert(i);
-
-    // Add R edges to each node to nodes with same filter
-    for (auto &node : G) {
-        int i = node->indx;
-        set<int> random_indices;
-        
-        // If there are more than 1 points with the same filter
-        if (P_fs[C[i]].size() > 1) {
-            // Select up to R unique random neighbours (if possible)
-            while (random_indices.size() < P_fs[C[i]].size() - 1 && (int)random_indices.size() < R) {
-                int random_idx = rand() % n;
-
-                if (random_idx == i) continue;
-
-                random_indices.insert(random_idx);
-            }
-        }
-
-        for (const auto &idx : random_indices) {
-            add_edge_to_graph(node, idx);
-        }
-    }
-    
-    // Let s denote the medoid of P
-    //int s = medoid(P);
-    
     // Let st(f) denote the start node of filter label f for every f \in F
-    unordered_map<int, int> st = find_medoid(P, C, 10000, F);
+    unordered_map<int, int> st = find_medoid(P, C, 1, F);
     
     // Let σ denote a random permutation of |n|
     vector<int> sigma = random_permutation(n);
@@ -105,20 +72,17 @@ Graph filtered_vamana_indexing(const Dataset &P, vector<int> C, double a, int L,
         int s_i = sigma[i];
 
         // Let S_F_σ_(i) = {st(f) | f \in F_x_σ_(i)}, but here there is only one f
-        int s_f = st[F_x[s_i]];
+        vector<int> S_F_i = {st[F_x[s_i]]};
         
         // Let [{}, V_F_x_σ_(i)] = filtered_greedy_search(G, S_F_σ_(i), p_x_σ_(i), 0, L, F_x_σ_(i))
-        pair<vector<int>, vector<int>> result = filtered_greedy_search(G, {G[s_f]}, P[s_i], 0, L, F_x, F_x[s_i]);
-        vector<int> V_F_i = result.second; 
-
-        //? V = V U V_F_x_σ_(i)
+        pair<vector<int>, vector<int>> result = filtered_greedy_search(G, S_F_i, P[s_i], 0, L, F_x, {F_x[s_i]});
+        vector<int> V_F_i = result.second;
         
         // Run filtered_robust_pruning(σ(i), V_F_x_σ_(i), a, R)
         G = filtered_robust_pruning(G, G[s_i], V_F_i, a, R, C);
         
         // Foreach j \in N_out(σ(i)) do
         for (int j : G[s_i]->out_neighbours) {
-
             // Update N_out(j) <- N_out(j) U {σ(i)}
             G[j]->out_neighbours.insert(s_i);
 
