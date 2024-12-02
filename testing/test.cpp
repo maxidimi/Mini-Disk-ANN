@@ -191,7 +191,7 @@ void test_filtered_greedy_search(void) {
 
     // Perform greedy search
     auto medoid_index = find_medoid(dataset, C, 1, F);
-    vector<int> S = {medoid_index[0]};
+    vector<int> S = {medoid_index[fq[0]]};
     auto result_p = filtered_greedy_search(G, S, query, k, L, C, fq); 
     auto L_result = result_p.first;    
     auto visited = result_p.second;
@@ -217,8 +217,8 @@ void test_filtered_greedy_search(void) {
     }
 
     // Check if the number of neighbors found matches k
-    TEST_CHECK((L_result.size() == (size_t)k) || (L_result.size() == distances.size()));
-
+    TEST_CHECK((L_result.size() == (size_t)k) || (L_result.size() == expected_neighbors.size()));
+    
     // Check if the neighbor is in the expected neighbors
     for (const auto& index : L_result) {
         bool found = false;
