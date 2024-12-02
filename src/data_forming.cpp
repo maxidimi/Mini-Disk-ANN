@@ -39,11 +39,11 @@ vector<vector<int>> find_store_groundtruth(pair<Dataset, vector<int>> r, pair<Da
         // Store the k nearest neighbours (or less)
         vector<int> neighbours;
         for (size_t j = 0; j < distances.size() && j < 100; j++) {
-            neighbours.insert(neighbours.end(), distances[j].first);
+            neighbours.push_back(distances[j].first);
         }
 
         // Write the number of neighbours
-        int num_neighbours = neighbours.size();
+        int num_neighbours = (int)neighbours.size();
         file.write(reinterpret_cast<char*>(&num_neighbours), sizeof(int));
 
         // Write the neighbours
@@ -150,9 +150,6 @@ pair<Dataset, vector<int>> read_sigmod_queries(string file_name_s) {
 
         // Store the target categorical attribute
         int V = (int)v[1];
-
-        //? Ignore the queries with V = -1 (later we will search only for the ANN)
-        if (V == -1) continue;
 
         // Keep only the data
         vector<data_t> v2(v.begin() + 4, v.end());

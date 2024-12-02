@@ -16,21 +16,21 @@ void L_m_V(const vector<int> &L, const vector<int> &V, vector<int> &LV) {
 }
 
 // Filtered Greedy Algorithm - returning [k-nearest aprx. points, visited points]
-pair<vector<int>, vector<int>> filtered_greedy_search(const Graph &G, vector<Graph_Node> S, Data q, int k, int L_s, vector<int> C, int fq){
+pair<vector<int>, vector<int>> filtered_greedy_search(const Graph &G, vector<int> S, Data q, int k, int L_s, const vector<int> &C, vector<int> fq){
     // Initialize sets L<-{}, V<-{}
     vector<int> L; 
     vector<int> V;
 
     // for s \in S do
     for (const auto &s : S) {
-        // If F_s \cap F_x != {} then L <- L U {s}
-        if (C[s->indx] == fq) {
-            L.push_back(s->indx);
+        // If (F_s \cap F_q) != {} then L <- L U {s}
+        if (find(fq.begin(), fq.end(), C[s]) != fq.end()) {
+            L.push_back(s);
         }
     }
     
     // Initialize L \ V = L, as V is empty
-    vector<int> L_not_V = L;
+    vector<int> L_not_V; L_not_V.assign(L.begin(), L.end());
     
     // While L \ V is not empty
     while (!L_not_V.empty()) {
@@ -41,23 +41,23 @@ pair<vector<int>, vector<int>> filtered_greedy_search(const Graph &G, vector<Gra
         //V <- V U (p*)
         V.push_back(p_star);
 
-        // Let N'_out(p*) <- p' \in N_out(p*) : (F_p' \cap F_q != {}), p' not belongs to V
+        // Let N'_out(p*) <- {p' \in N_out(p*) : F_p' \cap F_q != {} && p' \notin V}
         unordered_set<int> N_;
-        for (const auto &p : G[p_star]->out_neighbours){
-            if(fq == C[p] && find(V.begin() , V.end() , G[p]->indx) == V.end()){
-                N_.insert(p);
+        for (const auto &p_tmp : G[p_star]->out_neighbours){
+            if ((find(fq.begin(), fq.end(), C[p_tmp]) != fq.end()) && (find(V.begin(), V.end(), p_tmp) == V.end())){
+                N_.insert(p_tmp);
             }
         }
         
         // Update L <- L U N'_out(p*)
         for (const auto &p : N_){
-            if (find_if(L.begin(), L.end(), [p](int i) { return i == p; }) == L.end()){
+            if (find(L.begin(), L.end(), p) == L.end()){
                 L.push_back(p);
             }
         }
         
         // If |L| > L_s then update L to retain closest L_s points to q
-        if (L.size() > (size_t)L_s) {
+        if (L.size() > (size_t)L_s && L.size() > 0) {
             sort(L.begin(), L.end(), [&q, &G](int a, int b) {
                 return euclidean_distance(G[a]->data, q) < euclidean_distance(G[b]->data, q);
             });
@@ -70,6 +70,7 @@ pair<vector<int>, vector<int>> filtered_greedy_search(const Graph &G, vector<Gra
     
     // Return the first k elements of L
     if (L.size() > (size_t)k) {
+        if (L.size() == 0) return {{}, V};
         sort(L.begin(), L.end(), [&q, &G](int a, int b) {
             return euclidean_distance(G[a]->data, q) < euclidean_distance(G[b]->data, q);
         });

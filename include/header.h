@@ -52,7 +52,7 @@ vector<vector<int>> find_store_groundtruth(pair<Dataset, vector<int>> r, pair<Da
 
 /* Greedy Search | s start node, q query, k result size, L search list size */
 void L_m_V(const vector<int> &L, const vector<int> &V, vector<int> &LV);
-pair<vector<int>, vector<int>> filtered_greedy_search(const Graph &G, vector<Graph_Node> S, Data q, int k, int L_s, vector<int> C, int fq);
+pair<vector<int>, vector<int>> filtered_greedy_search(const Graph &G, vector<int> S, Data q, int k, int L_s, const vector<int> &C, vector<int> fq);
 pair<vector<int>, vector<int>> greedy_search(const Graph &G, Graph_Node s, Data q, int k, int L_s);
 
 /* Robust Pruning */

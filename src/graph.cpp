@@ -20,17 +20,6 @@ void add_edge_to_graph(Graph_Node &from, int to) {
         from->out_neighbours.insert(to);
 }
 
-// Finds a node in the graph
-Graph_Node find_data_in_graph(Graph &graph, const Data &data) {
-    auto it = find_if(graph.begin(), graph.end(), [&data](Graph_Node node) {
-        return node->data == data;
-    });
-    if (it != graph.end()) {
-        return *it;
-    }
-    return nullptr;
-}
-
 // Storing the graph in a binary file
 void store_graph(const Graph &G, string filename) {
     
