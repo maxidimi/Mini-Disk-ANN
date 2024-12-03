@@ -7,72 +7,61 @@ Team members:
 
 ## Build and Run project
 
-### Για την **εκτέλεση** του project:
+#### Για την **εκτέλεση** του project:
   ```
-  make
-  ./bin/vamana config.txt
+  make run
   ```
-### Για την εκτέλεση των **tests**:
+#### Για την εκτέλεση των **tests**:
   ```
   make test
   ```
-### Για τον **καθαρισμό** του directory:
+#### Για τον **καθαρισμό** του directory:
   ```
   make clean
   ```
 
-### Configuration file
+## Configuration file
 Η παροχή παραμέτρων γίνεται μέσω ενός configuration file, το όνομα του οποίου δίνεται ως όρισμα στην εκτέλεση του προγράμματος.<br/>
 Το αρχείο πρέπει να έχει την εξής μορφή:
 ```
-dataset=data/ANN_SIFT10K/siftsmall_base.fvecs
-query=data/ANN_SIFT10K/siftsmall_query.fvecs
-groundtruth=data/ANN_SIFT10K/siftsmall_groundtruth.ivecs
+dataset=data/SIGMOD/DUMMY/dummy-data.bin
+query=data/SIGMOD/DUMMY/dummy-queries.bin
+groundtruth=data/SIGMOD/DUMMY/dummy-groundtruth.bin
 k=100
-R=14
+R=15
 L=100
 a=1.2
-q_idx=-2
+vamana_function=filtered
+graph_name=filtered_emplace.bin
+L_small=100
+R_small=32
+R_stiched=64
+q_idx=-1
 ```
-- Τα dataset/query/groundtruth προσδιορίζουν το path των συγκεκριμένων αρχείων.
+- Τα dataset/query/groundtruth προσδιορίζουν τα path των συγκεκριμένων αρχείων.
 - Τα k, R, L, a είναι οι γνωστοί παράμετροι για τις συναρτήσεις.
+- Το vamana_function καθορίζει τον αλγόριθμο indexing & searching που θα τρέξει:
+  - vamana για τον απλο Vamana
+  - filtered για τον απλο Filtered
+  - stiched για τον απλο Stiched
+- Το graph_name είναι το όνομα του γράφου (ή το πρόθεμα των γράφων) που θέλουμε να φτιάξουμε ή να ψάξουμε.
+- Τα $L_{small}$, $R_{small}$, $R_{stiched}$ είναι οι παράμετροι για το Stiched Vamana.
 - Όταν δίνονται αρχεία ως input, μέσω του q_idx μπορείτε:
   - να συμπληρώσετε το index του query στο αρχείο που θέλετε να τεστάρετε,
   - να γράψετε -2 και να τεστάρετε μόνο ένα query που θα επιλέξει τυχαία το πρόγραμμα,
   - να το αφήσετε κενό και να τρέξει για όλα τα queries.
+ 
+## Αλλαγές από το προηγούμενο παραδοτέο
+- TODO1
 
 ## Workflow
 Υπάρχει workflow script μέσω Github Actions ώστε κάθε commit να ελέγχεται αυτόματα για την ορθότητα του κώδικα μέσω των unit tests.
 
 ## Parametres and Data types
 Στο αρχείο header.h υπάρχουν 2 typedef, ένα για το data type των δεδομένων και ένα για το data type στο οποίο μετράμε την ευκλείδια απόσταση.
-Στην παρούσα φάση και μετά από δοκιμές, θεωρήσαμε ότι για το dataset ANN_SIFT10K αρκεί το float. Παρόλα αυτά, αλλάζοντας αυτά τα typedef μπορούμε να τεστάρουμε και άλλους τύπους δεδομένων.
+Αλλάζοντας αυτά τα typedef μπορούμε να τεστάρουμε και άλλους τύπους δεδομένων.
 
-Στο αρχείο **results.txt** μπορείτε να δείτε τα αποτελέσματα του Greedy Search για κάθε query.<br/>
-Έπειτα από δοκιμές που κάναμε, για R>log(n), το Recall@k για το ANN_SIFT10K dataset κυμαίνεται μεταξύ 90% και 100%, ποσοστό που ανεβαίνει όσο ανεβαίνει και το R.<br/>
-
-Για τις παρακάτω παραμέτρους και για ένα τυχαία επιλεγμένο query point, έχουμε ~100% Recall σε 3.6' στα μηχανήματα της σχολής. Στους προσωπικούς μας υπολογιστές, ο χρόνος φτάνει και το 1 λεπτό.
-```
-@linux15:~/Software-Development-for-Information-Systems$ ./bin/vamana config.txt
- || Dataset: data/ANN_SIFT10K/siftsmall_base.fvecs
- || Query: data/ANN_SIFT10K/siftsmall_query.fvecs
- || Groundtruth: data/ANN_SIFT10K/siftsmall_groundtruth.ivecs
- || k: 100
- || R: 14
- || L: 100
- || a: 1.2
- || Size: 10000
- || Dimension: 128
-=======================================================================================
- || Total time taken for Vamana Indexing: 228.30 seconds (= 3.80 minutes)
-=======================================================================================
- || Total time taken for Greedy Search 1/1: 0.02 seconds (= 0.00 minutes)
- || Size of neighbours list found matches k.
- || Number of neighbours found in expected neighbors: 100/100.
- || Recall@k: 100.00%.
-=======================================================================================
- || Total time taken for both Vamana and Greedy calls: 228.33 seconds (= 3.80 minutes)
-```
+Στα αρχεία **results_vamana.txt**,**results_filtered.txt**, **results_stiched.txt** μπορείτε να δείτε τα αποτελέσματα του Greedy Search για κάθε query TODO1.<br/>
 
 ## main
 Διαβάζει το **configuration file** και δημιουργεί τα dataset, queries και gorundtruth από τα αρχεία που δίνονται από τον χρήστη. Δημιουργείται ο γράφος από το **vamana indexing** και διατρέχεται με τη **greedy search**. Στο τέλος, καλεί την **check_results** για να ελέγχξει την ορθότητα των αποτελεσμάτων. Επίσης επεξεργάζεται κατάλληλα το q_idx.
@@ -81,9 +70,7 @@ q_idx=-2
 - Για την αναπαράσταση του γράφου χρησιμοποιούνται vectors, για απευθείας random indexing.<br/>
 - Για κάθε κόμβο, κρατάμε σε ένα struct το vector με τα δεδομένα και ένα unordered set με τους out neighbours. Η επιλογή του set 
   έγινε ώστε να αποφύγουμε τα duplicates χωρίς να απαιτείται χειροκίνητος έλεγχος σε κάθε εισαγωγή.<br/>
-- Παρέχονται οι κατάλληλες συναρτήσεις δημιουργίας κόμβου, προσθήκης αυτού σε γράφο καθώς και η εύρεση κόμβου στον γράφο με βάση το data 
-  point του.<br/>
-- Υπάρχει επίσης συνάρτηση εκτύπωσης των σημείων του γράφου καθώς και εκτύπωσης των out neighbours κόμβου.<br/>
+- Παρέχονται οι κατάλληλες συναρτήσεις δημιουργίας κόμβου και προσθήκης αυτού σε γράφο<br/>
 
 ## Helper Functions
 - Χρησιμοποιούμε **squared euclidean distance** διότι αυτή είναι και η μετρική του dataset.
@@ -93,50 +80,75 @@ q_idx=-2
 - Η **check_results** ελέγχει τα αποτελέσματα του greedy search. Εάν πάρει ως όρισμα το **groundtruth** κάνει το απαραίτητο cross-check, αλλιώς υπολογίζει manually τους κοντινότερους γείτονες και τους συγκρίνει με τα αποτελέσματα του αλγορίθμου.
 
 ## Greedy Search
+####  Απλή Greedy Search
 - Η **L_m_V** υπολογίζει τα στοιχεία που υπάρχουν στον γράφο L και δεν υπάρχουν στον V.
 - Η **greedy_search** αρχικοποιεί τα σύνολα L και V. Οσο υπάρχουν στοιχεία στο L που δεν υπάρχουν στο V βρίσκει το κοντινότερο σημείο στο p με την χρήση της euclidean_distance, προσθέτει τους γείτονες του σημείου στο L και αν το μέγεθος του L είναι μεγαλύτερο απο το L_s κάνει resize και κρατάει τους L-L_s κοντινότερους κόμβους. Τελος επιστρέφει ενα pair που αποτελείται απο δύο γράφους, ο πρώτος γραφος περιέχει τους k κοντινότερους κόμβους απο το σημείο q και ο δεύτερος γράφος περιέχει τα visited nodes.
 
+#### Filtered Greedy Search
+- TODO3
+
+
 ## Robust Pruning
+
+#### Απλό Robust Pruning
 - Το όρισμα p_node είναι ο κόμβος του σημείου p στον γράφο.
 - Προσθέτει στο V όλες τις εξωτερικές ακμές του σημείου p,ελέγχωντας για διπλότυπα.
 - Αφαιρεί όλες τις ακμές του p από τον γράφο και έπειτα όσο το V δεν είναι άδειο και το |N_out(p)| δεν είναι ίσο με R,υπολογίζει την απόσταση του p από κάθε σημείο του V και εισάγει το κοντινότερο στο N_out(p).
 
-## Vamana indexing
+#### Filtered Robust Pruning
+- TODO2
+
+
+## Vamana Indexing
+
+#### Απλό Vamana indexing
 - Για την αρχικοποίηση του τυχαίου γράφου, επιλέγονται για κάθε κόμβο τυχαίοι R διαφορετικοί κόμβοι ώστε να προστεθούν οι κατάλληλες ακμές.
 - Ο γράφος διασχίζεται σύμφωνα με το random permutation σ(i).
 - Κρατάμε το vector N_out_j_p που αποτελεί το $N_{out}(\sigma (i)) \bigcup \{\sigma (i)\}$ και το ανανεώνουμε κατάλληλα σε κάθε επανάληψη.
 - Με την **get_data(V)** παίρνουμε το dataset που υπάρχει στον γράφο V και το στέλνουμε ως όρισμα στη Robust Pruning.
 
+#### Filtered Vamana indexing
+- TODO1
+
+#### Stiched Vamana indexing
+- TODO1
+
 ## Data_forming
+- Η **read_sigmod_dataset** TODO1.
+- H **read_sigmod_queries** TODO1.
+- H **read_sigmod_groundtruth** TODO1.
+- H **find_store_groundtruth** TODO1.
+  
 - H **bvecs_read** διαβάζει τα δεδομένα των αρχείων με .bvecs format,τα μετατρέπει σε data_t τύπο,τα εισάγει σε dataset το οποίο επιστρέφει όταν διαβαστεί όλο το αρχείο.
 - H **fvecs_read** διαβάζει τα δεδομένα των αρχείων με .fvecs format,τα μετατρέπει σε data_t τύπο,τα εισάγει σε dataset το οποίο επιστρέφει όταν διαβαστεί όλο το αρχείο.
 - H **ivecs_read** διαβάζει τα δεδομένα των αρχείων με .ivecs format,τα μετατρέπει σε data_t τύπο,τα εισάγει σε dataset το οποίο επιστρέφει όταν διαβαστεί όλο το αρχείο.
 
 ## Optimization
-- Αποφεύχθηκε όσο γίνεται, η χρήση της **find_data_in_graph** για εύρεση δεδομένων στον γράφο καθώς απαιτεί διάσχιση όλου του γράφου.
-- Χρησιμοποιήθηκαν αρκετά **.reserve()** για γρηγορότερο indexing.
-- Χρησιμοποιήθηκε το **flag -O3** στο compile.
-- Η **medoid** με την χρήση ενός vector για την συνολική απόσταση κάθε σημείου από όλα τα άλλα,υπολογίζει μία φορά την απόσταση κάθε ζευγαριού σημείων,αντί για 2 και την προσθέτει στην συνολιή απόσταση και των 2 σημείων του ζευγαριού.Ουσιαστικά υπολογίζει τον άνω τριγωνικό πίνακα των αποστάσεων όλων των σημείων μεταξύ τους και όχι τον ολόκληρο πίνακα. 
+- Χρησιμοποιείται το **flag -O3** στο compile.
+- Η **medoid** με την χρήση ενός vector για την συνολική απόσταση κάθε σημείου από όλα τα άλλα,υπολογίζει μία φορά την απόσταση κάθε ζευγαριού σημείων, αντί για 2 και την προσθέτει στην συνολιή απόσταση και των 2 σημείων του ζευγαριού.Ουσιαστικά υπολογίζει τον άνω τριγωνικό πίνακα των αποστάσεων όλων των σημείων μεταξύ τους και όχι τον ολόκληρο πίνακα. 
 
 ## Unit Testing
 Για το unit testing χρησιμοποιήθηκε το **acutest** framework.
 - H **test_create_graph_node** τεστάρει την δημιουργία ενος κόμβου διασφαλίζει οτι ο κόμβος αρχικά δεν έχει γείτονες.
 - Η **test_add_node_to_graph** τεστάρει την εισαγωγή ενος κόμβου σε ένα γράφο και διασφαλίζει οτι το μέγεθος του γράφου είναι το αναμενόμενο.
 - Η **test_add_edge_to_graph** τεστάρει την εισαγωγή ακμών στον γράφο και αν ο γράφος έχει τον αναμενόμενο αριθμό ακμών.
-- Η **test_find_data_in_graph** τεστάρει την ορθότητα της εύρεσης ενος κόμβου με συγκεκριμένα δεδομένα.
 - Η **test_euclidean_distance** τεστάρει την ορθότητα της ευκλείδειας απόστασης σε διαφορετικές διαστάσεις.
 - Η **test_random_permutation** ελέγχει αρχικά αν το μέγεθος του vector παραμένει το ίδιο και την ορθότηα των μεταθέσεων.
 - Η **test_get_data** ελέγχει αν η ανάκτηση των δεδομένων απο ένα γράφο γίνεται σωστά.
 - Η **test_medoid** ελέγχει αν η medoid επιστρέφει την αναμενόμενη τιμή.
 - Η **test_greedy_search** ελέγχει αν οι γείτονες που επιστρέφει είναι οι αναμενομένοι.
+- Η **test_pruning** TODO2/TODO3.
+- Η **test_find_medoid** TODO2/TODO3.
+- Η **test_filtered_greedy_search** TODO2/TODO3.
+- Η **test_greedy_search** TODO2/TODO3.
+- Η **test_filtered_pruning** TODO2/TODO3.
 
 # Διαμοιρασμός εργασιών μεταξύ των μελών της ομάδας
 Ο κύριος διαχωρισμός έγινε ως εξής:
-- Δημήτρης Δημοχρόνης: σχεδίαση γράφου και επιλογή δομών, Vamana Indexing, μερικώς optimization και λειτουργικότητα της main,
-- Νίκος Πεντασίλης: Pruning, Data Reading και optimization medoid,
-- Γιώργος Ράγκος: Greedy Search, Unit Testing, Data Reading.
-Ο κώδικας πέρασε από όλους και όλοι κάναμε τροποποιήσεις σε κώδικα άλλου μέλους.<br/>
-Έγιναν αρκετά pull requests από την ομάδα καθώς και πολλά sessions για την επίλυση προβλημάτων και την βελτίωση του κώδικα.<br/>
+- Δημήτρης Δημοχρόνης: Filtered & Stiched Vamana Indexing, read/store graph, read SIGMOD dataset/queries, find & store groundtruth και λειτουργικότητα της main,
+- Νίκος Πεντασίλης: TODO2,
+- Γιώργος Ράγκος: TODO3.
 
 ## Dataset
-Όλα τα dataset είναι από εδώ: http://corpus-texmex.irisa.fr/.<br/>
+Datasets για απλό Vamana Indexing: [Corpus](http://corpus-texmex.irisa.fr/).<br/>
+Datasets για Filtered & Stiched Vamana Indexing: [DB Group](https://dbgroup.cs.tsinghua.edu.cn/sigmod2024/task.shtml?content=datasets).
