@@ -1,9 +1,11 @@
 dataset=data/SIGMOD/DUMMY/dummy-data.bin
 query=data/SIGMOD/DUMMY/dummy-queries.bin
 groundtruth=data/SIGMOD/DUMMY/dummy-groundtruth.bin
+vamana_function=stiched
+graph_name=graphs/stiched/stiched_
+q_idx=-1
 k=100
-R=15
+R=25
+R_small=15
 L=100
 a=1.2
-q_idx=-1
-vamana_function=filtered

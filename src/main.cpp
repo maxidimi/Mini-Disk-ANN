@@ -1,17 +1,6 @@
 #include "../include/header.h"
-/*
-    Make a configuration file with the following format:
-    dataset=dataset.fvecs
-    query=query.fvecs
-    groundtruth=groundtruth.ivecs
-    k=10
-    R=10
-    L=20
-    a=1.5
-    q_idx=
-    vamana_function=vamana/filtered/stiched
-    Then run the program with the configuration file as an argument.
-*/
+
+// More info about configuration file can be found in the README.md.
 
 int main(int argc, char *argv[]) {
     // Read the configuration file name from the command line
@@ -30,8 +19,9 @@ int main(int argc, char *argv[]) {
 
     // Read the configuration file and set the parameters
     string dataset_f, query_f, groundtruth_f;
-    int k = 0, R = -1, L = -1, q_idx = -1;
-    double a = 0.0; string vam_func = "filtered";
+    int k = 0, R = -1, L = -1, q_idx = -1, R_small = -1;
+    double a = 0.0; string vam_func = "error";
+    string graph_name = "graph.bin";
     bool print = false;
     
     string line;
@@ -48,7 +38,9 @@ int main(int argc, char *argv[]) {
                 else if (key == "R") R = stoi(value);
                 else if (key == "L") L = stoi(value);
                 else if (key == "a") a = stod(value);
+                else if (key == "R_small") R_small = stoi(value);
                 else if (key == "q_idx") q_idx = stoi(value);
+                else if (key == "graph_name") graph_name = value;
                 else if (key == "vamana_function") vam_func = value;
                 else {
                     cerr << "Invalid configuration key: " << key << endl;
@@ -58,6 +50,11 @@ int main(int argc, char *argv[]) {
         }
     }
     configFile.close();
+
+    if (vam_func != "vamana" && vam_func != "filtered" && vam_func != "stiched") {
+        cerr << "Invalid Vamana function!" << endl;
+        return 1;
+    }
 
     // Read the dataset, queries and groundtruth etc.
     Dataset dataset, queries; vector<vector<int>> groundtruth_i;
@@ -85,12 +82,8 @@ int main(int argc, char *argv[]) {
     // Check that parametres are valid
     int n = (int)dataset.size();
     int d = (int)dataset.front().size();
-    if (R < 1 || L < k || k <= 0 || a < 1.0 || n <= 0) {
+    if (R < 1 || L < k || k <= 0 || a < 1.0 || n <= 0 || d <= 0 || (vam_func == "stiched" &&  R_small < 1)) {
         cerr << "Invalid parametrization!" << endl;
-        return 1;
-    }
-    if (vam_func != "vamana" && vam_func != "filtered" && vam_func != "stiched") {
-        cerr << "Invalid Vamana function!" << endl;
         return 1;
     }
     
@@ -129,6 +122,7 @@ int main(int argc, char *argv[]) {
     cout << " || a: " << a << endl;
     cout << " || Size: " << n << endl;
     cout << " || Dimension: " << d << endl;
+    cout << " || Indexing Function: " << vam_func << endl;
     if (q_idx == -1) {
         cout << " || Queries: All" << endl;
     } else {
@@ -140,40 +134,42 @@ int main(int argc, char *argv[]) {
     // Start the timer
     clock_t start = clock();
     
-    // Create the Vamana index based on the prefered function and store it
-    Graph G = read_graph(vam_func + "_graph.bin");
-    if (G.empty()) {
-
-        if (vam_func == "vamana") {
+    // Create/Read the Vamana index based on the prefered function and store it
+    Graph G; unordered_map<int, Graph> G_stiched;
+    if (vam_func == "vamana") {
+        G = read_graph(graph_name + ".bin");
+        if (G.empty()) {
             G = vamana_indexing(dataset, a, L, R);
-
-        } else if (vam_func == "filtered") {
-            G = filtered_vamana_indexing(dataset, C, a, L, R, F);
-
-        } else if (vam_func == "stiched") {
-            G = stiched_vamana_indexing(dataset, C, a, L, R, R, F);
-
-        } else {
-            cerr << "Invalid Vamana function!" << endl;
-            return 1;
+            store_graph(G, graph_name + ".bin");
         }
 
-        store_graph(G, vam_func + "_graph.bin");
+    } else if (vam_func == "filtered") {
+        G = read_graph(graph_name + ".bin");
+        if (G.empty()) {
+            G = filtered_vamana_indexing(dataset, C, a, L, R, F);
+            store_graph(G, graph_name + ".bin");
+        }
+
+    } else if (vam_func == "stiched") {
+        for (const auto &f : F) {
+            Graph G_f = read_graph(graph_name + to_string(f) + ".bin");
+            if (G_f.empty()) {
+                G_stiched = stiched_vamana_indexing(dataset, C, a, L, R_small, R, F);
+                for (const auto &g : G_stiched) {
+                    store_graph(g.second, graph_name + to_string(g.first) + ".bin");
+                }
+                break;
+            }
+        }
     }
-    
     time_elapsed(start, "Vamana Indexing");
     cout << "=======================================================================================\n";
+    cout << "                                      Results:" << endl;
+    cout << "=======================================================================================\n";
     
-    // Find the medoid(s) of the dataset based on the prefered function
+    // Find the medoid for each label
     unordered_map<int, int> medoid_map; medoid_map.reserve(F.size());
-    int medoid_index = -1;
-
-    if (vam_func == "vamana") { // Find the medoid of the dataset
-        medoid_index = medoid(dataset);
-
-    } else { // Find the medoid of the dataset for each unique label
-        medoid_map = find_medoid(dataset, C, 1, F);
-    }
+    if (vam_func != "vamana") medoid_map = find_medoid(dataset, C, 1, F);
     
     // Perform the Greedy search for each query
     double recall_sum = 0.0;
@@ -182,7 +178,7 @@ int main(int argc, char *argv[]) {
 
         vector<int> groundtruth_t = groundtruth[i];
         
-        int V_i = V_to_test[i];
+        int V_i; if (vam_func != "vamana") V_i = V_to_test[i];
 
         clock_t gr_start = clock();
 
@@ -190,14 +186,18 @@ int main(int argc, char *argv[]) {
         pair<vector<int>, vector<int>> result_p;
 
         if (vam_func == "vamana") {
-            Graph_Node s = G.front();//? = G[medoid_index];
+            Graph_Node s = G.front();
 
             result_p = greedy_search(G, s, query, k, L);
 
-        } else {
+        } else if (vam_func == "filtered") {
             vector<int> fq, S;
             if (V[i] == -1) { // Search for classic ANN
-                for (const auto &medoid : medoid_map) S[medoid.first] = medoid.second;
+                // Set medoid for each label the result of greedy search with k = 1 for the subgraph of the label
+                for (const auto &f : F) {
+                    auto result_l = filtered_greedy_search(G, {medoid_map[f]}, query, 1, L, C, {f});
+                    S.push_back(result_l.first.front());
+                }
                 fq = F;
 
             } else {
@@ -206,6 +206,11 @@ int main(int argc, char *argv[]) {
             }
             cout << " || V[i]: " << V[i] << endl;
             result_p = filtered_greedy_search(G, S, query, k, L, C, fq);
+
+        } else if (vam_func == "stiched") {
+            if (V_i == -1) continue;//?
+            Graph G_f = G_stiched[V_i];
+            result_p = filtered_greedy_search(G_f, {0}, query, k, L, C, {V_i});
         }
         auto result = result_p.first; auto visited = result_p.second;
 
@@ -221,7 +226,7 @@ int main(int argc, char *argv[]) {
 
     // Print the average recall
     cout << "=======================================================================================\n";
-    cout << "===> Average Recall@k: " << (double)(recall_sum/queries_to_test.size()) << "%" << endl;
+    cout << "===> Average Recall@" << k << ": " << (double)(recall_sum/queries_to_test.size()) << "%" << endl;
     cout << "=======================================================================================\n";
 
     // Free the memory allocated for the graph
