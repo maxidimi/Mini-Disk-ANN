@@ -139,6 +139,12 @@ void test_min_dist(){
     Data q = {2.4,2.4,2.4};
     int min = find_min_dist(graph,L,q);
     TEST_CHECK(min==2);
+
+     // Cleanup memory
+    for (Graph_Node node : graph) {
+        delete node;
+    }
+    graph.clear();
 }
 
 void test_random_permutation(void){
@@ -198,10 +204,10 @@ void test_filtered_greedy_search(void) {
     int L_s = 5;  // L_s is the maximum size of L during search
     vector<int> filter;
     filter.push_back(1); 
-    filter.push_back(2);
     filter.push_back(1);
+    filter.push_back(3);
     filter.push_back(1);
-    filter.push_back(1);
+    filter.push_back(3);
     int fq = 1;
     int num_nodes = 5; 
     Graph G;
@@ -248,8 +254,8 @@ void test_filtered_greedy_search(void) {
 
     // Check if the number of neighbors found matches k
     TEST_CHECK(static_cast<int>(L_result.size()) <= k);
-    TEST_CHECK(L_result[0]==0);
-    TEST_CHECK(L_result[1]==2);
+    TEST_CHECK(L_result[0]==1);
+    TEST_CHECK(L_result[1]==0);
     TEST_CHECK(L_result[2]==3);
 }
 
@@ -330,6 +336,32 @@ void test_pruning(void) {
     TEST_CHECK(graph[12]->out_neighbours.find(13) != graph[12]->out_neighbours.end());
 }
 
+void test_filtered_pruning(void) {
+    int num_nodes = 20;
+    vector <int> C;
+    Graph graph;
+
+    for (float i = 0; i < num_nodes; ++i){
+        Graph_Node node = new graph_node;
+        node->indx = (int) i;
+        node->data = {i, i+1, i+2};
+        if (i < num_nodes - 1) {
+            node->out_neighbours.insert(int(i + 1)); 
+        }
+        graph.push_back(node);
+        C.push_back((int)i % 3);
+    }
+    for(int i=0; i<=6; i++){
+        graph[12]->out_neighbours.insert(i*3);
+    }
+    vector<int> out(graph[12]->out_neighbours.begin(),graph[12]->out_neighbours.end());
+    graph = filtered_robust_pruning(graph,graph[12],out,1.2,6,C);
+    
+    TEST_CHECK(graph[12]->out_neighbours.size() <= 5);
+    TEST_CHECK(graph[12]->out_neighbours.find(9) != graph[12]->out_neighbours.end());
+    TEST_CHECK(graph[12]->out_neighbours.find(15) != graph[12]->out_neighbours.end());
+}
+
 
 TEST_LIST = {
     {"test_create_graph_node", test_create_graph_node },
@@ -346,5 +378,6 @@ TEST_LIST = {
     {"test_filtered_greedy_search", test_filtered_greedy_search},
     {"test_greedy_search", test_greedy_search},
     {"test_pruning", test_pruning},
+    {"test_filtered_pruning", test_filtered_pruning},
     { 0 }
 };
