@@ -9,6 +9,8 @@ void test_create_graph_node(void) {
     TEST_CHECK(node->data == data);
 
     TEST_CHECK(node->out_neighbours.size() == 0);
+    
+    delete node;
 }
 
 void test_add_node_to_graph(void) {
@@ -26,6 +28,9 @@ void test_add_node_to_graph(void) {
 
     TEST_CHECK(graph.size() == 2);
     TEST_CHECK(graph[1] == node1);
+
+    delete node;
+    delete node1;
 }
 
 void test_add_edge_to_graph(void) {
@@ -44,6 +49,9 @@ void test_add_edge_to_graph(void) {
 
     add_edge_to_graph(node, node1->indx);
     TEST_CHECK(node->out_neighbours.size() == 1);
+
+    delete node;
+    delete node1;
 }
 
 void test_read_graph(void){
@@ -51,25 +59,45 @@ void test_read_graph(void){
     Graph G = read_graph("random_file");
     TEST_CHECK(G.empty());  
 
-    std::ofstream file("new_file", std::ios::binary);
-    int num_nodes = 2;
-    file.write((const char*)(&num_nodes), sizeof(int));
-    file.close();
+    ofstream file("random_file", ios::binary);
+    if (!file) return;
 
-    G= read_graph("new_file");
+    Graph_Node node = create_graph_node({1, 2, 3});
+    add_node_to_graph(G, node);
+    Graph_Node node1 = create_graph_node({4, 5, 6});
+    add_node_to_graph(G, node1);
+
+    store_graph(G, "random_file");
+    for (auto node : G) {
+        delete node;
+    }
+
+    G = read_graph("random_file");
+
     TEST_CHECK(G.size() == 2);
+
+    TEST_CHECK(G[0]->data == Data({1, 2, 3}));
+    TEST_CHECK(G[0]->out_neighbours.size() == 0);
+    TEST_CHECK(G[0]->indx == 0);
+    TEST_CHECK(G[1]->data == Data({4, 5, 6}));
+    TEST_CHECK(G[1]->out_neighbours.size() == 0);
+    TEST_CHECK(G[1]->indx == 1);
+
+    for (auto node : G) {
+        delete node;
+    }
+
+    remove("random_file");
 }
 
 void test_store_graph(void){
     
     Data data1 = {1,2,3};
     Graph_Node node1 = create_graph_node(data1);
-    node1->indx = 0;
     node1->out_neighbours.insert(1);
 
     Data data2 = {4,5,6};
     Graph_Node node2 = create_graph_node(data2);
-    node2->indx = 1;
     node2->out_neighbours.insert(0);
 
     Graph G;
@@ -80,7 +108,14 @@ void test_store_graph(void){
     store_graph(G, filename);
 
     Graph G_read = read_graph(filename);
-    TEST_CHECK(G_read.size() == 2);  
+    TEST_CHECK(G_read.size() == 2);
+
+    for (auto node : G_read) {
+        delete node;
+    }
+    delete node1;
+    delete node2;
+    remove(filename.c_str());
 }
 
 void test_euclidean_distance(void){//squared euclidean distance
@@ -109,9 +144,7 @@ void test_min_dist(){
     Graph graph;
     int num_nodes=5;
     for (float i = 0; i < num_nodes; ++i) {
-        Graph_Node node = new graph_node;
-        node->indx = int(i);
-        node->data = {i, i, i};
+        Graph_Node node = create_graph_node({i, i, i});
         if (i < num_nodes - 1) {
             node->out_neighbours.insert(int(i + 1)); 
         }
@@ -121,6 +154,10 @@ void test_min_dist(){
     Data q = {2.4,2.4,2.4};
     int min = find_min_dist(graph,L,q);
     TEST_CHECK(min==2);
+
+    for (auto node : graph) {
+        delete node;
+    }
 }
 
 void test_random_permutation(void){
@@ -230,6 +267,10 @@ void test_filtered_greedy_search(void) {
         }
         TEST_CHECK(found); // Check that index is among the expected nearest neighbors
     }
+
+    for (auto node : G) {
+        delete node;
+    }
 }
 
 void test_greedy_search(void){
@@ -286,6 +327,10 @@ void test_greedy_search(void){
         }
         TEST_CHECK(found); // Check that index is among the expected nearest neighbors
     }
+
+    for (auto node : G) {
+        delete node;
+    }
 }
 
 void test_pruning(void) {
@@ -307,6 +352,10 @@ void test_pruning(void) {
     TEST_CHECK(graph[12]->out_neighbours.size()==2);
     TEST_CHECK(graph[12]->out_neighbours.find(5) != graph[12]->out_neighbours.end());
     TEST_CHECK(graph[12]->out_neighbours.find(13) != graph[12]->out_neighbours.end());
+
+    for (int i = 0; i < num_nodes; i++) {
+        delete graph[i];
+    }
 }
 
 
