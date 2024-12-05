@@ -51,7 +51,7 @@ double check_results(const Dataset &dataset, Data query, const vector<int> &resu
     int r_size = (int)result.size();
 
     // Check if the number of neighbors found matches k (or the expected neighbors)
-    if (r_size != (size_t)k && r_size != expected_neighbors.size()) {
+    if (r_size != k && r_size != (int)expected_neighbors.size()) {
         cerr << " || Size of neighbours list is not the expected. Found: " << r_size << " Expected: " << k << ".\n";
         cout << "=======================================================================================\n";
         return 0.0;
@@ -64,11 +64,6 @@ double check_results(const Dataset &dataset, Data query, const vector<int> &resu
             if (find(expected_neighbors.begin(), expected_neighbors.end(), r) != expected_neighbors.end()) {
                 foundC++;
             }
-        }
-        if (print) {
-            cout << " || Number of neighbours found in expected neighbors: " << foundC << "/" << n_size << ".\n";
-            cout << " || Recall@" << k << " : " << (double)(100*foundC/n_size) << "%." << endl;
-            cout << "=======================================================================================\n";
         }
     } else { // If the function is stitched, we need first to take the dataset of the neighbors and then check the results
         Dataset groundtruth_ds;
@@ -84,11 +79,12 @@ double check_results(const Dataset &dataset, Data query, const vector<int> &resu
                 foundC++;
             }
         }
-        if (print) {
-            cout << " || Number of neighbours found in expected neighbors: " << foundC << "/" << n_size << ".\n";
-            cout << " || Recall@" << k << " : " << (double)(100*foundC/n_size) << "%." << endl;
-            cout << "=======================================================================================\n";
-        }
+    }
+    
+    if (print) {
+        cout << " || Number of neighbours found in expected neighbors: " << foundC << "/" << n_size << ".\n";
+        cout << " || Recall@" << k << " : " << (double)(100*foundC/n_size) << "%." << endl;
+        cout << "=======================================================================================\n";
     }
     
     return (double)(100*foundC/n_size);

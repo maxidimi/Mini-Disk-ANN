@@ -196,7 +196,7 @@ int main(int argc, char *argv[]) {
         } else if (vam_func == "filtered") {
             vector<int> fq, S;
 
-            if (V[i] == -1) { // Search for classic ANN
+            if (V_i == -1) { // Search for classic ANN
                 // Set medoid for each label the result of greedy search with k = 1 for the subgraph of the every label
                 for (const auto &f : F) {
                     auto result_l = filtered_greedy_search(G, {medoid_map[f]}, query, 1, L, C, {f});
