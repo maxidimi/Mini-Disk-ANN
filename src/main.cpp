@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
 
     // Read the configuration file and set the parameters
     string dataset_f, query_f, groundtruth_f;
-    int k = 0, R = -1, L = -1, q_idx = -1, R_small = -1;
+    int k = 0, R = -1, L = -1, q_idx = -1;
     double a = 0.0; string vam_func = "error";
     string graph_name = "graph.bin";
     bool print = false;
@@ -38,7 +38,6 @@ int main(int argc, char *argv[]) {
                 else if (key == "R") R = stoi(value);
                 else if (key == "L") L = stoi(value);
                 else if (key == "a") a = stod(value);
-                else if (key == "R_small") R_small = stoi(value);
                 else if (key == "q_idx") q_idx = stoi(value);
                 else if (key == "graph_name") graph_name = value;
                 else if (key == "vamana_function") vam_func = value;
@@ -51,7 +50,7 @@ int main(int argc, char *argv[]) {
     }
     configFile.close();
 
-    if (vam_func != "vamana" && vam_func != "filtered" && vam_func != "stiched") {
+    if (vam_func != "vamana" && vam_func != "filtered" && vam_func != "stitched") {
         cerr << "Invalid Vamana function!" << endl;
         return 1;
     }
@@ -82,13 +81,13 @@ int main(int argc, char *argv[]) {
     // Check that parametres are valid
     int n = (int)dataset.size();
     int d = (int)dataset.front().size();
-    if (R < 1 || L < k || k <= 0 || a < 1.0 || n <= 0 || d <= 0 || (vam_func == "stiched" &&  R_small < 1)) {
+    if (R < 1 || L < k || k <= 0 || a < 1.0 || n <= 0 || d <= 0) {
         cerr << "Invalid parametrization!" << endl;
         return 1;
     }
     
     // Set queries and groundtruth to test
-    vector<vector<int>> groundtruth; int idx = 0;
+    vector<vector<int>> groundtruth;
     vector<int> V_to_test; Dataset queries_to_test;
     
     if (q_idx == -1) { // Test all queries in the query file
@@ -96,13 +95,13 @@ int main(int argc, char *argv[]) {
         groundtruth = groundtruth_i;
         if (vam_func != "vamana") V_to_test = V;
         
-    } else if (q_idx == -2) { // Test a random query
-        idx = rand() % queries.size();
-        queries_to_test.push_back(queries[idx]);
-        groundtruth.push_back(groundtruth_i[idx]);
-        if (vam_func != "vamana") V_to_test.push_back(V[idx]);
+    } else if (q_idx == -2) { //? Test a random query
+        q_idx = rand() % queries.size();
+        queries_to_test.push_back(queries[q_idx]);
+        groundtruth.push_back(groundtruth_i[q_idx]);
+        if (vam_func != "vamana") V_to_test.push_back(V[q_idx]);
 
-    } else { // Test a specific query
+    } else { //? Test a specific query
         if (q_idx < 0 || q_idx >= (int)queries.size()) {
             cerr << "Invalid query index, give [0, " << queries.size() - 1 << "]" << endl;
             return 1;
@@ -127,7 +126,7 @@ int main(int argc, char *argv[]) {
         cout << " || Queries: All" << endl;
     } else {
         print = true;
-        cout << " || Queries: " << idx << endl;
+        cout << " || Query Index: " << q_idx << endl;
     }
     cout << "=======================================================================================\n";
     
@@ -135,7 +134,7 @@ int main(int argc, char *argv[]) {
     clock_t start = clock();
     
     // Create/Read the Vamana index based on the prefered function and store it
-    Graph G; unordered_map<int, Graph> G_stiched;
+    Graph G; unordered_map<int, Graph> G_stitched;
     if (vam_func == "vamana") {
         G = read_graph(graph_name + ".bin");
         if (G.empty()) {
@@ -150,12 +149,12 @@ int main(int argc, char *argv[]) {
             store_graph(G, graph_name + ".bin");
         }
 
-    } else if (vam_func == "stiched") {
+    } else if (vam_func == "stitched") {
         for (const auto &f : F) {
             Graph G_f = read_graph(graph_name + to_string(f) + ".bin");
             if (G_f.empty()) {
-                G_stiched = stiched_vamana_indexing(dataset, C, a, L, R_small, R, F);
-                for (const auto &g : G_stiched) {
+                G_stitched = stitched_vamana_indexing(dataset, C, a, L, R, F);
+                for (const auto &g : G_stitched) {
                     store_graph(g.second, graph_name + to_string(g.first) + ".bin");
                 }
                 break;
@@ -169,16 +168,20 @@ int main(int argc, char *argv[]) {
     
     // Find the medoid for each label
     unordered_map<int, int> medoid_map; medoid_map.reserve(F.size());
-    if (vam_func != "vamana") medoid_map = find_medoid(dataset, C, 1, F);
+    if (vam_func == "filtered") medoid_map = find_medoid(dataset, C, 1, F);
     
     // Perform the Greedy search for each query
-    double recall_sum = 0.0;
+    double recall_sum = 0.0; Graph G_q; int V_i;
     for (size_t i = 0; i < queries_to_test.size(); i++) {
         Data query = queries_to_test[i];
 
         vector<int> groundtruth_t = groundtruth[i];
         
-        int V_i; if (vam_func != "vamana") V_i = V_to_test[i];
+        cout << " || Query: " << (q_idx != -1 ? q_idx : i);
+        if (vam_func != "vamana") {
+            V_i = V_to_test[i];
+            cout << " | Label: " << V_i << endl;
+        } else cout << endl;
 
         clock_t gr_start = clock();
 
@@ -192,8 +195,9 @@ int main(int argc, char *argv[]) {
 
         } else if (vam_func == "filtered") {
             vector<int> fq, S;
+
             if (V[i] == -1) { // Search for classic ANN
-                // Set medoid for each label the result of greedy search with k = 1 for the subgraph of the label
+                // Set medoid for each label the result of greedy search with k = 1 for the subgraph of the every label
                 for (const auto &f : F) {
                     auto result_l = filtered_greedy_search(G, {medoid_map[f]}, query, 1, L, C, {f});
                     S.push_back(result_l.first.front());
@@ -201,24 +205,31 @@ int main(int argc, char *argv[]) {
                 fq = F;
 
             } else {
-                S.push_back(medoid_map[V[i]]);
-                fq.push_back(V[i]);
+                S.push_back(medoid_map[V_i]);
+                fq = {V_i};
             }
-            cout << " || V[i]: " << V[i] << endl;
+
             result_p = filtered_greedy_search(G, S, query, k, L, C, fq);
 
-        } else if (vam_func == "stiched") {
-            if (V_i == -1) continue;//?
-            Graph G_f = G_stiched[V_i];
-            result_p = filtered_greedy_search(G_f, {0}, query, k, L, C, {V_i});
+        } else if (vam_func == "stitched") {
+            if (V_i == -1) { // Search for classic ANN
+                continue;//?
+            } else {
+                G_q = G_stitched[V_i];
+
+                Graph_Node s = G_q.front();
+
+                result_p = greedy_search(G_q, s, query, k, L);
+            }
         }
+
         auto result = result_p.first; auto visited = result_p.second;
 
         // Print time for each Greedy call
         if (print) time_elapsed(gr_start, "Greedy Search " + to_string(i + 1) + "/" + to_string(queries_to_test.size()));
         
         // Print the results
-        recall_sum += check_results(dataset, query, result, k, groundtruth_t, true);
+        recall_sum += check_results(dataset, query, result, k, groundtruth_t, true, vam_func, G_q);
     }
     
     // Print time for both Vamana and Greedy calls

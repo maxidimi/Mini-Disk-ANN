@@ -95,7 +95,7 @@ Graph filtered_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int 
     return G;
 }
 
-unordered_map<int, Graph> stiched_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int L_small, int R_small, int R_stiched, vector<int> F) {
+unordered_map<int, Graph> stitched_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int L, int R, vector<int> F) {
     size_t f_size = F.size();
     size_t p_size = P.size();
     
@@ -109,20 +109,17 @@ unordered_map<int, Graph> stiched_vamana_indexing(const Dataset &P, vector<int> 
     // foreach f \in F do
     for (auto f : F) {
         // Let G_f = vamana_indexing(P_f, a, L_small, R_small)
-        Graph G_f = vamana_indexing(P_f[f], a, L_small, R_stiched);
+        Graph G_f = vamana_indexing(P_f[f], a, L, R);
         G[f] = G_f;
     }
 
-    // foreach v \in V do
-    /*for (auto &f : F) {
-        Graph G_f = G[f];
-
-        // Let G = filtered_robust_pruning(v, N_out(v), a, R_stiched)
-        for (auto &v : G_f) {
-            vector<int> N_out_v(v->out_neighbours.begin(), v->out_neighbours.end());
-            G_f = filtered_robust_pruning(G_f, v, N_out_v, a, R_stiched, F_x);
-        } G[f] = G_f;
-    }*/
+    //? Add all Graphs to one
+    Graph G_stitched; G_stitched.reserve(p_size);
+    for (auto &g : G) {
+        for (auto &node : g.second) {
+            add_node_to_graph(G_stitched, node);
+        }
+    }
 
     return G;
 }

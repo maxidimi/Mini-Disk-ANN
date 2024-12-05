@@ -46,7 +46,7 @@ int find_min_dist(const Graph G, vector<int> L, Data q) {
 }
 
 // Checks the results of the Greedy search manually
-double check_results(const Dataset &dataset, Data query, const vector<int> &result, int k, vector<int> expected_neighbors, bool print) {
+double check_results(const Dataset &dataset, Data query, const vector<int> &result, int k, vector<int> expected_neighbors, bool print, string vam_func, Graph G) {
     int n_size = (int)expected_neighbors.size();
     int r_size = (int)result.size();
 
@@ -56,18 +56,39 @@ double check_results(const Dataset &dataset, Data query, const vector<int> &resu
         cout << "=======================================================================================\n";
         return 0.0;
     }
-    
-    // Check if the results neighbor is in the expected neighbors
+
     int foundC = 0;
-    for (const auto &r : result) {
-        if (find(expected_neighbors.begin(), expected_neighbors.end(), r) != expected_neighbors.end()) {
-            foundC++;
+    if (vam_func != "stitched") {
+        // Check if the results neighbor is in the expected neighbors
+        for (const auto &r : result) {
+            if (find(expected_neighbors.begin(), expected_neighbors.end(), r) != expected_neighbors.end()) {
+                foundC++;
+            }
         }
-    }
-    if (print) {
-        cout << " || Number of neighbours found in expected neighbors: " << foundC << "/" << n_size << ".\n";
-        cout << " || Recall@" << k << " : " << (double)(100*foundC/n_size) << "%." << endl;
-        cout << "=======================================================================================\n";
+        if (print) {
+            cout << " || Number of neighbours found in expected neighbors: " << foundC << "/" << n_size << ".\n";
+            cout << " || Recall@" << k << " : " << (double)(100*foundC/n_size) << "%." << endl;
+            cout << "=======================================================================================\n";
+        }
+    } else { // If the function is stitched, we need first to take the dataset of the neighbors and then check the results
+        Dataset groundtruth_ds;
+        for (const auto &i : expected_neighbors) {
+            groundtruth_ds.push_back(dataset[i]);
+        }
+        Dataset results_ds;
+        for (const auto &i : result) {
+            results_ds.push_back(G[i]->data);
+        }
+        for (const auto &r : results_ds) {
+            if (find(groundtruth_ds.begin(), groundtruth_ds.end(), r) != groundtruth_ds.end()) {
+                foundC++;
+            }
+        }
+        if (print) {
+            cout << " || Number of neighbours found in expected neighbors: " << foundC << "/" << n_size << ".\n";
+            cout << " || Recall@" << k << " : " << (double)(100*foundC/n_size) << "%." << endl;
+            cout << "=======================================================================================\n";
+        }
     }
     
     return (double)(100*foundC/n_size);
