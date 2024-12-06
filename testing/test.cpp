@@ -383,8 +383,8 @@ void test_pruning(void) {
     //Testing if 5 is still a neighbor
     TEST_CHECK(graph[12]->out_neighbours.find(13) != graph[12]->out_neighbours.end());
 
-    for (int i = 0; i < num_nodes; i++) {
-        delete graph[i];
+    for (auto node : graph) {
+        delete node;  
     }
 }
 
@@ -418,6 +418,10 @@ void test_filtered_pruning(void) {
     TEST_CHECK(graph[12]->out_neighbours.find(9) != graph[12]->out_neighbours.end());
     //Testing if 15 is still a neighbor
     TEST_CHECK(graph[12]->out_neighbours.find(15) != graph[12]->out_neighbours.end());
+
+    for (auto node : graph) {
+        delete node;  
+    }
 }
 
 TEST_LIST = {
