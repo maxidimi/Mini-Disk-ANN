@@ -6,4 +6,3 @@ contest-data-release-1m.bin
 contest-queries-release-1m.bin
 contest-groundtruth-release-1m.bin
 .DS_Store
-graphs/

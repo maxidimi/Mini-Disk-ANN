@@ -124,30 +124,15 @@ int main(int argc, char *argv[]) {
     clock_t start = clock();
     
     // Create/Read the Vamana index based on the prefered function and store it
-    Graph G; unordered_map<int, Graph> G_stitched;
-    if (vam_func == "vamana") {
-        G = read_graph(graph_name + ".bin");
-        if (G.empty()) {
-            G = vamana_indexing(dataset, a, L, R);
-            store_graph(G, graph_name + ".bin");
-        }
-
-    } else if (vam_func == "filtered") {
-        G = read_graph(graph_name + ".bin");
-        if (G.empty()) {
-            G = filtered_vamana_indexing(dataset, C, a, L, R, F);
-            store_graph(G, graph_name + ".bin");
-        }
-
-    } else if (vam_func == "stitched") {
-        Graph G_tmp = read_graph(graph_name + to_string(F[0]) + ".bin");
-        if (G_tmp.empty()) {
-            G_stitched = stitched_vamana_indexing(dataset, C, a, L, R, F);
-            for (const auto &g : G_stitched) store_graph(g.second, graph_name + to_string(g.first) + ".bin");
-        } else {
-            for (const auto &f : F) G_stitched[f] = read_graph(graph_name + to_string(f) + ".bin");
-        }
+    Graph G;
+    G = read_graph(graph_name + ".bin");
+    if (G.empty()) {
+        if (vam_func == "vamana") G = vamana_indexing(dataset, a, L, R);
+        else if (vam_func == "filtered") G = filtered_vamana_indexing(dataset, C, a, L, R, F);
+        else G = stitched_vamana_indexing(dataset, C, a, L, R, F);
+        store_graph(G, graph_name + ".bin");
     }
+
     time_elapsed(start, "Vamana Indexing");
     cout << "=======================================================================================\n";
     cout << "                                      Results:" << endl;
@@ -155,7 +140,7 @@ int main(int argc, char *argv[]) {
     
     // Find the medoid for each label
     unordered_map<int, int> medoid_map;
-    if (vam_func == "filtered") {
+    if (vam_func != "vamana") {
         medoid_map.reserve(F.size());
         medoid_map = find_medoid(dataset, C, 1, F);
     }
@@ -183,7 +168,7 @@ int main(int argc, char *argv[]) {
 
             result_p = greedy_search(G, s, query, k, L);
 
-        } else if (vam_func == "filtered") {
+        } else {
             vector<int> fq, S;
 
             if (V_i == -1) { // Search for classic ANN
@@ -201,12 +186,6 @@ int main(int argc, char *argv[]) {
 
             result_p = filtered_greedy_search(G, S, query, k, L, C, fq);
 
-        } else if (vam_func == "stitched") {if (V_i == -1) continue;
-            G_q = G_stitched[V_i];
-
-            Graph_Node s = G_q.front();
-
-            result_p = greedy_search(G_q, s, query, k, L);
         }
 
         auto result = result_p.first; auto visited = result_p.second;
@@ -215,7 +194,7 @@ int main(int argc, char *argv[]) {
         if (print) time_elapsed(gr_start, "Greedy Search " + to_string(i + 1) + "/" + to_string(indx_to_test.size()));
         
         // Print the results
-        recall_sum += check_results(dataset, query, result, k, groundtruth_t, true, vam_func, G_q);
+        recall_sum += check_results(dataset, query, result, k, groundtruth_t, true);
     }
     
     // Print time for both Vamana and Greedy calls

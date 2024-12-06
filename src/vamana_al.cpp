@@ -95,7 +95,7 @@ Graph filtered_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int 
     return G;
 }
 
-unordered_map<int, Graph> stitched_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int L, int R, vector<int> F) {
+Graph stitched_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int L, int R, vector<int> F) {
     size_t f_size = F.size();
     size_t p_size = P.size();
     
@@ -113,9 +113,41 @@ unordered_map<int, Graph> stitched_vamana_indexing(const Dataset &P, vector<int>
         G[f] = G_f;
     }
 
-    //? Add all Graphs to one
+    // ind_corr matches every point in P to its index in the corresponding graph G[f], f \in F
+    // counters keeps track of the number of points already added to the graph G_stitched
+    vector<int> ind_corr(p_size), counters(f_size, 0);
+    for (size_t i = 0; i < p_size; i++) 
+        ind_corr[i] = counters[F_x[i]]++;
 
-    return G;
+    // F_f is a map from filter label to the indices of the points in P
+    vector<vector<int>> F_f(f_size);
+    for (size_t i = 0; i < p_size; i++) 
+        F_f[F_x[i]].push_back(i);
+
+    // Add all points in P to the stitched graph
+    Graph G_stitched; G_stitched.reserve(p_size);
+    for (size_t i = 0; i < p_size; i++) {
+        Graph_Node node = create_graph_node(P[i]);
+        add_node_to_graph(G_stitched, node);
+    }
+
+    // Add the edges to the stitched graph
+    // Convert the out-neighbours from the corresponding graph G_stitched to the stitched graph
+    for (size_t i = 0; i < p_size; i++) {
+        Graph_Node node = G[F_x[i]][ind_corr[i]];
+        for (int j : node->out_neighbours) {
+            add_edge_to_graph(G_stitched[i], F_f[F_x[i]][j]);
+        }
+    }
+
+    // Release memory
+    for (auto &g : G) {
+        for (auto &node : g.second) {
+            delete node;
+        }
+    }
+
+    return G_stitched;
 }
 
 // Vamana Indexing Algorithm
