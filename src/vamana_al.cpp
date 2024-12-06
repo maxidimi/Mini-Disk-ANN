@@ -48,7 +48,7 @@ unordered_map<int, int> find_medoid(const Dataset &P, vector<int> C, int thresho
 }
 
 // Filtered Vamana Indexing Algorithm
-Graph filtered_vamana_indexing(const Dataset &P, vector<int> C, double a, int L, int R, vector<int> F) {
+Graph filtered_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int L, int R, vector<int> F) {
     int n = (int)P.size();
 
     // Add the nodes to the graph G
@@ -59,13 +59,10 @@ Graph filtered_vamana_indexing(const Dataset &P, vector<int> C, double a, int L,
     }
     
     // Let st(f) denote the start node of filter label f for every f \in F
-    unordered_map<int, int> st = find_medoid(P, C, 1, F);
+    unordered_map<int, int> st = find_medoid(P, F_x, 1, F);
     
     // Let σ denote a random permutation of |n|
     vector<int> sigma = random_permutation(n);
-
-    // Let F_x be the label-set for every x \in P
-    vector<int> F_x = C;
 
     // Foreach i \in |n| do
     for (int i = 0; i < n; i++) {
@@ -79,7 +76,7 @@ Graph filtered_vamana_indexing(const Dataset &P, vector<int> C, double a, int L,
         vector<int> V_F_i = result.second;
         
         // Run filtered_robust_pruning(σ(i), V_F_x_σ_(i), a, R)
-        G = filtered_robust_pruning(G, G[s_i], V_F_i, a, R, C);
+        G = filtered_robust_pruning(G, G[s_i], V_F_i, a, R, F_x);
         
         // Foreach j \in N_out(σ(i)) do
         for (int j : G[s_i]->out_neighbours) {
@@ -90,7 +87,7 @@ Graph filtered_vamana_indexing(const Dataset &P, vector<int> C, double a, int L,
             if (G[j]->out_neighbours.size() > (size_t)R) {
                 // Run filtered_robust_pruning(j, N_out(j), a, R)
                 vector<int> N_out_j(G[j]->out_neighbours.begin(), G[j]->out_neighbours.end());
-                G = filtered_robust_pruning(G, G[j], N_out_j, a, R, C);
+                G = filtered_robust_pruning(G, G[j], N_out_j, a, R, F_x);
             }
         }
     }
@@ -98,39 +95,59 @@ Graph filtered_vamana_indexing(const Dataset &P, vector<int> C, double a, int L,
     return G;
 }
 
-Graph stiched_vamana_indexing(const Dataset &P, vector<int> C, double a, int L_small, int R_small, int R_stiched, vector<int> F) {
+Graph stitched_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int L, int R, vector<int> F) {
     size_t f_size = F.size();
+    size_t p_size = P.size();
     
     // Initialize G = (V, E) to an empty graph
-    vector<Graph> G(f_size);
-
-    // Let F_x be the label-set for every x \in P
-    vector<int> F_x = C;
+    unordered_map<int, Graph> G; G.reserve(f_size);
 
     // Let P_f be the set of points with label f \in F
-    vector<unordered_set<int>> P_f;
-    for (size_t i = 0; i < P.size(); i++) {
-        P_f[C[i]].insert(i);
-    }
+    unordered_map<int, Dataset> P_f; P_f.reserve(f_size);
+    for (size_t i = 0; i < p_size; i++) P_f[F_x[i]].push_back(P[i]);
 
     // foreach f \in F do
     for (auto f : F) {
         // Let G_f = vamana_indexing(P_f, a, L_small, R_small)
-        Graph G_f = vamana_indexing(P, a, L_small, R_small);
+        Graph G_f = vamana_indexing(P_f[f], a, L, R);
         G[f] = G_f;
     }
 
-    // foreach v \in V do
-    for (auto v : G) { //! G has the graphs
-        // Let G = filtered_robust_pruning(v, N_out(v), a, R_stiched)
-        //vector<int> N_out_v(v->out_neighbours.begin(), v->out_neighbours.end());
-        //G[f] = filtered_robust_pruning(G[f], v, N_out_v, a, R_stiched, F);
+    // ind_corr matches every point in P to its index in the corresponding graph G[f], f \in F
+    // counters keeps track of the number of points already added to the graph G_stitched
+    vector<int> ind_corr(p_size), counters(f_size, 0);
+    for (size_t i = 0; i < p_size; i++) 
+        ind_corr[i] = counters[F_x[i]]++;
+
+    // F_f is a map from filter label to the indices of the points in P
+    vector<vector<int>> F_f(f_size);
+    for (size_t i = 0; i < p_size; i++) 
+        F_f[F_x[i]].push_back(i);
+
+    // Add all points in P to the stitched graph
+    Graph G_stitched; G_stitched.reserve(p_size);
+    for (size_t i = 0; i < p_size; i++) {
+        Graph_Node node = create_graph_node(P[i]);
+        add_node_to_graph(G_stitched, node);
     }
 
-    // We stich the graphs together
-    Graph G_stiched; G_stiched.reserve(P.size());
+    // Add the edges to the stitched graph
+    // Convert the out-neighbours from the corresponding graph G_stitched to the stitched graph
+    for (size_t i = 0; i < p_size; i++) {
+        Graph_Node node = G[F_x[i]][ind_corr[i]];
+        for (int j : node->out_neighbours) {
+            add_edge_to_graph(G_stitched[i], F_f[F_x[i]][j]);
+        }
+    }
 
-    return G_stiched;
+    // Release memory
+    for (auto &g : G) {
+        for (auto &node : g.second) {
+            delete node;
+        }
+    }
+
+    return G_stitched;
 }
 
 // Vamana Indexing Algorithm
@@ -148,6 +165,8 @@ int medoid(const Dataset &P) {
     */
     
     size_t n = P.size(); int medoid_index = -1;
+
+    if (n == 1) return 0;
 
     euclidean_t min_sum = numeric_limits<euclidean_t>::max();
 
@@ -185,6 +204,8 @@ Graph vamana_indexing(const Dataset &P, double a, int L, int R) {
         Graph_Node node = create_graph_node(p);
         add_node_to_graph(G, node);
     }
+
+    if (n == 1) return G;
     
     // Select up to R unique random neighbours
     int i = 0;
@@ -192,7 +213,7 @@ Graph vamana_indexing(const Dataset &P, double a, int L, int R) {
         
         set<int> random_indices;
 
-        while (random_indices.size() < (size_t)R) {
+        while (random_indices.size() < (size_t)R && random_indices.size() < n - 1) {
             int random_idx = rand() % n;
 
             if (random_idx == i) continue;
@@ -204,7 +225,7 @@ Graph vamana_indexing(const Dataset &P, double a, int L, int R) {
             add_edge_to_graph(node, idx);
         }i++;
     }
-    
+
     // Let s denote the medoid of dataset P
     int s_index = medoid(P);
     
