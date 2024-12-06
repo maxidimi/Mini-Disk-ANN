@@ -61,9 +61,6 @@ clean:
 	rm -f $(TEST_OUT)
 	rm -rf ./build
 	rm -rf ./bin
-	rm -f random_file  
-	rm -f new_file     
-	rm -f test_graph.dat
 
 # run program with valgrind for errors
 valgrind: $(OUT)

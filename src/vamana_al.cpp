@@ -114,12 +114,6 @@ unordered_map<int, Graph> stitched_vamana_indexing(const Dataset &P, vector<int>
     }
 
     //? Add all Graphs to one
-    Graph G_stitched; G_stitched.reserve(p_size);
-    for (auto &g : G) {
-        for (auto &node : g.second) {
-            add_node_to_graph(G_stitched, node);
-        }
-    }
 
     return G;
 }
