@@ -140,7 +140,6 @@ void test_min_dist(){
     int min = find_min_dist(graph,L,q);
     TEST_CHECK(min==2);
 
-     // Cleanup memory
     for (Graph_Node node : graph) {
         delete node;
     }
@@ -179,6 +178,28 @@ void test_medoid(void) {
     TEST_CHECK(s == expected);
 }
 
+void test_find_medoid(void){
+
+    Dataset P={{1.0,2.0},{3.0,4.0},{5.0,6.0},{7.0,8.0}};
+
+    vector<int> C = {0,0,1,1};
+
+    vector<int> F = {0,1};
+
+    int threshold =2;
+
+    auto result= find_medoid(P,C,threshold,F);
+
+    //Testing if Medoid found for every filter
+    TEST_CHECK(result.size()==F.size());
+    //The result should belongh to C 0 
+    TEST_CHECK(C[result[0]] == 0);
+    //The result should belongh to C 1 
+    TEST_CHECK(C[result[1]] == 1);
+
+
+}
+
 void test_L_m_V(void){
     vector<int> L = {1,2,3,4,5,6,7,8,9};
     vector<int> m = {5,6,7,8,9};
@@ -189,6 +210,7 @@ void test_L_m_V(void){
     vector<int> exp = {1,2,3,4};
     TEST_CHECK(exp == LV);
 }
+
 
 void test_filtered_greedy_search(void) {
     // Define the parameters for the test
@@ -319,6 +341,7 @@ void test_pruning(void) {
     int num_nodes = 20;
     Graph graph;
 
+    //Graph initialization with nodes
     for (float i = 0; i < num_nodes; ++i) {
         Graph_Node node = new graph_node;
         node->indx = i;
@@ -326,13 +349,18 @@ void test_pruning(void) {
         if (i < num_nodes - 1) {
             node->out_neighbours.insert(int(i + 1)); 
         }
-        graph.push_back(node);
+        graph.push_back(node); 
     }
+    //Store the outgoing neighbors of node 4 and node 12 into a vector
     vector<int> out(graph[4]->out_neighbours.begin(),graph[12]->out_neighbours.end());
+    //Perform robust_pruning to graph
     graph = robust_pruning(graph,graph[12],out,1.2,5);
 
+    //Testing the size of the outgoing neighbors
     TEST_CHECK(graph[12]->out_neighbours.size()==2);
+    //Testing if 5 is still a neighbor
     TEST_CHECK(graph[12]->out_neighbours.find(5) != graph[12]->out_neighbours.end());
+    //Testing if 5 is still a neighbor
     TEST_CHECK(graph[12]->out_neighbours.find(13) != graph[12]->out_neighbours.end());
 }
 
@@ -341,6 +369,7 @@ void test_filtered_pruning(void) {
     vector <int> C;
     Graph graph;
 
+    //Graph initialization with nodes
     for (float i = 0; i < num_nodes; ++i){
         Graph_Node node = new graph_node;
         node->indx = (int) i;
@@ -351,17 +380,21 @@ void test_filtered_pruning(void) {
         graph.push_back(node);
         C.push_back((int)i % 3);
     }
+    //Add extra outgoing neighbors to node 12
     for(int i=0; i<=6; i++){
         graph[12]->out_neighbours.insert(i*3);
     }
+    //Store the outgoing neighbors of node 12 into a vector
     vector<int> out(graph[12]->out_neighbours.begin(),graph[12]->out_neighbours.end());
     graph = filtered_robust_pruning(graph,graph[12],out,1.2,6,C);
     
+    //Testing that are max 5 outgoing neighbors
     TEST_CHECK(graph[12]->out_neighbours.size() <= 5);
+    //Testing if 9 is still a neighbor
     TEST_CHECK(graph[12]->out_neighbours.find(9) != graph[12]->out_neighbours.end());
+    //Testing if 15 is still a neighbor
     TEST_CHECK(graph[12]->out_neighbours.find(15) != graph[12]->out_neighbours.end());
 }
-
 
 TEST_LIST = {
     {"test_create_graph_node", test_create_graph_node },
@@ -374,6 +407,7 @@ TEST_LIST = {
     {"test_min_dist", test_min_dist},
     {"test_random_permutation", test_random_permutation},
     {"test_medoid", test_medoid},
+    {"test_find_medoid", test_find_medoid},
     {"test_L_m_V", test_L_m_V},
     {"test_filtered_greedy_search", test_filtered_greedy_search},
     {"test_greedy_search", test_greedy_search},
