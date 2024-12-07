@@ -95,47 +95,62 @@ Graph filtered_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int 
     return G;
 }
 
+// Stitched Vamana Indexing Algorithm
 Graph stitched_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int L, int R, vector<int> F) {
+    /*
+        Stitched Vamana Indexing Algorithm works as follows:
+            - At first, it makes |F| calls to the Vamana Indexing Algorithm, constructing |F| graphs G[f]
+              with dataset P_f = {p \in P | C[p] = f} for every f \in F
+            - Then, it constructs a stitched graph G_stitched over P with out-degree <= R by adding all points in P
+              to the graph and adding the out-neighbours of the corresponding graph G[f] to the stitched graph
+              This is done by keeping track of the index of each point p \in P into the corresponding graph G[f] (ind_corr[p])
+            - Finally, it returns the stitched graph G_stitched with out-degree <= R
+    */
     size_t f_size = F.size();
     size_t p_size = P.size();
     
-    // Initialize G = (V, E) to an empty graph
+    // Initialize G = (V, E) to an empty graph, G_stitched as the stitched graph
     unordered_map<int, Graph> G; G.reserve(f_size);
+    Graph G_stitched; G_stitched.reserve(p_size);
 
     // Let P_f be the set of points with label f \in F
     unordered_map<int, Dataset> P_f; P_f.reserve(f_size);
-    for (size_t i = 0; i < p_size; i++) P_f[F_x[i]].push_back(P[i]);
-
-    // foreach f \in F do
-    for (auto f : F) {
-        // Let G_f = vamana_indexing(P_f, a, L_small, R_small)
-        Graph G_f = vamana_indexing(P_f[f], a, L, R);
-        G[f] = G_f;
-    }
 
     // ind_corr matches every point in P to its index in the corresponding graph G[f], f \in F
-    // counters keeps track of the number of points already added to the graph G_stitched
-    vector<int> ind_corr(p_size), counters(f_size, 0);
-    for (size_t i = 0; i < p_size; i++) 
-        ind_corr[i] = counters[F_x[i]]++;
+    vector<int> ind_corr(p_size);
 
-    // F_f is a map from filter label to the indices of the points in P
+    // counters[f] keeps track of the number of points with filter f that have already been added to the stitched graph
+    vector<int> counters(f_size, 0);
+    
+    // Let F_f be the set of indices with label f \in F
     vector<vector<int>> F_f(f_size);
-    for (size_t i = 0; i < p_size; i++) 
+
+    for (size_t i = 0; i < p_size; i++) {
+        // P_f[F_x[i]] adds the point to the vector with label F_x[i]
+        P_f[F_x[i]].push_back(P[i]);
+
+        // F_f[F_x[i]] adds the index of the point to the vector with label F_x[i]
         F_f[F_x[i]].push_back(i);
 
-    // Add all points in P to the stitched graph
-    Graph G_stitched; G_stitched.reserve(p_size);
-    for (size_t i = 0; i < p_size; i++) {
+        // ind_corr[i] is the index of the point in the corresponding graph G[f]
+        ind_corr[i] = counters[F_x[i]]++;
+
+        // Add all points in P to the stitched graph
         Graph_Node node = create_graph_node(P[i]);
         add_node_to_graph(G_stitched, node);
     }
 
-    // Add the edges to the stitched graph
-    // Convert the out-neighbours from the corresponding graph G_stitched to the stitched graph
+    // foreach f \in F do
+    for (auto f : F) {
+        // Let G[f] = vamana_indexing(P_f, a, L_small, R_small)
+        G[f] = vamana_indexing(P_f[f], a, L, R);
+    }
+
+    // Add the out-neighbours in G[f] to the stitched graph
     for (size_t i = 0; i < p_size; i++) {
         Graph_Node node = G[F_x[i]][ind_corr[i]];
         for (int j : node->out_neighbours) {
+            // Find the index of the out-neighbour in G[f] to the stitched graph
             add_edge_to_graph(G_stitched[i], F_f[F_x[i]][j]);
         }
     }

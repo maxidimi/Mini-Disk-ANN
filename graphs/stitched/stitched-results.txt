@@ -1,0 +1,236 @@
+mkdir -p ./build
+mkdir -p ./bin
+g++ -g -O3 -std=c++17 ./build/greedy.o ./build/main.o ./build/graph.o ./build/helper.o ./build/pruning.o ./build/vamana_al.o ./build/data_forming.o -o ./bin/vamana
+./bin/vamana config.txt
+ || Dataset: data/SIGMOD/DUMMY/dummy-data.bin
+ || Query: data/SIGMOD/DUMMY/dummy-queries.bin
+ || Groundtruth: data/SIGMOD/DUMMY/dummy-groundtruth.bin
+ || k: 100
+ || R: 15
+ || L: 100
+ || a: 1.2
+ || Size: 10000
+ || Dimension: 100
+ || Indexing Function: stitched
+ || Queries: All
+=======================================================================================
+ || Total time taken for Vamana Indexing: 71.39 seconds (= 1.18 minutes)
+=======================================================================================
+                                      Results:
+=======================================================================================
+ || Query: 0 | Label: -1
+ || Number of neighbours found in expected neighbors: 93/100.
+ || Recall@100 : 93.00%.
+=======================================================================================
+ || Query: 1 | Label: 1
+ || Number of neighbours found in expected neighbors: 98/100.
+ || Recall@100 : 98.00%.
+=======================================================================================
+ || Query: 2 | Label: -1
+ || Number of neighbours found in expected neighbors: 98/100.
+ || Recall@100 : 98.00%.
+=======================================================================================
+ || Query: 3 | Label: 1
+ || Number of neighbours found in expected neighbors: 100/100.
+ || Recall@100 : 100.00%.
+=======================================================================================
+ || Query: 4 | Label: -1
+ || Number of neighbours found in expected neighbors: 71/100.
+ || Recall@100 : 71.00%.
+=======================================================================================
+ || Query: 5 | Label: 1
+ || Number of neighbours found in expected neighbors: 96/100.
+ || Recall@100 : 96.00%.
+=======================================================================================
+ || Query: 6 | Label: -1
+ || Number of neighbours found in expected neighbors: 97/100.
+ || Recall@100 : 97.00%.
+=======================================================================================
+ || Query: 7 | Label: 11
+ || Number of neighbours found in expected neighbors: 100/100.
+ || Recall@100 : 100.00%.
+=======================================================================================
+ || Query: 8 | Label: -1
+ || Number of neighbours found in expected neighbors: 98/100.
+ || Recall@100 : 98.00%.
+=======================================================================================
+ || Query: 9 | Label: 27
+ || Number of neighbours found in expected neighbors: 100/100.
+ || Recall@100 : 100.00%.
+=======================================================================================
+ || Query: 10 | Label: -1
+ || Number of neighbours found in expected neighbors: 93/100.
+ || Recall@100 : 93.00%.
+=======================================================================================
+ || Query: 11 | Label: 1
+ || Number of neighbours found in expected neighbors: 97/100.
+ || Recall@100 : 97.00%.
+=======================================================================================
+ || Query: 12 | Label: -1
+ || Number of neighbours found in expected neighbors: 93/100.
+ || Recall@100 : 93.00%.
+=======================================================================================
+ || Query: 13 | Label: 0
+ || Number of neighbours found in expected neighbors: 98/100.
+ || Recall@100 : 98.00%.
+=======================================================================================
+ || Query: 14 | Label: -1
+ || Number of neighbours found in expected neighbors: 92/100.
+ || Recall@100 : 92.00%.
+=======================================================================================
+ || Query: 15 | Label: 1
+ || Number of neighbours found in expected neighbors: 96/100.
+ || Recall@100 : 96.00%.
+=======================================================================================
+ || Query: 16 | Label: -1
+ || Number of neighbours found in expected neighbors: 91/100.
+ || Recall@100 : 91.00%.
+=======================================================================================
+ || Query: 17 | Label: 1
+ || Number of neighbours found in expected neighbors: 99/100.
+ || Recall@100 : 99.00%.
+=======================================================================================
+ || Query: 18 | Label: -1
+ || Number of neighbours found in expected neighbors: 97/100.
+ || Recall@100 : 97.00%.
+=======================================================================================
+ || Query: 19 | Label: 1
+ || Number of neighbours found in expected neighbors: 100/100.
+ || Recall@100 : 100.00%.
+=======================================================================================
+ || Query: 20 | Label: -1
+ || Number of neighbours found in expected neighbors: 92/100.
+ || Recall@100 : 92.00%.
+=======================================================================================
+ || Query: 21 | Label: 1
+ || Number of neighbours found in expected neighbors: 94/100.
+ || Recall@100 : 94.00%.
+=======================================================================================
+ || Query: 22 | Label: -1
+ || Number of neighbours found in expected neighbors: 90/100.
+ || Recall@100 : 90.00%.
+=======================================================================================
+ || Query: 23 | Label: 0
+ || Number of neighbours found in expected neighbors: 98/100.
+ || Recall@100 : 98.00%.
+=======================================================================================
+ || Query: 24 | Label: -1
+ || Number of neighbours found in expected neighbors: 92/100.
+ || Recall@100 : 92.00%.
+=======================================================================================
+ || Query: 25 | Label: 1
+ || Number of neighbours found in expected neighbors: 100/100.
+ || Recall@100 : 100.00%.
+=======================================================================================
+ || Query: 26 | Label: -1
+ || Number of neighbours found in expected neighbors: 100/100.
+ || Recall@100 : 100.00%.
+=======================================================================================
+ || Query: 27 | Label: 3
+ || Number of neighbours found in expected neighbors: 100/100.
+ || Recall@100 : 100.00%.
+=======================================================================================
+ || Query: 28 | Label: -1
+ || Number of neighbours found in expected neighbors: 99/100.
+ || Recall@100 : 99.00%.
+=======================================================================================
+ || Query: 29 | Label: 1
+ || Number of neighbours found in expected neighbors: 97/100.
+ || Recall@100 : 97.00%.
+=======================================================================================
+ || Query: 30 | Label: -1
+ || Number of neighbours found in expected neighbors: 87/100.
+ || Recall@100 : 87.00%.
+=======================================================================================
+ || Query: 31 | Label: 1
+ || Number of neighbours found in expected neighbors: 99/100.
+ || Recall@100 : 99.00%.
+=======================================================================================
+ || Query: 32 | Label: -1
+ || Number of neighbours found in expected neighbors: 97/100.
+ || Recall@100 : 97.00%.
+=======================================================================================
+ || Query: 33 | Label: -1
+ || Number of neighbours found in expected neighbors: 94/100.
+ || Recall@100 : 94.00%.
+=======================================================================================
+ || Query: 34 | Label: 0
+ || Number of neighbours found in expected neighbors: 100/100.
+ || Recall@100 : 100.00%.
+=======================================================================================
+ || Query: 35 | Label: -1
+ || Number of neighbours found in expected neighbors: 97/100.
+ || Recall@100 : 97.00%.
+=======================================================================================
+ || Query: 36 | Label: 0
+ || Number of neighbours found in expected neighbors: 94/100.
+ || Recall@100 : 94.00%.
+=======================================================================================
+ || Query: 37 | Label: -1
+ || Number of neighbours found in expected neighbors: 95/100.
+ || Recall@100 : 95.00%.
+=======================================================================================
+ || Query: 38 | Label: 2
+ || Number of neighbours found in expected neighbors: 99/100.
+ || Recall@100 : 99.00%.
+=======================================================================================
+ || Query: 39 | Label: -1
+ || Number of neighbours found in expected neighbors: 95/100.
+ || Recall@100 : 95.00%.
+=======================================================================================
+ || Query: 40 | Label: 11
+ || Number of neighbours found in expected neighbors: 100/100.
+ || Recall@100 : 100.00%.
+=======================================================================================
+ || Query: 41 | Label: -1
+ || Number of neighbours found in expected neighbors: 96/100.
+ || Recall@100 : 96.00%.
+=======================================================================================
+ || Query: 42 | Label: 0
+ || Number of neighbours found in expected neighbors: 100/100.
+ || Recall@100 : 100.00%.
+=======================================================================================
+ || Query: 43 | Label: -1
+ || Number of neighbours found in expected neighbors: 94/100.
+ || Recall@100 : 94.00%.
+=======================================================================================
+ || Query: 44 | Label: 1
+ || Number of neighbours found in expected neighbors: 98/100.
+ || Recall@100 : 98.00%.
+=======================================================================================
+ || Query: 45 | Label: -1
+ || Number of neighbours found in expected neighbors: 99/100.
+ || Recall@100 : 99.00%.
+=======================================================================================
+ || Query: 46 | Label: 2
+ || Number of neighbours found in expected neighbors: 99/100.
+ || Recall@100 : 99.00%.
+=======================================================================================
+ || Query: 47 | Label: -1
+ || Number of neighbours found in expected neighbors: 89/100.
+ || Recall@100 : 89.00%.
+=======================================================================================
+ || Query: 48 | Label: 1
+ || Number of neighbours found in expected neighbors: 99/100.
+ || Recall@100 : 99.00%.
+=======================================================================================
+ || Query: 49 | Label: -1
+ || Number of neighbours found in expected neighbors: 93/100.
+ || Recall@100 : 93.00%.
+=======================================================================================
+ || Query: 50 | Label: 1
+ || Number of neighbours found in expected neighbors: 100/100.
+ || Recall@100 : 100.00%.
+=======================================================================================
+ || Query: 51 | Label: -1
+ || Number of neighbours found in expected neighbors: 91/100.
+ || Recall@100 : 91.00%.
+=======================================================================================
+ || Query: 52 | Label: 2
+ || Number of neighbours found in expected neighbors: 100/100.
+ || Recall@100 : 100.00%.
+=======================================================================================
+ || Total time taken for both Vamana and Greedy calls: 73.75 seconds (= 1.22 minutes)
+=======================================================================================
+===> Average Recall@100: 95.92%
+=======================================================================================
