@@ -73,3 +73,7 @@ valgrind_leakcheck: $(OUT)
 # run program with valgrind for leak checks (extreme)
 valgrind_extreme: $(OUT)
 	valgrind --leak-check=full -s --show-leak-kinds=all --leak-resolution=high --track-origins=yes --vgdb=yes $(OUT) config.txt
+
+valgrind_test: build_dir $(TEST_OBJS)
+	$(CC) -g $(TEST_OBJS) -o $(TEST_OUT)
+	valgrind --leak-check=full -s --show-leak-kinds=all --leak-resolution=high --track-origins=yes --vgdb=yes ./bin/test
