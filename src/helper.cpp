@@ -64,13 +64,19 @@ double check_results(const Dataset &dataset, Data query, const vector<int> &resu
             foundC++;
         }
     }
+    double recall;
+    if (n_size == 0) {
+        recall = 100.0;
+    } else {
+        recall = (double)(100*foundC/n_size);
+    }
     if (print) {
         cout << " || Number of neighbours found in expected neighbors: " << foundC << "/" << n_size << ".\n";
-        cout << " || Recall@" << k << " : " << (double)(100*foundC/n_size) << "%." << endl;
+        cout << " || Recall@" << k << " : " << recall << "%." << endl;
         cout << "=======================================================================================\n";
     }
     
-    return (double)(100*foundC/n_size);
+    return recall;
 }
 
 // Prints the time taken for a given operation

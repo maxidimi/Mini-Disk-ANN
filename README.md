@@ -66,7 +66,7 @@ a=1.2
 Υπάρχει workflow script μέσω Github Actions ώστε κάθε commit να ελέγχεται αυτόματα για την ορθότητα του κώδικα μέσω των unit tests.
 
 ## Results
-Στο directory graphs/ υπάρχουν έτοιμοι γράφοι για κάθε κατηγορία και τα αποτελέσματα αυτών.
+Στο directory graphs/ υπάρχουν έτοιμοι γράφοι για κάθε κατηγορία και τα αποτελέσματα αυτών. Το indexing έχει γίνει από το dummy dataset για Filtered & Stitched και από το sift dataset για τον απλό Vamana. Τα *-results.txt είναι τα αποτελέσματα των queries για τα dummy queries ενώ τα *-1m-queries.txt είναι τα αποτελέσματα από τα queries του 1m dataset.
 
 ## main
 Διαβάζει το **configuration file** και δημιουργεί τα dataset, queries και gorundtruth από τα αρχεία που δίνονται από τον χρήστη. Δημιουργείται ο γράφος από το αντίστοιχο **Vamana Indexing** και διατρέχει τον γράφο για τα ζητούμενα queries με την αντίστοιχη **greedy search**. Στο τέλος, καλεί την **check_results** για να ελέγχξει την ορθότητα των αποτελεσμάτων.
