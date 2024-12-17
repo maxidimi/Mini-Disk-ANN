@@ -8,3 +8,4 @@ k=100
 R=15
 L=100
 a=1.2
+toPrint=false

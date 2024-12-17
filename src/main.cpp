@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
     int k = 0, R = -1, L = -1, q_idx = -3;
     double a = 0.0; string vam_func = "error";
     string graph_name = "graph.bin";
-    bool print = false;
+    bool toPrint = false;
     
     string line;
     while (getline(configFile, line)) {
@@ -41,6 +41,7 @@ int main(int argc, char *argv[]) {
                 else if (key == "q_idx") q_idx = stoi(value);
                 else if (key == "graph_name") graph_name = value;
                 else if (key == "vamana_function") vam_func = value;
+                else if (key == "toPrint") toPrint = (value == "true");
                 else {
                     cerr << "Invalid configuration key: " << key << endl;
                     return 1;
@@ -107,23 +108,24 @@ int main(int argc, char *argv[]) {
         }
     }
     
-    cout << " || Dataset: " << dataset_f << endl;
-    cout << " || Query: " << query_f << endl;
-    cout << " || Groundtruth: " << groundtruth_f << endl;
-    cout << " || k: " << k << endl;
-    cout << " || R: " << R << endl;
-    cout << " || L: " << L << endl;
-    cout << " || a: " << a << endl;
-    cout << " || Size: " << n << endl;
-    cout << " || Dimension: " << d << endl;
-    cout << " || Indexing Function: " << vam_func << endl;
-    if (q_idx == -1) {
-        cout << " || Queries: All" << endl;
-    } else {
-        print = true;
-        cout << " || Query Index: " << q_idx << endl;
+    if (toPrint) {
+        cout << " || Dataset: " << dataset_f << endl;
+        cout << " || Query: " << query_f << endl;
+        cout << " || Groundtruth: " << groundtruth_f << endl;
+        cout << " || k: " << k << endl;
+        cout << " || R: " << R << endl;
+        cout << " || L: " << L << endl;
+        cout << " || a: " << a << endl;
+        cout << " || Size: " << n << endl;
+        cout << " || Dimension: " << d << endl;
+        cout << " || Indexing Function: " << vam_func << endl;
+        if (q_idx == -1) {
+            cout << " || Queries: All" << endl;
+        } else {
+            cout << " || Query Index: " << q_idx << endl;
+        }
+        cout << "=======================================================================================\n";
     }
-    cout << "=======================================================================================\n";
     
     // Start the timer
     clock_t start = clock();
@@ -138,32 +140,38 @@ int main(int argc, char *argv[]) {
         store_graph(G, graph_name + ".bin");
     }
 
-    time_elapsed(start, "Vamana Indexing");
+    if (toPrint) time_elapsed(start, "Vamana Indexing");
+    clock_t indexing_time = clock() - start;
 
     if (q_idx != -3) { // If user wants search
-        cout << "=======================================================================================\n";
-        cout << "                                      Results:" << endl;
-        cout << "=======================================================================================\n";
+        clock_t queries_time = clock();
+        if (toPrint) {
+            cout << "=======================================================================================\n";
+            cout << "                                      Results:" << endl;
+            cout << "=======================================================================================\n";
+        }
         
         // Find the medoid for each label
         unordered_map<int, int> medoid_map;
+        int filtered_count = 0; int unfiltered_count = 0;
         if (vam_func != "vamana") {
             medoid_map.reserve(F.size());
             medoid_map = find_medoid(dataset, C, 1, F);
+            
+            filtered_count = count(V.begin(), V.end(), -1);
+            unfiltered_count = (int)V.size() - filtered_count;
         }
         
         // Perform the Greedy search for each query
-        double recall_sum = 0.0; Graph G_q; int V_i;
+        double recall_sum = 0.0; 
+        double filtered_recall_sum = 0.0; double unfiltered_recall_sum = 0.0;
+        Graph G_q; int V_i;
         for (const auto &i : indx_to_test) {
             Data query = queries[i];
 
             vector<int> groundtruth_t = groundtruth[i];
             
-            cout << " || Query: " << (q_idx != -1 ? q_idx : i);
-            if (vam_func != "vamana") {
-                V_i = V[i];
-                cout << " | Label: " << V_i << endl;
-            } else cout << endl;
+            if (vam_func != "vamana") V_i = V[i];
 
             clock_t gr_start = clock();
 
@@ -184,6 +192,7 @@ int main(int argc, char *argv[]) {
                         auto result_l = filtered_greedy_search(G, {medoid_map[f]}, query, 1, L, C, {f});
                         S.push_back(result_l.first.front());
                     }
+                    //for (const auto &m: medoid_map) S[m.first] = m.second;
                     fq = F;
 
                 } else {
@@ -198,19 +207,41 @@ int main(int argc, char *argv[]) {
             auto result = result_p.first; auto visited = result_p.second;
 
             // Print time for each Greedy call
-            if (print) time_elapsed(gr_start, "Greedy Search " + to_string(i + 1) + "/" + to_string(indx_to_test.size()));
+            if (toPrint) time_elapsed(gr_start, "Greedy Search " + to_string(i + 1) + "/" + to_string(indx_to_test.size()));
             
             // Print the results
-            recall_sum += check_results(dataset, query, result, k, groundtruth_t, true);
+            double result_recall = check_results(dataset, query, result, k, groundtruth_t, toPrint);
+            recall_sum += result_recall;
+            if (vam_func != "vamana") {
+                if (V_i == -1) unfiltered_recall_sum += result_recall;
+                else filtered_recall_sum += result_recall;
+            }
         }
         
         // Print time for both Vamana and Greedy calls
-        time_elapsed(start, "both Vamana and Greedy calls");
+        //time_elapsed(start, "both Vamana and Greedy calls");
 
         // Print the average recall
-        cout << "=======================================================================================\n";
-        cout << "===> Average Recall@" << k << ": " << (double)(recall_sum/indx_to_test.size()) << "%" << endl;
-        cout << "=======================================================================================\n";
+        if (toPrint) {
+            cout << "=======================================================================================\n";
+            cout << "===> Average Recall@" << k << ": " << (double)(recall_sum/indx_to_test.size()) << "%" << endl;
+            if (vam_func != "vamana") {
+                cout << "===> Average Recall@" << k << " for unfiltered: " << (double)(unfiltered_recall_sum/unfiltered_count) << "%" << endl;
+                cout << "===> Average Recall@" << k << " for filtered: " << (double)(filtered_recall_sum/filtered_count) << "%" << endl;
+            }
+            cout << "=======================================================================================\n";
+        }
+
+        // Print the average search time
+        double elapsed_secs = double(clock() - queries_time) / CLOCKS_PER_SEC;
+        if (!toPrint) {
+            cout << (double)(recall_sum/indx_to_test.size()) << ","; // Recall@k
+            cout << (double)(unfiltered_count == 0 ? 0 : unfiltered_recall_sum/unfiltered_count) << ","; // Recall@k for unfiltered
+            cout << (double)(filtered_count == 0 ? 0 : filtered_recall_sum/filtered_count) << ","; // Recall@k for filtered
+            cout << (double)(indx_to_test.size()/elapsed_secs) << ","; // Queries per second
+            cout << (double)(elapsed_secs/indx_to_test.size()) << ","; // Average search time
+            cout << (double)(indexing_time/CLOCKS_PER_SEC) << endl; // Indexing time
+        }
     }
 
     // Free the memory allocated for the graph
