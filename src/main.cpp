@@ -242,6 +242,9 @@ int main(int argc, char *argv[]) {
             cout << (double)(elapsed_secs/indx_to_test.size()) << ","; // Average search time
             cout << (double)(indexing_time/CLOCKS_PER_SEC) << endl; // Indexing time
         }
+    } else {
+        // Print the average indexing time
+        if (!toPrint) cout << "0,0,0,0,0," << (double)(indexing_time/CLOCKS_PER_SEC) << endl;
     }
 
     // Free the memory allocated for the graph

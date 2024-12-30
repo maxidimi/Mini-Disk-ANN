@@ -49,21 +49,23 @@ unordered_map<int, int> find_medoid(const Dataset &P, vector<int> C, int thresho
 
 // Filtered Vamana Indexing Algorithm
 Graph filtered_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int L, int R, vector<int> F) {
-    int n = (int)P.size();
+    int n = static_cast<int>(P.size());
 
     // Add the nodes to the graph G
-    Graph G; G.reserve(n);
-    for (auto &p : P) {
+    Graph G;
+    G.reserve(n);
+    for (const auto &p : P) {
         Graph_Node node = create_graph_node(p);
         add_node_to_graph(G, node);
     }
     
-    // Let st(f) denote the start node of filter label f for every f \in F
+    // Let st(f) denote the start node of filter label f for every f ∈ F
     unordered_map<int, int> st = find_medoid(P, F_x, 1, F);
     
     // Let σ denote a random permutation of |n|
     vector<int> sigma = random_permutation(n);
 
+    /*
     // Foreach i \in |n| do
     for (int i = 0; i < n; i++) {
         int s_i = sigma[i];
@@ -91,21 +93,118 @@ Graph filtered_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int 
             }
         }
     }
+    */
+    /*
+    // Semaphore variables
+    const int max_threads = 1; // Adjust as needed
+    std::mutex mtx;
+
+    // Thread-safe processing function
+    auto process_chunk = [&](int start, int end) {
+        for (int i = start; i < end; ++i) {
+            int s_i = sigma[i];
+
+            // Let S_F_σ_(i) = {st(f) | f ∈ F_x_σ_(i)}, but here there is only one f
+            vector<int> S_F_i = {st[F_x[s_i]]};
+            
+            // Run filtered_greedy_search
+            pair<vector<int>, vector<int>> result;
+            {
+                std::lock_guard<std::mutex> lock(mtx);
+                result = filtered_greedy_search(G, S_F_i, P[s_i], 0, L, F_x, {F_x[s_i]});
+            }
+            vector<int> V_F_i = result.second;
+
+            // Run filtered_robust_pruning
+            {
+                std::lock_guard<std::mutex> lock(mtx);
+                G = filtered_robust_pruning(G, G[s_i], V_F_i, a, R, F_x);
+            }
+            
+            // Update neighbors
+            {
+                std::lock_guard<std::mutex> lock(mtx);
+                for (int j : G[s_i]->out_neighbours) {
+                    G[j]->out_neighbours.insert(s_i);
+
+                    // Check and prune if necessary
+                    if (G[j]->out_neighbours.size() > static_cast<size_t>(R)) {
+                        vector<int> N_out_j(G[j]->out_neighbours.begin(), G[j]->out_neighbours.end());
+                        G = filtered_robust_pruning(G, G[j], N_out_j, a, R, F_x);
+                    }
+                }
+            }
+        }
+    };
+
+    // Thread pool
+    vector<thread> threads;
+    int chunk_size = n / max_threads;
+    int start = 0;
+    int end = chunk_size;
+
+    for (int i = 0; i < max_threads; ++i) {
+        if (i == max_threads - 1) {
+            end = n; // Ensure last chunk processes all remaining items
+        }
+        // Each thread processes a chunk of the dataset
+        int thread_start = start;
+        int thread_end = end;
+
+        threads.emplace_back([=]() {
+            process_chunk(thread_start, thread_end);
+        });
+
+        start = end;
+        end += chunk_size;
+    }
+
+    // Join all threads
+    for (auto &t : threads) {
+        if (t.joinable()) {
+            t.join();
+        }
+    }*/
+
+   // OpenMP parallel for
+    #pragma omp parallel num_threads(5) // Set the number of threads to 5
+    {
+        #pragma omp for schedule(dynamic)
+        for (int i = 0; i < n; ++i) {
+            int s_i = sigma[i];
+
+            // Let S_F_σ_(i) = {st(f) | f ∈ F_x_σ_(i)}, but here there is only one f
+            vector<int> S_F_i = {st[F_x[s_i]]};
+            #pragma omp critical
+            {
+                // Run filtered_greedy_search
+                pair<vector<int>, vector<int>> result = filtered_greedy_search(G, S_F_i, P[s_i], 0, L, F_x, {F_x[s_i]});
+                vector<int> V_F_i = result.second;
+
+                // Run filtered_robust_pruning
+                G = filtered_robust_pruning(G, G[s_i], V_F_i, a, R, F_x);
+            }
+
+            // Update neighbors
+            #pragma omp critical
+            {
+                for (int j : G[s_i]->out_neighbours) {
+                    G[j]->out_neighbours.insert(s_i);
+
+                    // Check and prune if necessary
+                    if (G[j]->out_neighbours.size() > static_cast<size_t>(R)) {
+                        vector<int> N_out_j(G[j]->out_neighbours.begin(), G[j]->out_neighbours.end());
+                        G = filtered_robust_pruning(G, G[j], N_out_j, a, R, F_x);
+                    }
+                }
+            }
+        }
+    }
 
     return G;
 }
 
-// Stitched Vamana Indexing Algorithm
 Graph stitched_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int L, int R, vector<int> F) {
-    /*
-        Stitched Vamana Indexing Algorithm works as follows:
-            - At first, it makes |F| calls to the Vamana Indexing Algorithm, constructing |F| graphs G[f]
-              with dataset P_f = {p \in P | C[p] = f} for every f \in F
-            - Then, it constructs a stitched graph G_stitched over P with out-degree <= R by adding all points in P
-              to the graph and adding the out-neighbours of the corresponding graph G[f] to the stitched graph
-              This is done by keeping track of the index of each point p \in P into the corresponding graph G[f] (ind_corr[p])
-            - Finally, it returns the stitched graph G_stitched with out-degree <= R
-    */
     size_t f_size = F.size();
     size_t p_size = P.size();
     
@@ -126,31 +225,52 @@ Graph stitched_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int 
     vector<vector<int>> F_f(f_size);
 
     for (size_t i = 0; i < p_size; i++) {
-        // P_f[F_x[i]] adds the point to the vector with label F_x[i]
         P_f[F_x[i]].push_back(P[i]);
-
-        // F_f[F_x[i]] adds the index of the point to the vector with label F_x[i]
         F_f[F_x[i]].push_back(i);
-
-        // ind_corr[i] is the index of the point in the corresponding graph G[f]
         ind_corr[i] = counters[F_x[i]]++;
-
-        // Add all points in P to the stitched graph
         Graph_Node node = create_graph_node(P[i]);
         add_node_to_graph(G_stitched, node);
     }
 
-    // foreach f \in F do
+    /*// foreach f \in F do
     for (auto f : F) {
         // Let G[f] = vamana_indexing(P_f, a, L_small, R_small)
         G[f] = vamana_indexing(P_f[f], a, L, R);
+    }*/
+
+    // Parallelize the vamana_indexing calls using a maximum of 8 threads
+    const size_t max_threads = 8;
+    vector<thread> threads;
+
+    for (size_t i = 0; i < F.size(); i++) {
+        // Wait for a thread to become available if |max_threads| are running
+        while (threads.size() >= max_threads) {
+            for (size_t j = 0; j < threads.size(); ++j) {
+                if (threads[j].joinable()) {
+                    threads[j].join();
+                    threads.erase(threads.begin() + j);
+                    break;
+                }
+            }
+        }
+
+        // Launch a new thread
+        threads.emplace_back([&, i]() {
+            G[F[i]] = vamana_indexing(P_f[F[i]], a, L, R);
+        });
+    }
+
+    // Join any remaining threads
+    for (size_t j = 0; j < threads.size(); ++j) {
+        if (threads[j].joinable()) {
+            threads[j].join();
+        }
     }
 
     // Add the out-neighbours in G[f] to the stitched graph
     for (size_t i = 0; i < p_size; i++) {
         Graph_Node node = G[F_x[i]][ind_corr[i]];
         for (int j : node->out_neighbours) {
-            // Find the index of the out-neighbour in G[f] to the stitched graph
             add_edge_to_graph(G_stitched[i], F_f[F_x[i]][j]);
         }
     }
@@ -164,6 +284,7 @@ Graph stitched_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int 
 
     return G_stitched;
 }
+
 
 // Vamana Indexing Algorithm
 // Gets database P, a, L, R
