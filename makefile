@@ -2,7 +2,7 @@ OBJS    = ./build/greedy.o ./build/main.o ./build/graph.o ./build/helper.o ./bui
 SOURCE    = ./src/greedy.cpp ./src/main.cpp ./src/graph.cpp ./src/helper.cpp ./src/pruning.cpp ./src/vamana_al.cpp ./src/data_forming.cpp
 HEADER    = ./include/header.h
 OUT        = ./bin/vamana
-CC         = clang++
+CC         = g++
 FLAGS    = -g3 -fopenmp -c -Ofast -Wall -std=c++17
 
 # Add variables for test source and objects

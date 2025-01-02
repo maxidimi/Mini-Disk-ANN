@@ -93,8 +93,8 @@ Graph filtered_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int 
             }
         }
     }
-    */
-    /*
+    
+    // <thread> way
     // Semaphore variables
     const int max_threads = 1; // Adjust as needed
     std::mutex mtx;
@@ -166,8 +166,8 @@ Graph filtered_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int 
         }
     }*/
 
-   // OpenMP parallel for
-    #pragma omp parallel num_threads(5) // Set the number of threads to 5
+   // OpenMP way
+    #pragma omp parallel num_threads(10) // Set the number of threads
     {
         #pragma omp for schedule(dynamic)
         for (int i = 0; i < n; ++i) {
@@ -232,12 +232,12 @@ Graph stitched_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int 
         add_node_to_graph(G_stitched, node);
     }
 
-    /*// foreach f \in F do
+    // foreach f \in F do
     for (auto f : F) {
         // Let G[f] = vamana_indexing(P_f, a, L_small, R_small)
         G[f] = vamana_indexing(P_f[f], a, L, R);
-    }*/
-
+    }
+/*
     // Parallelize the vamana_indexing calls using a maximum of 8 threads
     const size_t max_threads = 8;
     vector<thread> threads;
@@ -265,7 +265,7 @@ Graph stitched_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int 
         if (threads[j].joinable()) {
             threads[j].join();
         }
-    }
+    }*/
 
     // Add the out-neighbours in G[f] to the stitched graph
     for (size_t i = 0; i < p_size; i++) {
@@ -362,8 +362,8 @@ Graph vamana_indexing(const Dataset &P, double a, int L, int R) {
         }i++;
     }
 
-    // Let s denote the medoid of dataset P
-    int s_index = medoid(P);
+    // Let s denote the medoid of dataset P randomly
+    int s_index = rand() % n;
     
     Data s_d = P[s_index];
     
