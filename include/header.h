@@ -16,8 +16,10 @@
 #include <mutex>
 #include <condition_variable>
 #include <omp.h>
+#include <chrono>
 
 using namespace std;
+using namespace chrono;
 
 typedef float data_t;
 
@@ -50,7 +52,7 @@ vector<int> random_permutation(size_t n);
 int find_min_dist(const Graph G, vector<int> L, Data q);
 double check_results(const Dataset &dataset, Data query, const vector<int> &result,\
                      int k, vector<int> expected_neighbors, bool print);
-void time_elapsed(clock_t start, string message);
+void time_elapsed(high_resolution_clock::time_point start, const string& message);
 Data random_query(int dim);
 Dataset random_dataset(int n, int dim);
 vector<vector<int>> find_store_groundtruth(pair<Dataset, vector<int>> r, pair<Dataset, vector<int>> r2, string groundtruth_f);

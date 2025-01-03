@@ -2,18 +2,12 @@
 
 // Computes the Euclidean distance between two data points
 euclidean_t euclidean_distance(const Data &d1, const Data &d2) {
-    if (d1.size() != d2.size()) {
-        cerr << "Data points have different dimensions\n";
-        exit(1);
-    }
-
     size_t dim = d1.size();
     euclidean_t distance = 0.0L;
     for (size_t i = 0; i < dim; i++) {
         distance += (d2[i] - d1[i]) * (d2[i] - d1[i]);
     }
-    
-    //distance = sqrt(distance);
+
     return distance;
 }
 
@@ -52,8 +46,8 @@ double check_results(const Dataset &dataset, Data query, const vector<int> &resu
 
     // Check if the number of neighbors found matches k (or the expected neighbors)
     if (r_size != k && r_size != n_size) {
-        cerr << " || Size of neighbours list is not the expected. Found: " << r_size << " Expected: " << k << ".\n";
-        cout << "=======================================================================================\n";
+        //cerr << " || Size of neighbours list is not the expected. Found: " << r_size << " Expected: " << k << ".\n";
+        //cout << "=======================================================================================\n";
         return 0.0;
     }
     
@@ -80,15 +74,16 @@ double check_results(const Dataset &dataset, Data query, const vector<int> &resu
 }
 
 // Prints the time taken for a given operation
-void time_elapsed(clock_t start, string message) {
-    clock_t end = clock();
-    double elapsed_seconds = double(end - start) / CLOCKS_PER_SEC;
+void time_elapsed(high_resolution_clock::time_point start, const string& message) {
+    auto end = high_resolution_clock::now();
+    duration<double> elapsed_seconds = end - start;
 
-    double minutes = (int)elapsed_seconds / 60.0;
-    
+    double total_seconds = elapsed_seconds.count();
+    double minutes = total_seconds / 60.0;
+
     cout << fixed << setprecision(2);
-    cout << " || Total time taken for " << message << ": " << elapsed_seconds <<\
-     " seconds (= " << minutes << " minutes)" << endl;
+    cout << " || Total time taken for " << message << ": " 
+         << total_seconds << " seconds (= " << minutes << " minutes)" << endl;
 }
 
 // Generates a random query of the given dimension
