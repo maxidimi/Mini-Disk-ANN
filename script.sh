@@ -27,14 +27,14 @@ for FUNCTION in "${VAMANA_FUNCTIONS[@]}"; do
         sed -i "s/^vamana_function=.*$/vamana_function=$FUNCTION/" "$TEMP_CONFIG_FILE"
         sed -i "s/^L=.*$/L=$L/" "$TEMP_CONFIG_FILE"
         sed -i "s/^graph_name=.*$/graph_name=tmp/" "$TEMP_CONFIG_FILE"
-        if [FUNCTION == "vamana"]; then
-            sed -i "s/^dataset=.*$/dataset=data/ANN_SIFT10K/siftsmall_base.fvecs/" "$TEMP_CONFIG_FILE"
-            sed -i "s/^query=.*$/query=data/ANN_SIFT10K/siftsmall_query.fvecs/" "$TEMP_CONFIG_FILE"
-            sed -i "s/^groundtruth=.*$/groundtruth=data/ANN_SIFT10K/siftsmall_groundtruth.ivecs/" "$TEMP_CONFIG_FILE"
+        if [ "$FUNCTION" = "vamana" ]; then 
+            sed -i "s|^dataset=.*$|dataset=data/ANN_SIFT10K/siftsmall_base.fvecs|" "$TEMP_CONFIG_FILE"
+            sed -i "s|^query=.*$|query=data/ANN_SIFT10K/siftsmall_query.fvecs|" "$TEMP_CONFIG_FILE"
+            sed -i "s|^groundtruth=.*$|groundtruth=data/ANN_SIFT10K/siftsmall_groundtruth.ivecs|" "$TEMP_CONFIG_FILE"
         else
-            sed -i "s/^dataset=.*$/dataset=data/SIGMOD/DUMMY/dummy-data.bin/" "$TEMP_CONFIG_FILE"
-            sed -i "s/^query=.*$/query=data/SIGMOD/1M_DS/contest-queries-release-1m.bin/" "$TEMP_CONFIG_FILE"
-            sed -i "s/^groundtruth=.*$/groundtruth=data/SIGMOD/DUMMY/dummy_data_1M_queries.bin/" "$TEMP_CONFIG_FILE"
+            sed -i "s|^dataset=.*$|dataset=data/SIGMOD/DUMMY/dummy-data.bin|" "$TEMP_CONFIG_FILE"
+            sed -i "s|^query=.*$|query=data/SIGMOD/1M_DS/contest-queries-release-1m.bin|" "$TEMP_CONFIG_FILE"
+            sed -i "s|^groundtruth=.*$|groundtruth=data/SIGMOD/DUMMY/dummy_data_1M_queries.bin|" "$TEMP_CONFIG_FILE"
         fi
 
         # Run the application and store the result
@@ -42,8 +42,8 @@ for FUNCTION in "${VAMANA_FUNCTIONS[@]}"; do
         ./bin/vamana "$TEMP_CONFIG_FILE" >> "$OUTPUT_FILE" 2>&1
 
         # Delete the file filtered_tmp.bin after each iteration
-        if [ -f "filtered_tmp.bin" ]; then
-            rm -f "filtered_tmp.bin"
+        if [ -f "tmp.bin" ]; then
+            rm -f "tmp.bin"
             echo "Deleted filtered_tmp.bin for L=$L, vamana_function=$FUNCTION"
         fi
 

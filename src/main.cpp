@@ -145,6 +145,7 @@ int main(int argc, char *argv[]) {
 
     if (toPrint) time_elapsed(start, "Vamana Indexing");
     auto indexing_time = high_resolution_clock::now() - start;
+    auto indexing_secs = duration_cast<seconds>(indexing_time).count();
 
     if (q_idx != -3) { // If user wants search
         auto queries_start = high_resolution_clock::now();
@@ -166,16 +167,18 @@ int main(int argc, char *argv[]) {
         }
         
         // Perform the Greedy search for each query
-        int V_i; double recall_sum = 0.0;
+        double recall_sum = 0.0;
         double filtered_recall_sum = 0.0; 
         double unfiltered_recall_sum = 0.0;
+        int queries_size = (int)indx_to_test.size();
 
-        #pragma omp parallel for schedule(dynamic) if (indx_to_test.size() > 1000) reduction(+:recall_sum, filtered_recall_sum, unfiltered_recall_sum)
+        #pragma omp parallel for schedule(dynamic) if (queries_size > 1000) reduction(+:recall_sum, filtered_recall_sum, unfiltered_recall_sum)
             for (const auto &i : indx_to_test) {
                 Data query = queries[i];
 
                 vector<int> groundtruth_t = groundtruth[i];
-                
+
+                int V_i;
                 if (vam_func != "vamana") V_i = V[i];
 
                 auto gr_start = high_resolution_clock::now();
@@ -211,7 +214,7 @@ int main(int argc, char *argv[]) {
                 auto result = result_p.first; auto visited = result_p.second;
 
                 // Print time for each Greedy call
-                if (toPrint) time_elapsed(gr_start, "Greedy Search " + to_string(i + 1) + "/" + to_string(indx_to_test.size()));
+                if (toPrint) time_elapsed(gr_start, "Greedy Search " + to_string(i + 1) + "/" + to_string(queries_size));
                 
                 // Print the results
                 double result_recall = check_results(dataset, query, result, k, groundtruth_t, toPrint);
@@ -221,16 +224,19 @@ int main(int argc, char *argv[]) {
                     #pragma omp critical
                     if (V_i == -1) unfiltered_recall_sum += result_recall;
                     else filtered_recall_sum += result_recall;
+                } else {
+                    #pragma omp critical
+                    unfiltered_recall_sum += result_recall;
                 }
             }
         
         // Print the average recall
         if (toPrint) {
             cout << "=======================================================================================\n";
-            cout << "===> Average Recall@" << k << ": " << (double)(recall_sum/indx_to_test.size()) << "%" << endl;
+            cout << "===> Average Recall@" << k << ": " << (double)(queries_size == 0 ? 0 : recall_sum/queries_size) << "%" << endl;
             if (vam_func != "vamana") {
-                cout << "===> Average Recall@" << k << " for unfiltered: " << (double)(unfiltered_recall_sum/unfiltered_count) << "%" << endl;
-                cout << "===> Average Recall@" << k << " for filtered: " << (double)(filtered_recall_sum/filtered_count) << "%" << endl;
+                cout << "===> Average Recall@" << k << " for unfiltered: " << (double)(unfiltered_count == 0 ? 0 : unfiltered_recall_sum/unfiltered_count) << "%" << endl;
+                cout << "===> Average Recall@" << k << " for filtered: " << (double)(filtered_count == 0 ? 0 : filtered_recall_sum/filtered_count) << "%" << endl;
             }
             cout << "=======================================================================================\n";
         }
@@ -239,16 +245,16 @@ int main(int argc, char *argv[]) {
         auto elapsed_secs = high_resolution_clock::now() - queries_start;
         if (!toPrint) {
             auto secs = duration_cast<seconds>(elapsed_secs).count();
-            cout << (double)(recall_sum/indx_to_test.size()) << ","; // Recall@k
+            cout << (double)(queries_size == 0 ? 0 : recall_sum/queries_size) << ","; // Recall@k
             cout << (double)(unfiltered_count == 0 ? 0 : unfiltered_recall_sum/unfiltered_count) << ","; // Recall@k for unfiltered
             cout << (double)(filtered_count == 0 ? 0 : filtered_recall_sum/filtered_count) << ","; // Recall@k for filtered
-            cout << (double)(indx_to_test.size()/secs) << ","; // Queries per second
-            cout << (double)(secs/indx_to_test.size()) << ","; // Average search time
-            cout << (double)(duration_cast<seconds>(indexing_time).count()) << endl; // Indexing time
+            cout << (double)(secs == 0 ? 0 : queries_size/secs) << ","; // Queries per second
+            cout << (double)(queries_size == 0 ? 0 : secs/queries_size) << ","; // Average search time
+            cout << (double)(indexing_secs) << endl; // Indexing time
         }
     } else {
         // Print the average indexing time
-        if (!toPrint) cout << "0,0,0,0,0," << (double)(duration_cast<seconds>(indexing_time).count()) << endl;
+        if (!toPrint) cout << "0,0,0,0,0," << (double)(indexing_secs) << endl;
     }
 
     // Free the memory allocated for the graph

@@ -121,7 +121,6 @@ Graph stitched_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int 
     }
 
     // Parallelize the vamana_indexing calls with openMP
-    omp_set_num_threads(1); // Use fewer threads
     #pragma omp parallel for schedule(dynamic)
     for (size_t i = 0; i < f_size; i++) {
         G[F[i]] = vamana_indexing(P_f[F[i]], a, L, R);
