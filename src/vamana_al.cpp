@@ -47,29 +47,25 @@ unordered_map<int, int> find_medoid(const Dataset &P, vector<int> C, int thresho
     return M;
 }
 
-// Filtered Vamana Indexing Algorithm
-Graph filtered_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int L, int R, vector<int> F) {
+Graph subgraph_filtered(const Dataset &P, double a, int L, int R, int st, int F) {
     int n = static_cast<int>(P.size());
+    
+    vector<int> sigma = random_permutation(n);
 
-    // Add the nodes to the graph G
-    Graph G;
-    G.reserve(n);
-    for (const auto &p : P) {
+    Graph G; G.reserve(n);
+
+    vector<int> F_x(n, F);
+
+    for (const auto &p: P) {
         Graph_Node node = create_graph_node(p);
         add_node_to_graph(G, node);
     }
-    
-    // Let st(f) denote the start node of filter label f for every f ∈ F
-    unordered_map<int, int> st = find_medoid(P, F_x, 1, F);
-    
-    // Let σ denote a random permutation of |n|
-    vector<int> sigma = random_permutation(n);
 
     for (int i = 0; i < n; ++i) {
         int s_i = sigma[i];
 
         // Let S_F_σ_(i) = {st(f) | f ∈ F_x_σ_(i)}, but here there is only one f
-        vector<int> S_F_i = {st[F_x[s_i]]};
+        vector<int> S_F_i = {st};
 
         // Run filtered_greedy_search
         pair<vector<int>, vector<int>> result = filtered_greedy_search(G, S_F_i, P[s_i], 0, L, F_x, {F_x[s_i]});
@@ -86,6 +82,72 @@ Graph filtered_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int 
                 vector<int> N_out_j(G[j]->out_neighbours.begin(), G[j]->out_neighbours.end());
                 G = filtered_robust_pruning(G, G[j], N_out_j, a, R, F_x);
             }
+        }
+    }
+
+    return G;
+}
+
+// Filtered Vamana Indexing Algorithm
+Graph filtered_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int L, int R, vector<int> F) {
+    int n = static_cast<int>(P.size());
+    size_t f_size = F.size();
+
+    // Add the nodes to the graph G
+    Graph G;
+    G.reserve(n);
+    for (const auto &p : P) {
+        Graph_Node node = create_graph_node(p);
+        add_node_to_graph(G, node);
+    }
+    
+    // Let st(f) denote the start node of filter label f for every f ∈ F
+    unordered_map<int, int> st = find_medoid(P, F_x, 1, F);
+    
+    // Let σ denote a random permutation of |n|
+    vector<int> sigma = random_permutation(n);
+
+    // Let P_f be the set of points with label f \in F
+    unordered_map<int, Dataset> P_f; P_f.reserve(f_size);
+
+    // ind_corr matches every point in P to its index in the corresponding graph G[f], f \in F
+    vector<int> ind_corr(n);
+
+    // counters[f] keeps track of the number of points with filter f that have already been added to the stitched graph
+    vector<int> counters(f_size, 0);
+    
+    // Let F_f be the set of indices with label f \in F
+    vector<vector<int>> F_f(f_size);
+
+    for (int i = 0; i < n; i++) {
+        P_f[F_x[i]].push_back(P[i]);
+        F_f[F_x[i]].push_back(i);
+        ind_corr[i] = counters[F_x[i]]++;
+        Graph_Node node = create_graph_node(P[i]);
+        add_node_to_graph(G, node);
+    }
+
+    // Parallelize the subgraph_filtered calls with openMP
+    unordered_map<int, Graph> G_f;
+    #pragma omp parallel for schedule(dynamic)
+    for (int i = 0; i < f_size; i++) {
+        auto G_f_i = subgraph_filtered(P_f[F[i]], a, L, R, st[F[i]], F[i]);
+        #pragma omp critical
+        G_f[F[i]] = G_f_i;
+    }
+
+    // Add the out-neighbours in G[f] to the stitched graph
+    for (size_t i = 0; i < n; i++) {
+        Graph_Node node = G_f[F_x[i]][ind_corr[i]];
+        for (int j : node->out_neighbours) {
+            add_edge_to_graph(G[i], F_f[F_x[i]][j]);
+        }
+    }
+
+    // Release memory
+    for (auto &g : G_f) {
+        for (auto &node : g.second) {
+            delete node;
         }
     }
 

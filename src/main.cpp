@@ -175,7 +175,7 @@ int main(int argc, char *argv[]) {
         auto queries_start = high_resolution_clock::now();
 
         #pragma omp parallel for schedule(static) if (queries_size > 1000) reduction(+:recall_sum, filtered_recall_sum, unfiltered_recall_sum)
-            for (const auto &i : indx_to_test) {cout << "Start of query " << i << " with label " << V[i] << " and id thread " << omp_get_thread_num() << endl;
+            for (const auto &i : indx_to_test) {//cout << "Start of query " << i << " with label " << V[i] << " and id thread " << omp_get_thread_num() << endl;
                 Data query = queries[i];
 
                 vector<int> groundtruth_t = groundtruth[i];
@@ -222,7 +222,7 @@ int main(int argc, char *argv[]) {
                     else filtered_recall_sum += result_recall;
                 } else {
                     unfiltered_recall_sum += result_recall;
-                }cout << "End of query " << i << endl;
+                }//cout << "End of query " << i << endl;
             }
         
         // Print the average recall

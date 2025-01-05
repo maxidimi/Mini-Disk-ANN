@@ -1,11 +1,11 @@
-dataset=data/SIGMOD/1M_DS/contest-data-release-1m.bin
+dataset=data/SIGMOD/DUMMY/dummy-data.bin
 query=data/SIGMOD/1M_DS/contest-queries-release-1m.bin
-groundtruth=data/SIGMOD/1M_DS/contest-groundtruth-release-1m.bin
-vamana_function=stitched
-graph_name=stitched_16threads_1M
+groundtruth=data/SIGMOD/DUMMY/dummy_data_1M_queries.bin
+vamana_function=filtered
+graph_name=filteredtmp
 q_idx=-1
 k=100
-R=40
+R=15
 L=100
 a=1.2
 toPrint=false
