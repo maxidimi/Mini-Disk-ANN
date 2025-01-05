@@ -123,7 +123,9 @@ Graph stitched_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int 
     // Parallelize the vamana_indexing calls with openMP
     #pragma omp parallel for schedule(dynamic)
     for (size_t i = 0; i < f_size; i++) {
-        G[F[i]] = vamana_indexing(P_f[F[i]], a, L, R);
+        auto G_f = vamana_indexing(P_f[F[i]], a, L, R);
+        #pragma omp critical
+        G[F[i]] = G_f;
     }
 
     // Add the out-neighbours in G[f] to the stitched graph

@@ -126,6 +126,7 @@ int main(int argc, char *argv[]) {
             cout << " || Queries: All" << endl;
         } else {
             cout << " || Query Index: " << q_idx << endl;
+            cout << " || Label: " << (vam_func == "vamana" ? "Unfiltered" : (V[q_idx] == -1 ? "Unfiltered" : "Filtered")) << endl;
         }
         cout << "=======================================================================================\n";
     }
@@ -148,7 +149,6 @@ int main(int argc, char *argv[]) {
     auto indexing_secs = duration_cast<seconds>(indexing_time).count();
 
     if (q_idx != -3) { // If user wants search
-        auto queries_start = high_resolution_clock::now();
         if (toPrint) {
             cout << "=======================================================================================\n";
             cout << "                                      Results:" << endl;
@@ -172,16 +172,16 @@ int main(int argc, char *argv[]) {
         double unfiltered_recall_sum = 0.0;
         int queries_size = (int)indx_to_test.size();
 
-        #pragma omp parallel for schedule(dynamic) if (queries_size > 1000) reduction(+:recall_sum, filtered_recall_sum, unfiltered_recall_sum)
-            for (const auto &i : indx_to_test) {
+        auto queries_start = high_resolution_clock::now();
+
+        #pragma omp parallel for schedule(static) if (queries_size > 1000) reduction(+:recall_sum, filtered_recall_sum, unfiltered_recall_sum)
+            for (const auto &i : indx_to_test) {cout << "Start of query " << i << " with label " << V[i] << " and id thread " << omp_get_thread_num() << endl;
                 Data query = queries[i];
 
                 vector<int> groundtruth_t = groundtruth[i];
 
-                int V_i;
+                int V_i = -1;
                 if (vam_func != "vamana") V_i = V[i];
-
-                auto gr_start = high_resolution_clock::now();
 
                 // Perform greedy search starting based on the prefered function
                 pair<vector<int>, vector<int>> result_p;
@@ -212,29 +212,24 @@ int main(int argc, char *argv[]) {
                 }
 
                 auto result = result_p.first; auto visited = result_p.second;
-
-                // Print time for each Greedy call
-                if (toPrint) time_elapsed(gr_start, "Greedy Search " + to_string(i + 1) + "/" + to_string(queries_size));
                 
                 // Print the results
                 double result_recall = check_results(dataset, query, result, k, groundtruth_t, toPrint);
-                #pragma omp critical
+                
                 recall_sum += result_recall;
                 if (vam_func != "vamana") {
-                    #pragma omp critical
                     if (V_i == -1) unfiltered_recall_sum += result_recall;
                     else filtered_recall_sum += result_recall;
                 } else {
-                    #pragma omp critical
                     unfiltered_recall_sum += result_recall;
-                }
+                }cout << "End of query " << i << endl;
             }
         
         // Print the average recall
         if (toPrint) {
             cout << "=======================================================================================\n";
             cout << "===> Average Recall@" << k << ": " << (double)(queries_size == 0 ? 0 : recall_sum/queries_size) << "%" << endl;
-            if (vam_func != "vamana") {
+            if (vam_func != "vamana" && queries_size > 1) {
                 cout << "===> Average Recall@" << k << " for unfiltered: " << (double)(unfiltered_count == 0 ? 0 : unfiltered_recall_sum/unfiltered_count) << "%" << endl;
                 cout << "===> Average Recall@" << k << " for filtered: " << (double)(filtered_count == 0 ? 0 : filtered_recall_sum/filtered_count) << "%" << endl;
             }

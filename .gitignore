@@ -7,3 +7,4 @@ contest-groundtruth-release-1m.bin
 .DS_Store
 ANN_SIFT1M
 stitched_1M.bin
+stitched_16threads_1M.bin
