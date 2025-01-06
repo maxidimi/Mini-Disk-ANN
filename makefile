@@ -3,7 +3,7 @@ SOURCE    = ./src/greedy.cpp ./src/main.cpp ./src/graph.cpp ./src/helper.cpp ./s
 HEADER    = ./include/header.h
 OUT        = ./bin/vamana
 CC         = g++
-FLAGS    = -g3 -fopenmp -c -Ofast -Wall -std=c++17
+FLAGS    = -g3 -fopenmp -c -O3 -ffast-math -Wall -std=c++17 -Wextra -Wpedantic
 
 # Add variables for test source and objects
 # Remove main.o from the test object files to avoid conflict with main.cpp
@@ -12,7 +12,7 @@ TEST_OBJS = ./build/greedy.o ./build/graph.o ./build/helper.o ./build/pruning.o 
 TEST_OUT = ./bin/test
 
 all: build_dir $(OBJS)
-	$(CC) -fopenmp -g -std=c++17 -Ofast $(OBJS) -o $(OUT)
+	$(CC) -fopenmp -g -std=c++17 -O3 -ffast-math $(OBJS) -o $(OUT)
 
 # Create build directory if it does not exist
 build_dir:
@@ -51,7 +51,7 @@ run: all
 
 # Link object files (excluding main.o) and run tests
 test: build_dir $(TEST_OBJS)
-	$(CC) -g $(TEST_OBJS) -o $(TEST_OUT)
+	$(CC) -g -fopenmp -Wall -Wextra -Wpedantic -fsanitize=address $(TEST_OBJS) -o $(TEST_OUT)
 	$(TEST_OUT)
 
 # Clean command to remove object files and binary
@@ -75,5 +75,5 @@ valgrind_extreme: $(OUT)
 	valgrind --leak-check=full -s --show-leak-kinds=all --leak-resolution=high --track-origins=yes --vgdb=yes $(OUT) config.txt
 
 valgrind_test: build_dir $(TEST_OBJS)
-	$(CC) -g $(TEST_OBJS) -o $(TEST_OUT)
+	$(CC) -g -fopenmp $(TEST_OBJS) -o $(TEST_OUT)
 	valgrind --leak-check=full -s --show-leak-kinds=all --leak-resolution=high --track-origins=yes --vgdb=yes ./bin/test

@@ -126,14 +126,14 @@ Graph filtered_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int 
     // Parallelize the subgraph_filtered calls with openMP
     unordered_map<int, Graph> G_f; G_f.reserve(f_size);
     #pragma omp parallel for schedule(dynamic) num_threads(omp_get_max_threads())
-    for (int i = 0; i < f_size; i++) {
+    for (size_t i = 0; i < f_size; i++) {
         auto G_f_i = subgraph_filtered(P_f[F[i]], a, L, R, ind_corr[st[F[i]]], F[i]);
         #pragma omp critical
         G_f[F[i]] = G_f_i;
     }
 
     // Add the out-neighbours in G[f] to the stitched graph
-    for (size_t i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
         Graph_Node node = G_f[F_x[i]][ind_corr[i]];
         for (int j : node->out_neighbours) {
             add_edge_to_graph(G[i], F_f[F_x[i]][j]);

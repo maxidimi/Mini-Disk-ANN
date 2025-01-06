@@ -40,16 +40,12 @@ int find_min_dist(const Graph G, vector<int> L, Data q) {
 }
 
 // Checks the results of the Greedy search manually
-double check_results(const Dataset &dataset, Data query, const vector<int> &result, int k, vector<int> expected_neighbors, bool print) {
+double check_results(const vector<int> &result, int k, vector<int> expected_neighbors, bool print) {
     int n_size = (int)expected_neighbors.size();
     int r_size = (int)result.size();
 
     // Check if the number of neighbors found matches k (or the expected neighbors)
-    if (r_size != k && r_size != n_size) {
-        //cerr << " || Size of neighbours list is not the expected. Found: " << r_size << " Expected: " << k << ".\n";
-        //cout << "=======================================================================================\n";
-        return 0.0;
-    }
+    if (r_size != k && r_size != n_size) return 0.0;
     
     // Check if the results neighbor is in the expected neighbors
     int foundC = 0;
@@ -91,7 +87,7 @@ Data random_query(int dim) {
     Data query;
 
     for (int i = 0; i < dim; i++) {
-        query.push_back((data_t)rand() / RAND_MAX);
+        query.push_back(static_cast<data_t>(rand()) / static_cast<data_t>(RAND_MAX));
     }
 
     return query;
@@ -103,7 +99,7 @@ Dataset random_dataset(int n, int dim) {
     for (int i = 0; i < n; i++) {
         Data data;
         for (int j = 0; j < dim; j++) {
-            data.push_back((data_t)rand() / RAND_MAX);
+            data.push_back(static_cast<data_t>(rand()) / static_cast<data_t>(RAND_MAX));
         }
         dataset.push_back(data);
     }

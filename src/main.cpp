@@ -214,7 +214,7 @@ int main(int argc, char *argv[]) {
                 auto result = result_p.first; auto visited = result_p.second;
                 
                 // Print the results
-                double result_recall = check_results(dataset, query, result, k, groundtruth_t, toPrint);
+                double result_recall = check_results(result, k, groundtruth_t, toPrint);
                 
                 recall_sum += result_recall;
                 if (vam_func != "vamana") {

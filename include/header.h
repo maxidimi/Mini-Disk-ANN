@@ -11,10 +11,6 @@
 #include <sstream>
 #include <string>
 #include <iomanip>
-#include <thread>
-#include <queue>
-#include <mutex>
-#include <condition_variable>
 #include <omp.h>
 #include <chrono>
 
@@ -50,8 +46,7 @@ Graph read_graph(string filename);
 euclidean_t euclidean_distance(const Data &d1, const Data &d2);
 vector<int> random_permutation(size_t n);
 int find_min_dist(const Graph G, vector<int> L, Data q);
-double check_results(const Dataset &dataset, Data query, const vector<int> &result,\
-                     int k, vector<int> expected_neighbors, bool print);
+double check_results(const vector<int> &result, int k, vector<int> expected_neighbors, bool print);
 void time_elapsed(high_resolution_clock::time_point start, const string& message);
 Data random_query(int dim);
 Dataset random_dataset(int n, int dim);
