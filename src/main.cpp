@@ -82,10 +82,13 @@ int main(int argc, char *argv[]) {
         for (int c : C_set) F.push_back(c);
     }
 
+    // Exit if user wants only to compute the groundtruth
+    if (q_idx == -4) return 0;
+
     // Check that parametres are valid
     int n = (int)dataset.size();
     int d = (int)dataset.front().size();
-    if (R < 1 || L < k || k <= 0 || a < 1.0 || n <= 0 || d <= 0) {
+    if (R < 1 || L < k || k <= 0 || a < 1.0 || n <= 0 || d <= 0 || q_idx < -4) {
         cerr << "Invalid parametrization!" << endl;
         return 1;
     }
@@ -123,13 +126,14 @@ int main(int argc, char *argv[]) {
             cout << " || Queries: All" << endl;
         } else {
             cout << " || Query Index: " << q_idx << endl;
+            cout << " || Label: " << (vam_func == "vamana" ? "Unfiltered" : (V[q_idx] == -1 ? "Unfiltered" : "Filtered")) << endl;
         }
         cout << "=======================================================================================\n";
     }
     
     // Start the timer
-    clock_t start = clock();
-    
+    auto start = high_resolution_clock::now();
+
     // Create/Read the Vamana index based on the prefered function and store it
     Graph G;
     G = read_graph(graph_name + ".bin");
@@ -141,10 +145,10 @@ int main(int argc, char *argv[]) {
     }
 
     if (toPrint) time_elapsed(start, "Vamana Indexing");
-    clock_t indexing_time = clock() - start;
+    auto indexing_time = high_resolution_clock::now() - start;
+    auto indexing_secs = duration_cast<seconds>(indexing_time).count();
 
     if (q_idx != -3) { // If user wants search
-        clock_t queries_time = clock();
         if (toPrint) {
             cout << "=======================================================================================\n";
             cout << "                                      Results:" << endl;
@@ -163,88 +167,89 @@ int main(int argc, char *argv[]) {
         }
         
         // Perform the Greedy search for each query
-        double recall_sum = 0.0; 
-        double filtered_recall_sum = 0.0; double unfiltered_recall_sum = 0.0;
-        Graph G_q; int V_i;
-        for (const auto &i : indx_to_test) {
-            Data query = queries[i];
+        double recall_sum = 0.0;
+        double filtered_recall_sum = 0.0; 
+        double unfiltered_recall_sum = 0.0;
+        int queries_size = (int)indx_to_test.size();
 
-            vector<int> groundtruth_t = groundtruth[i];
-            
-            if (vam_func != "vamana") V_i = V[i];
+        auto queries_start = high_resolution_clock::now();
 
-            clock_t gr_start = clock();
+        #pragma omp parallel for schedule(static) if (queries_size > 1000) reduction(+:recall_sum, filtered_recall_sum, unfiltered_recall_sum)
+            for (const auto &i : indx_to_test) {
+                Data query = queries[i];
 
-            // Perform greedy search starting based on the prefered function
-            pair<vector<int>, vector<int>> result_p;
+                vector<int> groundtruth_t = groundtruth[i];
 
-            if (vam_func == "vamana") {
-                Graph_Node s = G.front();
+                int V_i = -1;
+                if (vam_func != "vamana") V_i = V[i];
 
-                result_p = greedy_search(G, s, query, k, L);
+                // Perform greedy search starting based on the prefered function
+                pair<vector<int>, vector<int>> result_p;
 
-            } else {
-                vector<int> fq, S;
+                if (vam_func == "vamana") {
+                    Graph_Node s = G.front();
 
-                if (V_i == -1) { // Search for classic ANN
-                    // Set medoid for each label the result of greedy search with k = 1 for the subgraph of the every label
-                    for (const auto &f : F) {
-                        auto result_l = filtered_greedy_search(G, {medoid_map[f]}, query, 1, L, C, {f});
-                        S.push_back(result_l.first.front());
-                    }
-                    //for (const auto &m: medoid_map) S[m.first] = m.second;
-                    fq = F;
+                    result_p = greedy_search(G, s, query, k, L);
 
                 } else {
-                    S.push_back(medoid_map[V_i]);
-                    fq = {V_i};
+                    vector<int> fq, S;
+
+                    if (V_i == -1) { // Search for classic ANN
+                        // Set medoid for each label the result of greedy search with k = 1 for the subgraph of the every label
+                        for (const auto &f : F) {
+                            auto result_l = filtered_greedy_search(G, {medoid_map[f]}, query, 1, L, C, {f});
+                            S.push_back(result_l.first.front());
+                        }
+                        fq = F;
+
+                    } else {
+                        S.push_back(medoid_map[V_i]);
+                        fq = {V_i};
+                    }
+
+                    result_p = filtered_greedy_search(G, S, query, k, L, C, fq);
+
                 }
 
-                result_p = filtered_greedy_search(G, S, query, k, L, C, fq);
-
+                auto result = result_p.first; auto visited = result_p.second;
+                
+                // Print the results
+                double result_recall = check_results(result, k, groundtruth_t, toPrint);
+                
+                recall_sum += result_recall;
+                if (vam_func != "vamana") {
+                    if (V_i == -1) unfiltered_recall_sum += result_recall;
+                    else filtered_recall_sum += result_recall;
+                } else {
+                    unfiltered_recall_sum += result_recall;
+                }
             }
-
-            auto result = result_p.first; auto visited = result_p.second;
-
-            // Print time for each Greedy call
-            if (toPrint) time_elapsed(gr_start, "Greedy Search " + to_string(i + 1) + "/" + to_string(indx_to_test.size()));
-            
-            // Print the results
-            double result_recall = check_results(dataset, query, result, k, groundtruth_t, toPrint);
-            recall_sum += result_recall;
-            if (vam_func != "vamana") {
-                if (V_i == -1) unfiltered_recall_sum += result_recall;
-                else filtered_recall_sum += result_recall;
-            }
-        }
         
-        // Print time for both Vamana and Greedy calls
-        //time_elapsed(start, "both Vamana and Greedy calls");
-
         // Print the average recall
         if (toPrint) {
             cout << "=======================================================================================\n";
-            cout << "===> Average Recall@" << k << ": " << (double)(recall_sum/indx_to_test.size()) << "%" << endl;
-            if (vam_func != "vamana") {
-                cout << "===> Average Recall@" << k << " for unfiltered: " << (double)(unfiltered_recall_sum/unfiltered_count) << "%" << endl;
-                cout << "===> Average Recall@" << k << " for filtered: " << (double)(filtered_recall_sum/filtered_count) << "%" << endl;
+            cout << "===> Average Recall@" << k << ": " << (double)(queries_size == 0 ? 0 : recall_sum/queries_size) << "%" << endl;
+            if (vam_func != "vamana" && queries_size > 1) {
+                cout << "===> Average Recall@" << k << " for unfiltered: " << (double)(unfiltered_count == 0 ? 0 : unfiltered_recall_sum/unfiltered_count) << "%" << endl;
+                cout << "===> Average Recall@" << k << " for filtered: " << (double)(filtered_count == 0 ? 0 : filtered_recall_sum/filtered_count) << "%" << endl;
             }
             cout << "=======================================================================================\n";
         }
 
         // Print the average search time
-        double elapsed_secs = double(clock() - queries_time) / CLOCKS_PER_SEC;
+        auto elapsed_secs = high_resolution_clock::now() - queries_start;
         if (!toPrint) {
-            cout << (double)(recall_sum/indx_to_test.size()) << ","; // Recall@k
+            auto secs = duration_cast<seconds>(elapsed_secs).count();
+            cout << (double)(queries_size == 0 ? 0 : recall_sum/queries_size) << ","; // Recall@k
             cout << (double)(unfiltered_count == 0 ? 0 : unfiltered_recall_sum/unfiltered_count) << ","; // Recall@k for unfiltered
             cout << (double)(filtered_count == 0 ? 0 : filtered_recall_sum/filtered_count) << ","; // Recall@k for filtered
-            cout << (double)(indx_to_test.size()/elapsed_secs) << ","; // Queries per second
-            cout << (double)(elapsed_secs/indx_to_test.size()) << ","; // Average search time
-            cout << (double)(indexing_time/CLOCKS_PER_SEC) << endl; // Indexing time
+            cout << (double)(secs == 0 ? 0 : queries_size/secs) << ","; // Queries per second
+            cout << (double)(queries_size == 0 ? 0 : secs/queries_size) << ","; // Average search time
+            cout << (double)(indexing_secs) << endl; // Indexing time
         }
     } else {
         // Print the average indexing time
-        if (!toPrint) cout << "0,0,0,0,0," << (double)(indexing_time/CLOCKS_PER_SEC) << endl;
+        if (!toPrint) cout << "0,0,0,0,0," << (double)(indexing_secs) << endl;
     }
 
     // Free the memory allocated for the graph

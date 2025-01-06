@@ -1,8 +1,8 @@
 dataset=data/SIGMOD/DUMMY/dummy-data.bin
-query=data/SIGMOD/DUMMY/dummy-queries.bin
-groundtruth=data/SIGMOD/DUMMY/dummy-groundtruth.bin
+query=data/SIGMOD/1M_DS/contest-queries-release-1m.bin
+groundtruth=data/SIGMOD/DUMMY/dummy_data_1M_queries.bin
 vamana_function=filtered
-graph_name=filtered_tmp
+graph_name=filteredtmp
 q_idx=-1
 k=100
 R=15

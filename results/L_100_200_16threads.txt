@@ -1,0 +1,904 @@
+Results for L=100, vamana_function=vamana:
+98.08,0,0,0,0,90
+-----------------
+Results for L=101, vamana_function=vamana:
+98.01,0,0,0,0,86
+-----------------
+Results for L=102, vamana_function=vamana:
+98.27,0,0,0,0,86
+-----------------
+Results for L=103, vamana_function=vamana:
+97.92,0,0,0,0,89
+-----------------
+Results for L=104, vamana_function=vamana:
+98.17,0,0,0,0,78
+-----------------
+Results for L=105, vamana_function=vamana:
+98.4,0,0,0,0,79
+-----------------
+Results for L=106, vamana_function=vamana:
+98.42,0,0,0,0,85
+-----------------
+Results for L=107, vamana_function=vamana:
+98.39,0,0,0,0,85
+-----------------
+Results for L=108, vamana_function=vamana:
+98.41,0,0,0,0,92
+-----------------
+Results for L=109, vamana_function=vamana:
+98.46,0,0,0,0,77
+-----------------
+Results for L=110, vamana_function=vamana:
+98.36,0,0,0,0,80
+-----------------
+Results for L=111, vamana_function=vamana:
+98.5,0,0,0,0,92
+-----------------
+Results for L=112, vamana_function=vamana:
+98.54,0,0,100,0,88
+-----------------
+Results for L=113, vamana_function=vamana:
+98.31,0,0,100,0,95
+-----------------
+Results for L=114, vamana_function=vamana:
+98.6,0,0,0,0,92
+-----------------
+Results for L=115, vamana_function=vamana:
+98.51,0,0,100,0,88
+-----------------
+Results for L=116, vamana_function=vamana:
+98.72,0,0,100,0,97
+-----------------
+Results for L=117, vamana_function=vamana:
+98.66,0,0,0,0,94
+-----------------
+Results for L=118, vamana_function=vamana:
+98.79,0,0,100,0,95
+-----------------
+Results for L=119, vamana_function=vamana:
+98.6,0,0,0,0,98
+-----------------
+Results for L=120, vamana_function=vamana:
+98.61,0,0,0,0,98
+-----------------
+Results for L=121, vamana_function=vamana:
+98.87,0,0,100,0,101
+-----------------
+Results for L=122, vamana_function=vamana:
+98.65,0,0,100,0,98
+-----------------
+Results for L=123, vamana_function=vamana:
+98.67,0,0,100,0,100
+-----------------
+Results for L=124, vamana_function=vamana:
+98.84,0,0,100,0,108
+-----------------
+Results for L=125, vamana_function=vamana:
+98.8,0,0,0,0,101
+-----------------
+Results for L=126, vamana_function=vamana:
+98.96,0,0,0,0,101
+-----------------
+Results for L=127, vamana_function=vamana:
+99,0,0,0,0,101
+-----------------
+Results for L=128, vamana_function=vamana:
+98.8,0,0,0,0,100
+-----------------
+Results for L=129, vamana_function=vamana:
+98.89,0,0,100,0,110
+-----------------
+Results for L=130, vamana_function=vamana:
+98.94,0,0,100,0,114
+-----------------
+Results for L=131, vamana_function=vamana:
+98.85,0,0,100,0,125
+-----------------
+Results for L=132, vamana_function=vamana:
+98.74,0,0,100,0,115
+-----------------
+Results for L=133, vamana_function=vamana:
+98.92,0,0,100,0,117
+-----------------
+Results for L=134, vamana_function=vamana:
+99.02,0,0,100,0,134
+-----------------
+Results for L=135, vamana_function=vamana:
+98.87,0,0,100,0,130
+-----------------
+Results for L=136, vamana_function=vamana:
+99.08,0,0,100,0,129
+-----------------
+Results for L=137, vamana_function=vamana:
+99.17,0,0,100,0,129
+-----------------
+Results for L=138, vamana_function=vamana:
+98.94,0,0,100,0,129
+-----------------
+Results for L=139, vamana_function=vamana:
+99.03,0,0,100,0,142
+-----------------
+Results for L=140, vamana_function=vamana:
+99.12,0,0,100,0,145
+-----------------
+Results for L=141, vamana_function=vamana:
+99.09,0,0,100,0,146
+-----------------
+Results for L=142, vamana_function=vamana:
+99.12,0,0,100,0,152
+-----------------
+Results for L=143, vamana_function=vamana:
+99.23,0,0,100,0,152
+-----------------
+Results for L=144, vamana_function=vamana:
+99.15,0,0,100,0,146
+-----------------
+Results for L=145, vamana_function=vamana:
+99.17,0,0,100,0,167
+-----------------
+Results for L=146, vamana_function=vamana:
+99.28,0,0,100,0,158
+-----------------
+Results for L=147, vamana_function=vamana:
+99.3,0,0,100,0,148
+-----------------
+Results for L=148, vamana_function=vamana:
+99.18,0,0,100,0,145
+-----------------
+Results for L=149, vamana_function=vamana:
+99.33,0,0,100,0,165
+-----------------
+Results for L=150, vamana_function=vamana:
+99.12,0,0,100,0,172
+-----------------
+Results for L=151, vamana_function=vamana:
+99.29,0,0,100,0,179
+-----------------
+Results for L=152, vamana_function=vamana:
+99.17,0,0,100,0,184
+-----------------
+Results for L=153, vamana_function=vamana:
+99.21,0,0,50,0,184
+-----------------
+Results for L=154, vamana_function=vamana:
+99.2,0,0,100,0,177
+-----------------
+Results for L=155, vamana_function=vamana:
+99.28,0,0,50,0,191
+-----------------
+Results for L=156, vamana_function=vamana:
+99.32,0,0,50,0,187
+-----------------
+Results for L=157, vamana_function=vamana:
+99.28,0,0,100,0,175
+-----------------
+Results for L=158, vamana_function=vamana:
+99.2,0,0,100,0,182
+-----------------
+Results for L=159, vamana_function=vamana:
+99.34,0,0,100,0,179
+-----------------
+Results for L=160, vamana_function=vamana:
+99.27,0,0,50,0,188
+-----------------
+Results for L=161, vamana_function=vamana:
+99.41,0,0,100,0,184
+-----------------
+Results for L=162, vamana_function=vamana:
+99.21,0,0,50,0,191
+-----------------
+Results for L=163, vamana_function=vamana:
+99.35,0,0,50,0,191
+-----------------
+Results for L=164, vamana_function=vamana:
+99.33,0,0,100,0,214
+-----------------
+Results for L=165, vamana_function=vamana:
+99.42,0,0,100,0,199
+-----------------
+Results for L=166, vamana_function=vamana:
+99.44,0,0,100,0,226
+-----------------
+Results for L=167, vamana_function=vamana:
+99.39,0,0,50,0,212
+-----------------
+Results for L=168, vamana_function=vamana:
+99.5,0,0,50,0,194
+-----------------
+Results for L=169, vamana_function=vamana:
+99.42,0,0,100,0,210
+-----------------
+Results for L=170, vamana_function=vamana:
+99.47,0,0,50,0,213
+-----------------
+Results for L=171, vamana_function=vamana:
+99.46,0,0,50,0,239
+-----------------
+Results for L=172, vamana_function=vamana:
+99.43,0,0,50,0,244
+-----------------
+Results for L=173, vamana_function=vamana:
+99.47,0,0,50,0,233
+-----------------
+Results for L=174, vamana_function=vamana:
+99.49,0,0,100,0,218
+-----------------
+Results for L=175, vamana_function=vamana:
+99.44,0,0,50,0,222
+-----------------
+Results for L=176, vamana_function=vamana:
+99.38,0,0,50,0,216
+-----------------
+Results for L=177, vamana_function=vamana:
+99.45,0,0,50,0,224
+-----------------
+Results for L=178, vamana_function=vamana:
+99.47,0,0,50,0,217
+-----------------
+Results for L=179, vamana_function=vamana:
+99.58,0,0,50,0,229
+-----------------
+Results for L=180, vamana_function=vamana:
+99.47,0,0,50,0,237
+-----------------
+Results for L=181, vamana_function=vamana:
+99.5,0,0,50,0,240
+-----------------
+Results for L=182, vamana_function=vamana:
+99.49,0,0,50,0,256
+-----------------
+Results for L=183, vamana_function=vamana:
+99.49,0,0,50,0,233
+-----------------
+Results for L=184, vamana_function=vamana:
+99.53,0,0,50,0,241
+-----------------
+Results for L=185, vamana_function=vamana:
+99.53,0,0,50,0,257
+-----------------
+Results for L=186, vamana_function=vamana:
+99.58,0,0,50,0,258
+-----------------
+Results for L=187, vamana_function=vamana:
+99.62,0,0,100,0,195
+-----------------
+Results for L=188, vamana_function=vamana:
+99.62,0,0,100,0,179
+-----------------
+Results for L=189, vamana_function=vamana:
+99.63,0,0,100,0,181
+-----------------
+Results for L=190, vamana_function=vamana:
+99.49,0,0,100,0,188
+-----------------
+Results for L=191, vamana_function=vamana:
+99.55,0,0,50,0,192
+-----------------
+Results for L=192, vamana_function=vamana:
+99.66,0,0,50,0,204
+-----------------
+Results for L=193, vamana_function=vamana:
+99.59,0,0,100,0,199
+-----------------
+Results for L=194, vamana_function=vamana:
+99.65,0,0,50,0,192
+-----------------
+Results for L=195, vamana_function=vamana:
+99.63,0,0,100,0,202
+-----------------
+Results for L=196, vamana_function=vamana:
+99.6,0,0,100,0,190
+-----------------
+Results for L=197, vamana_function=vamana:
+99.6,0,0,100,0,189
+-----------------
+Results for L=198, vamana_function=vamana:
+99.64,0,0,50,0,215
+-----------------
+Results for L=199, vamana_function=vamana:
+99.63,0,0,50,0,209
+-----------------
+Results for L=200, vamana_function=vamana:
+99.73,0,0,50,0,217
+-----------------
+Results for L=100, vamana_function=filtered:
+94.6331,90.6358,98.5986,417,0,33
+-----------------
+Results for L=101, vamana_function=filtered:
+94.6879,90.7268,98.6176,385,0,33
+-----------------
+Results for L=102, vamana_function=filtered:
+94.8047,90.9403,98.6383,417,0,35
+-----------------
+Results for L=103, vamana_function=filtered:
+94.8647,91.0509,98.6483,385,0,37
+-----------------
+Results for L=104, vamana_function=filtered:
+94.9427,91.1719,98.6836,417,0,35
+-----------------
+Results for L=105, vamana_function=filtered:
+94.995,91.272,98.6884,417,0,35
+-----------------
+Results for L=106, vamana_function=filtered:
+95.0265,91.3618,98.6622,417,0,32
+-----------------
+Results for L=107, vamana_function=filtered:
+95.0878,91.4187,98.7277,417,0,32
+-----------------
+Results for L=108, vamana_function=filtered:
+95.2163,91.6763,98.7281,417,0,33
+-----------------
+Results for L=109, vamana_function=filtered:
+95.2949,91.8005,98.7615,385,0,34
+-----------------
+Results for L=110, vamana_function=filtered:
+95.3182,91.8786,98.7305,385,0,35
+-----------------
+Results for L=111, vamana_function=filtered:
+95.3791,91.9716,98.7595,385,0,34
+-----------------
+Results for L=112, vamana_function=filtered:
+95.4541,92.105,98.7766,358,0,36
+-----------------
+Results for L=113, vamana_function=filtered:
+95.4926,92.1815,98.7774,385,0,36
+-----------------
+Results for L=114, vamana_function=filtered:
+95.5154,92.1987,98.8056,358,0,36
+-----------------
+Results for L=115, vamana_function=filtered:
+95.6325,92.4239,98.8156,358,0,39
+-----------------
+Results for L=116, vamana_function=filtered:
+95.7366,92.6254,98.8231,358,0,38
+-----------------
+Results for L=117, vamana_function=filtered:
+95.7462,92.6174,98.8502,334,0,38
+-----------------
+Results for L=118, vamana_function=filtered:
+95.7809,92.6795,98.8577,358,0,40
+-----------------
+Results for L=119, vamana_function=filtered:
+95.8895,92.9002,98.8549,334,0,38
+-----------------
+Results for L=120, vamana_function=filtered:
+95.9278,92.9515,98.8804,334,0,39
+-----------------
+Results for L=121, vamana_function=filtered:
+95.9495,92.9968,98.8788,334,0,40
+-----------------
+Results for L=122, vamana_function=filtered:
+95.9914,93.0685,98.8911,334,0,42
+-----------------
+Results for L=123, vamana_function=filtered:
+96.0896,93.27,98.8867,334,0,40
+-----------------
+Results for L=124, vamana_function=filtered:
+96.0994,93.2712,98.905,313,0,40
+-----------------
+Results for L=125, vamana_function=filtered:
+96.2101,93.4796,98.9189,313,0,42
+-----------------
+Results for L=126, vamana_function=filtered:
+96.1881,93.4335,98.9209,313,0,41
+-----------------
+Results for L=127, vamana_function=filtered:
+96.2029,93.4659,98.9181,313,0,43
+-----------------
+Results for L=128, vamana_function=filtered:
+96.2608,93.5797,98.9205,313,0,43
+-----------------
+Results for L=129, vamana_function=filtered:
+96.3328,93.6951,98.9495,294,0,44
+-----------------
+Results for L=130, vamana_function=filtered:
+96.3242,93.6831,98.9444,294,0,44
+-----------------
+Results for L=131, vamana_function=filtered:
+96.437,93.9083,98.9455,294,0,45
+-----------------
+Results for L=132, vamana_function=filtered:
+96.488,93.9864,98.9698,294,0,46
+-----------------
+Results for L=133, vamana_function=filtered:
+96.502,94.0176,98.9666,294,0,47
+-----------------
+Results for L=134, vamana_function=filtered:
+96.5862,94.1911,98.9622,294,0,46
+-----------------
+Results for L=135, vamana_function=filtered:
+96.5517,94.1234,98.9607,278,0,47
+-----------------
+Results for L=136, vamana_function=filtered:
+96.6323,94.2636,98.9821,278,0,48
+-----------------
+Results for L=137, vamana_function=filtered:
+96.6169,94.2368,98.9781,263,0,50
+-----------------
+Results for L=138, vamana_function=filtered:
+96.662,94.3221,98.9833,250,0,51
+-----------------
+Results for L=139, vamana_function=filtered:
+96.6782,94.3622,98.9758,250,0,53
+-----------------
+Results for L=140, vamana_function=filtered:
+96.765,94.5092,99.0028,250,0,54
+-----------------
+Results for L=141, vamana_function=filtered:
+96.7909,94.5517,99.0123,238,0,56
+-----------------
+Results for L=142, vamana_function=filtered:
+96.8621,94.6863,99.0207,238,0,55
+-----------------
+Results for L=143, vamana_function=filtered:
+96.9034,94.7712,99.0187,227,0,56
+-----------------
+Results for L=144, vamana_function=filtered:
+96.9262,94.8125,99.0231,227,0,57
+-----------------
+Results for L=145, vamana_function=filtered:
+96.9435,94.8397,99.0306,227,0,59
+-----------------
+Results for L=146, vamana_function=filtered:
+96.989,94.9407,99.0211,217,0,63
+-----------------
+Results for L=147, vamana_function=filtered:
+96.9717,94.8922,99.0346,217,0,59
+-----------------
+Results for L=148, vamana_function=filtered:
+97.0353,95.0128,99.0417,217,0,61
+-----------------
+Results for L=149, vamana_function=filtered:
+97.0834,95.1122,99.039,200,0,62
+-----------------
+Results for L=150, vamana_function=filtered:
+97.1018,95.141,99.0469,208,0,64
+-----------------
+Results for L=151, vamana_function=filtered:
+97.1502,95.24,99.0453,192,0,66
+-----------------
+Results for L=152, vamana_function=filtered:
+97.1429,95.2175,99.0529,185,0,72
+-----------------
+Results for L=153, vamana_function=filtered:
+97.2328,95.4062,99.0449,200,0,68
+-----------------
+Results for L=154, vamana_function=filtered:
+97.1993,95.3345,99.0493,208,0,64
+-----------------
+Results for L=155, vamana_function=filtered:
+97.2564,95.4359,99.0624,200,0,65
+-----------------
+Results for L=156, vamana_function=filtered:
+97.2935,95.5116,99.0612,200,0,68
+-----------------
+Results for L=157, vamana_function=filtered:
+97.2863,95.5052,99.0533,200,0,68
+-----------------
+Results for L=158, vamana_function=filtered:
+97.3344,95.5885,99.0664,200,0,68
+-----------------
+Results for L=159, vamana_function=filtered:
+97.3581,95.617,99.0855,192,0,68
+-----------------
+Results for L=160, vamana_function=filtered:
+97.3903,95.6891,99.0779,192,0,69
+-----------------
+Results for L=161, vamana_function=filtered:
+97.4038,95.7071,99.087,192,0,69
+-----------------
+Results for L=162, vamana_function=filtered:
+97.4789,95.8646,99.0803,192,0,70
+-----------------
+Results for L=163, vamana_function=filtered:
+97.4882,95.8838,99.0799,185,0,70
+-----------------
+Results for L=164, vamana_function=filtered:
+97.5303,95.9667,99.0815,185,0,72
+-----------------
+Results for L=165, vamana_function=filtered:
+97.5132,95.9259,99.0878,185,0,72
+-----------------
+Results for L=166, vamana_function=filtered:
+97.5409,95.9752,99.0942,185,0,73
+-----------------
+Results for L=167, vamana_function=filtered:
+97.5676,96.0312,99.0918,185,0,73
+-----------------
+Results for L=168, vamana_function=filtered:
+97.594,96.0825,99.0934,179,0,73
+-----------------
+Results for L=169, vamana_function=filtered:
+97.5912,96.0657,99.1045,179,0,74
+-----------------
+Results for L=170, vamana_function=filtered:
+97.6305,96.1615,99.0878,172,0,75
+-----------------
+Results for L=171, vamana_function=filtered:
+97.6726,96.2356,99.0982,172,0,76
+-----------------
+Results for L=172, vamana_function=filtered:
+97.7011,96.2921,99.099,161,0,79
+-----------------
+Results for L=173, vamana_function=filtered:
+97.6973,96.2772,99.1061,125,0,93
+-----------------
+Results for L=174, vamana_function=filtered:
+97.7628,96.4079,99.1069,151,0,88
+-----------------
+Results for L=175, vamana_function=filtered:
+97.7817,96.4411,99.1117,139,0,95
+-----------------
+Results for L=176, vamana_function=filtered:
+97.7963,96.4663,99.1157,147,0,89
+-----------------
+Results for L=177, vamana_function=filtered:
+97.8156,96.4992,99.1216,151,0,90
+-----------------
+Results for L=178, vamana_function=filtered:
+97.8162,96.514,99.1081,156,0,86
+-----------------
+Results for L=179, vamana_function=filtered:
+97.8374,96.5569,99.1077,147,0,87
+-----------------
+Results for L=180, vamana_function=filtered:
+97.8643,96.5873,99.1312,147,0,94
+-----------------
+Results for L=181, vamana_function=filtered:
+97.9016,96.6827,99.1109,147,0,96
+-----------------
+Results for L=182, vamana_function=filtered:
+97.9064,96.6875,99.1157,139,0,91
+-----------------
+Results for L=183, vamana_function=filtered:
+97.9324,96.73,99.1252,131,0,92
+-----------------
+Results for L=184, vamana_function=filtered:
+97.9192,96.7047,99.124,131,0,93
+-----------------
+Results for L=185, vamana_function=filtered:
+97.9517,96.7684,99.1256,139,0,93
+-----------------
+Results for L=186, vamana_function=filtered:
+97.9647,96.8053,99.1149,131,0,99
+-----------------
+Results for L=187, vamana_function=filtered:
+97.99,96.8454,99.1256,139,0,98
+-----------------
+Results for L=188, vamana_function=filtered:
+98.0289,96.9171,99.132,131,0,96
+-----------------
+Results for L=189, vamana_function=filtered:
+98.0425,96.9431,99.1331,131,0,101
+-----------------
+Results for L=190, vamana_function=filtered:
+98.0349,96.9299,99.1312,131,0,99
+-----------------
+Results for L=191, vamana_function=filtered:
+98.1008,97.0669,99.1264,131,0,100
+-----------------
+Results for L=192, vamana_function=filtered:
+98.1089,97.0781,99.1316,131,0,105
+-----------------
+Results for L=193, vamana_function=filtered:
+98.1462,97.151,99.1335,135,0,106
+-----------------
+Results for L=194, vamana_function=filtered:
+98.1123,97.0857,99.1308,135,0,100
+-----------------
+Results for L=195, vamana_function=filtered:
+98.1415,97.1346,99.1403,135,0,102
+-----------------
+Results for L=196, vamana_function=filtered:
+98.1522,97.1554,99.1411,131,0,102
+-----------------
+Results for L=197, vamana_function=filtered:
+98.1834,97.2167,99.1423,131,0,103
+-----------------
+Results for L=198, vamana_function=filtered:
+98.2187,97.2849,99.1451,131,0,104
+-----------------
+Results for L=199, vamana_function=filtered:
+98.1963,97.234,99.151,128,0,103
+-----------------
+Results for L=200, vamana_function=filtered:
+98.2241,97.2877,99.153,128,0,107
+-----------------
+Results for L=100, vamana_function=stitched:
+94.8067,91.0096,98.5735,417,0,16
+-----------------
+Results for L=101, vamana_function=stitched:
+94.8927,91.1382,98.6172,417,0,17
+-----------------
+Results for L=102, vamana_function=stitched:
+94.936,91.2127,98.6296,417,0,16
+-----------------
+Results for L=103, vamana_function=stitched:
+95.0261,91.3794,98.6439,417,0,17
+-----------------
+Results for L=104, vamana_function=stitched:
+95.0706,91.4595,98.653,385,0,17
+-----------------
+Results for L=105, vamana_function=stitched:
+95.1544,91.607,98.6737,385,0,18
+-----------------
+Results for L=106, vamana_function=stitched:
+95.2416,91.766,98.6896,385,0,18
+-----------------
+Results for L=107, vamana_function=stitched:
+95.3025,91.8814,98.6963,385,0,20
+-----------------
+Results for L=108, vamana_function=stitched:
+95.3978,92.0445,98.7246,417,0,16
+-----------------
+Results for L=109, vamana_function=stitched:
+95.4182,92.0901,98.7198,417,0,16
+-----------------
+Results for L=110, vamana_function=stitched:
+95.5066,92.2544,98.7329,385,0,17
+-----------------
+Results for L=111, vamana_function=stitched:
+95.5491,92.3189,98.7536,385,0,17
+-----------------
+Results for L=112, vamana_function=stitched:
+95.6373,92.4928,98.7568,385,0,17
+-----------------
+Results for L=113, vamana_function=stitched:
+95.6786,92.5609,98.7715,385,0,17
+-----------------
+Results for L=114, vamana_function=stitched:
+95.7352,92.6538,98.7921,385,0,17
+-----------------
+Results for L=115, vamana_function=stitched:
+95.7843,92.7496,98.7949,358,0,18
+-----------------
+Results for L=116, vamana_function=stitched:
+95.8392,92.8442,98.8104,358,0,18
+-----------------
+Results for L=117, vamana_function=stitched:
+95.907,92.9752,98.8156,358,0,18
+-----------------
+Results for L=118, vamana_function=stitched:
+95.9405,93.0292,98.8287,358,0,19
+-----------------
+Results for L=119, vamana_function=stitched:
+96.005,93.1498,98.8374,358,0,19
+-----------------
+Results for L=120, vamana_function=stitched:
+96.0736,93.2544,98.8704,334,0,19
+-----------------
+Results for L=121, vamana_function=stitched:
+96.0894,93.3041,98.8525,334,0,19
+-----------------
+Results for L=122, vamana_function=stitched:
+96.1331,93.3726,98.8716,334,0,19
+-----------------
+Results for L=123, vamana_function=stitched:
+96.2231,93.5441,98.8808,334,0,21
+-----------------
+Results for L=124, vamana_function=stitched:
+96.246,93.5873,98.8835,334,0,21
+-----------------
+Results for L=125, vamana_function=stitched:
+96.2686,93.6202,98.8959,313,0,21
+-----------------
+Results for L=126, vamana_function=stitched:
+96.3414,93.7652,98.8971,313,0,20
+-----------------
+Results for L=127, vamana_function=stitched:
+96.3691,93.8101,98.9078,313,0,22
+-----------------
+Results for L=128, vamana_function=stitched:
+96.4202,93.8982,98.9221,313,0,22
+-----------------
+Results for L=129, vamana_function=stitched:
+96.4435,93.9483,98.9189,294,0,22
+-----------------
+Results for L=130, vamana_function=stitched:
+96.4952,94.0525,98.9185,313,0,22
+-----------------
+Results for L=131, vamana_function=stitched:
+96.4834,94.016,98.9312,294,0,23
+-----------------
+Results for L=132, vamana_function=stitched:
+96.5615,94.1703,98.9336,294,0,24
+-----------------
+Results for L=133, vamana_function=stitched:
+96.6357,94.3085,98.9444,294,0,26
+-----------------
+Results for L=134, vamana_function=stitched:
+96.6726,94.371,98.9559,278,0,25
+-----------------
+Results for L=135, vamana_function=stitched:
+96.6868,94.3982,98.9571,278,0,25
+-----------------
+Results for L=136, vamana_function=stitched:
+96.7101,94.4343,98.9678,278,0,25
+-----------------
+Results for L=137, vamana_function=stitched:
+96.751,94.5168,98.9674,278,0,27
+-----------------
+Results for L=138, vamana_function=stitched:
+-----------------
+Results for L=139, vamana_function=stitched:
+96.8398,94.6723,98.9901,250,0,27
+-----------------
+Results for L=140, vamana_function=stitched:
+96.8581,94.7159,98.9833,250,0,29
+-----------------
+Results for L=141, vamana_function=stitched:
+96.905,94.8017,98.9917,238,0,28
+-----------------
+Results for L=142, vamana_function=stitched:
+96.9246,94.8405,98.9921,238,0,29
+-----------------
+Results for L=143, vamana_function=stitched:
+-----------------
+Results for L=144, vamana_function=stitched:
+96.9892,94.9519,99.0103,227,0,30
+-----------------
+Results for L=145, vamana_function=stitched:
+97.0523,95.0877,99.0012,227,0,31
+-----------------
+Results for L=146, vamana_function=stitched:
+97.0722,95.1046,99.0242,217,0,31
+-----------------
+Results for L=147, vamana_function=stitched:
+97.0968,95.1619,99.0163,217,0,31
+-----------------
+Results for L=148, vamana_function=stitched:
+97.155,95.2728,99.0223,217,0,32
+-----------------
+Results for L=149, vamana_function=stitched:
+97.1746,95.3053,99.029,217,0,32
+-----------------
+Results for L=150, vamana_function=stitched:
+97.1963,95.345,99.033,217,0,32
+-----------------
+Results for L=151, vamana_function=stitched:
+-----------------
+Results for L=152, vamana_function=stitched:
+97.2901,95.52,99.0461,208,0,34
+-----------------
+Results for L=153, vamana_function=stitched:
+97.3037,95.5457,99.0477,200,0,34
+-----------------
+Results for L=154, vamana_function=stitched:
+97.3035,95.5481,99.0449,200,0,34
+-----------------
+Results for L=155, vamana_function=stitched:
+97.3468,95.6278,99.0521,200,0,36
+-----------------
+Results for L=156, vamana_function=stitched:
+97.3859,95.7051,99.0533,200,0,35
+-----------------
+Results for L=157, vamana_function=stitched:
+97.3653,95.6607,99.0564,200,0,36
+-----------------
+Results for L=158, vamana_function=stitched:
+97.4222,95.7788,99.0525,200,0,37
+-----------------
+Results for L=159, vamana_function=stitched:
+97.4735,95.865,99.0692,200,0,36
+-----------------
+Results for L=160, vamana_function=stitched:
+97.4709,95.8634,99.0656,192,0,37
+-----------------
+Results for L=161, vamana_function=stitched:
+97.488,95.8962,99.0672,192,0,37
+-----------------
+Results for L=162, vamana_function=stitched:
+97.5086,95.9379,99.0668,192,0,38
+-----------------
+Results for L=163, vamana_function=stitched:
+97.5632,96.0337,99.0807,185,0,37
+-----------------
+Results for L=164, vamana_function=stitched:
+97.5746,96.0573,99.0799,185,0,39
+-----------------
+Results for L=165, vamana_function=stitched:
+97.6159,96.1326,99.0874,185,0,39
+-----------------
+Results for L=166, vamana_function=stitched:
+97.6357,96.1795,99.0803,185,0,42
+-----------------
+Results for L=167, vamana_function=stitched:
+97.6472,96.2067,99.0763,185,0,42
+-----------------
+Results for L=168, vamana_function=stitched:
+97.671,96.2432,99.0874,179,0,41
+-----------------
+Results for L=169, vamana_function=stitched:
+97.7201,96.3494,99.0799,179,0,42
+-----------------
+Results for L=170, vamana_function=stitched:
+97.7193,96.3369,99.0906,172,0,43
+-----------------
+Results for L=171, vamana_function=stitched:
+97.7556,96.4083,99.0922,172,0,43
+-----------------
+Results for L=172, vamana_function=stitched:
+97.7831,96.4571,99.0986,172,0,42
+-----------------
+Results for L=173, vamana_function=stitched:
+97.7891,96.472,99.0958,172,0,43
+-----------------
+Results for L=174, vamana_function=stitched:
+97.8109,96.516,99.0954,167,0,43
+-----------------
+Results for L=175, vamana_function=stitched:
+97.8322,96.5617,99.0926,167,0,43
+-----------------
+Results for L=176, vamana_function=stitched:
+97.8432,96.5757,99.1006,167,0,43
+-----------------
+Results for L=177, vamana_function=stitched:
+97.8813,96.6498,99.1029,167,0,45
+-----------------
+Results for L=178, vamana_function=stitched:
+-----------------
+Results for L=179, vamana_function=stitched:
+97.9038,96.6943,99.1037,161,0,47
+-----------------
+Results for L=180, vamana_function=stitched:
+97.9377,96.766,99.1002,161,0,47
+-----------------
+Results for L=181, vamana_function=stitched:
+97.9713,96.8241,99.1093,156,0,47
+-----------------
+Results for L=182, vamana_function=stitched:
+97.9631,96.8081,99.1089,156,0,48
+-----------------
+Results for L=183, vamana_function=stitched:
+98.007,96.8906,99.1145,156,0,48
+-----------------
+Results for L=184, vamana_function=stitched:
+97.9882,96.8582,99.1093,156,0,48
+-----------------
+Results for L=185, vamana_function=stitched:
+-----------------
+Results for L=186, vamana_function=stitched:
+98.0585,96.9908,99.1176,156,0,46
+-----------------
+Results for L=187, vamana_function=stitched:
+98.0626,96.9924,99.1244,167,0,45
+-----------------
+Results for L=188, vamana_function=stitched:
+98.0732,97.014,99.124,167,0,45
+-----------------
+Results for L=189, vamana_function=stitched:
+98.1042,97.0801,99.12,167,0,46
+-----------------
+Results for L=190, vamana_function=stitched:
+98.1357,97.137,99.1264,161,0,45
+-----------------
+Results for L=191, vamana_function=stitched:
+98.1458,97.1679,99.1161,161,0,47
+-----------------
+Results for L=192, vamana_function=stitched:
+98.1624,97.1911,99.126,161,0,46
+-----------------
+Results for L=193, vamana_function=stitched:
+98.184,97.2332,99.1272,156,0,48
+-----------------
+Results for L=194, vamana_function=stitched:
+98.187,97.236,99.1304,156,0,47
+-----------------
+Results for L=195, vamana_function=stitched:
+98.2051,97.2776,99.1252,156,0,48
+-----------------
+Results for L=196, vamana_function=stitched:
+98.2225,97.3121,99.1256,156,0,49
+-----------------
+Results for L=197, vamana_function=stitched:
+98.2398,97.3421,99.1304,156,0,49
+-----------------
+Results for L=198, vamana_function=stitched:
+98.2628,97.3862,99.1324,151,0,50
+-----------------
+Results for L=199, vamana_function=stitched:
+98.2755,97.4123,99.132,151,0,50
+-----------------
+Results for L=200, vamana_function=stitched:
+98.2971,97.4475,99.1399,151,0,50
+-----------------
