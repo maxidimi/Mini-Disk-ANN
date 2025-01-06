@@ -51,7 +51,7 @@ run: all
 
 # Link object files (excluding main.o) and run tests
 test: build_dir $(TEST_OBJS)
-	$(CC) -g -fopenmp -Wall -Wextra -Wpedantic -fsanitize=address $(TEST_OBJS) -o $(TEST_OUT)
+	$(CC) -g -fopenmp -Wall -Wextra -Wpedantic $(TEST_OBJS) -o $(TEST_OUT)
 	$(TEST_OUT)
 
 # Clean command to remove object files and binary

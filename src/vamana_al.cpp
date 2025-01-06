@@ -110,10 +110,11 @@ Graph filtered_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int 
     vector<int> ind_corr(n);
 
     // counters[f] keeps track of the number of points with filter f that have already been added to the stitched graph
-    vector<int> counters(f_size, 0);
+    unordered_map<int, int> counters; counters.reserve(f_size);
+    for (size_t i = 0; i < f_size; i++) counters[F[i]] = 0;
     
     // Let F_f be the set of indices with label f \in F
-    vector<vector<int>> F_f(f_size);
+    unordered_map<int, vector<int>> F_f; F_f.reserve(f_size);
 
     for (int i = 0; i < n; i++) {
         P_f[F_x[i]].push_back(P[i]);
@@ -165,10 +166,11 @@ Graph stitched_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int 
     vector<int> ind_corr(p_size);
 
     // counters[f] keeps track of the number of points with filter f that have already been added to the stitched graph
-    vector<int> counters(f_size, 0);
+    unordered_map<int, int> counters; counters.reserve(f_size);
+    for (size_t i = 0; i < f_size; i++) counters[F[i]] = 0;
     
     // Let F_f be the set of indices with label f \in F
-    vector<vector<int>> F_f(f_size);
+    unordered_map<int, vector<int>> F_f; F_f.reserve(f_size);
 
     for (size_t i = 0; i < p_size; i++) {
         P_f[F_x[i]].push_back(P[i]);

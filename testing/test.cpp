@@ -440,5 +440,5 @@ TEST_LIST = {
     {"test_greedy_search", test_greedy_search},
     {"test_pruning", test_pruning},
     {"test_filtered_pruning", test_filtered_pruning},
-    { 0 }
+    { 0, 0 }
 };
