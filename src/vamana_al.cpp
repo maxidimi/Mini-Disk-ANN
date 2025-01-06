@@ -47,6 +47,7 @@ unordered_map<int, int> find_medoid(const Dataset &P, vector<int> C, int thresho
     return M;
 }
 
+// Returns the subgraph indexed graph G_f for filter f /in F
 Graph subgraph_filtered(const Dataset &P, double a, int L, int R, int st, int F) {
     int n = static_cast<int>(P.size());
     
@@ -94,13 +95,8 @@ Graph filtered_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int 
     size_t f_size = F.size();
 
     // Add the nodes to the graph G
-    Graph G;
-    G.reserve(n);
-    for (const auto &p : P) {
-        Graph_Node node = create_graph_node(p);
-        add_node_to_graph(G, node);
-    }
-    
+    Graph G; G.reserve(n);
+
     // Let st(f) denote the start node of filter label f for every f ∈ F
     unordered_map<int, int> st = find_medoid(P, F_x, 1, F);
     
@@ -128,10 +124,10 @@ Graph filtered_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int 
     }
 
     // Parallelize the subgraph_filtered calls with openMP
-    unordered_map<int, Graph> G_f;
-    #pragma omp parallel for schedule(dynamic)
+    unordered_map<int, Graph> G_f; G_f.reserve(f_size);
+    #pragma omp parallel for schedule(dynamic) num_threads(omp_get_max_threads())
     for (int i = 0; i < f_size; i++) {
-        auto G_f_i = subgraph_filtered(P_f[F[i]], a, L, R, st[F[i]], F[i]);
+        auto G_f_i = subgraph_filtered(P_f[F[i]], a, L, R, ind_corr[st[F[i]]], F[i]);
         #pragma omp critical
         G_f[F[i]] = G_f_i;
     }
