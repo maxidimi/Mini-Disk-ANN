@@ -174,7 +174,7 @@ int main(int argc, char *argv[]) {
 
         auto queries_start = high_resolution_clock::now();
 
-        #pragma omp parallel for schedule(static) if (queries_size > 1000) reduction(+:recall_sum, filtered_recall_sum, unfiltered_recall_sum)
+        #pragma omp parallel for schedule(static) if (queries_size > 100) reduction(+:recall_sum, filtered_recall_sum, unfiltered_recall_sum)
             for (const auto &i : indx_to_test) {
                 Data query = queries[i];
 
@@ -243,7 +243,7 @@ int main(int argc, char *argv[]) {
             cout << (double)(queries_size == 0 ? 0 : recall_sum/queries_size) << ","; // Recall@k
             cout << (double)(unfiltered_count == 0 ? 0 : unfiltered_recall_sum/unfiltered_count) << ","; // Recall@k for unfiltered
             cout << (double)(filtered_count == 0 ? 0 : filtered_recall_sum/filtered_count) << ","; // Recall@k for filtered
-            cout << (double)(secs == 0 ? 0 : queries_size/secs) << ","; // Queries per second
+            cout << (double)(secs == 0 ? queries_size : queries_size/secs) << ","; // Queries per second
             cout << (double)(queries_size == 0 ? 0 : secs/queries_size) << ","; // Average search time
             cout << (double)(indexing_secs) << endl; // Indexing time
         }
