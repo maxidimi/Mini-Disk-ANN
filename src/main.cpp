@@ -148,6 +148,12 @@ int main(int argc, char *argv[]) {
     auto indexing_time = high_resolution_clock::now() - start;
     auto indexing_secs = duration_cast<seconds>(indexing_time).count();
 
+    // Find size of graph stored
+    ifstream graphFile(graph_name + ".bin", ios::binary | ios::ate);
+    size_t size = graphFile.tellg();
+    graphFile.close();
+    double sizeMB = (double)size / 1024 / 1024;
+
     if (q_idx != -3) { // If user wants search
         if (toPrint) {
             cout << "=======================================================================================\n";
@@ -156,26 +162,28 @@ int main(int argc, char *argv[]) {
         }
         
         // Find the medoid for each label
+        int queries_size = (int)indx_to_test.size();
         unordered_map<int, int> medoid_map;
-        int filtered_count = 0; int unfiltered_count = 0;
+        int filtered_count = 0; int unfiltered_count = queries_size;
         if (vam_func != "vamana") {
             medoid_map.reserve(F.size());
             medoid_map = find_medoid(dataset, C, 1, F);
             
-            filtered_count = count(V.begin(), V.end(), -1);
-            unfiltered_count = (int)V.size() - filtered_count;
+            unfiltered_count = count(V.begin(), V.end(), -1);
+            filtered_count = (int)V.size() - unfiltered_count;
         }
         
         // Perform the Greedy search for each query
         double recall_sum = 0.0;
         double filtered_recall_sum = 0.0; 
         double unfiltered_recall_sum = 0.0;
-        int queries_size = (int)indx_to_test.size();
+        double recall_sum_time = 0.0;
 
         auto queries_start = high_resolution_clock::now();
 
-        #pragma omp parallel for schedule(static) if (queries_size > 100) reduction(+:recall_sum, filtered_recall_sum, unfiltered_recall_sum)
+        #pragma omp parallel for schedule(static) if (queries_size > 100) reduction(+:recall_sum, filtered_recall_sum, unfiltered_recall_sum, recall_sum_time)
             for (const auto &i : indx_to_test) {
+                auto time_start = high_resolution_clock::now();
                 Data query = queries[i];
 
                 vector<int> groundtruth_t = groundtruth[i];
@@ -223,6 +231,10 @@ int main(int argc, char *argv[]) {
                 } else {
                     unfiltered_recall_sum += result_recall;
                 }
+
+                auto time_end = high_resolution_clock::now();
+                auto elapsed_secs = duration_cast<milliseconds>(time_end - time_start).count();
+                recall_sum_time += elapsed_secs;
             }
         
         // Print the average recall
@@ -244,12 +256,13 @@ int main(int argc, char *argv[]) {
             cout << (double)(unfiltered_count == 0 ? 0 : unfiltered_recall_sum/unfiltered_count) << ","; // Recall@k for unfiltered
             cout << (double)(filtered_count == 0 ? 0 : filtered_recall_sum/filtered_count) << ","; // Recall@k for filtered
             cout << (double)(secs == 0 ? queries_size : queries_size/secs) << ","; // Queries per second
-            cout << (double)(queries_size == 0 ? 0 : secs/queries_size) << ","; // Average search time
-            cout << (double)(indexing_secs) << endl; // Indexing time
+            cout << (double)(queries_size == 0 ? 0 : recall_sum_time/queries_size) << ","; // Average search time
+            cout << (double)(indexing_secs) << ","; // Indexing time
+            cout << std::fixed << std::setprecision(2) << sizeMB << endl; // Graph size
         }
     } else {
         // Print the average indexing time
-        if (!toPrint) cout << "0,0,0,0,0," << (double)(indexing_secs) << endl;
+        if (!toPrint) cout << "0,0,0,0,0," << (double)(indexing_secs) << "," << std::fixed << std::setprecision(2) << sizeMB << endl;
     }
 
     // Free the memory allocated for the graph

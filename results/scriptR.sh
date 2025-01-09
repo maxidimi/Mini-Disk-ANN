@@ -4,7 +4,7 @@
 CONFIG_FILE="config.txt"
 
 # Output file for results
-OUTPUT_FILE="vamana_results.txt"
+OUTPUT_FILE="R_15_100_16threads.txt"
 
 # List of vamana_function types
 VAMANA_FUNCTIONS=("vamana" "filtered" "stitched")
@@ -13,17 +13,17 @@ VAMANA_FUNCTIONS=("vamana" "filtered" "stitched")
 for FUNCTION in "${VAMANA_FUNCTIONS[@]}"; do
     echo "Running for vamana_function=$FUNCTION"
 
-    # Update the vamana_function in the configuration file
-    for L in {100..200}; do
-        echo "Running with L=$L and vamana_function=$FUNCTION"
+    # Loop over each value of R
+    for R in {15..100}; do
+        echo "Running with R=$R and vamana_function=$FUNCTION"
 
-        # Create a temporary config file with the current L value and function
+        # Create a temporary config file with the current R value and function
         TEMP_CONFIG_FILE="temp_config.txt"
         cp "$CONFIG_FILE" "$TEMP_CONFIG_FILE"
 
         # Update config values
         sed -i '' "s/^vamana_function=.*$/vamana_function=$FUNCTION/" "$TEMP_CONFIG_FILE"
-        sed -i '' "s/^L=.*$/L=$L/" "$TEMP_CONFIG_FILE"
+        sed -i '' "s/^R=.*$/R=$R/" "$TEMP_CONFIG_FILE"
         sed -i '' "s/^graph_name=.*$/graph_name=tmp/" "$TEMP_CONFIG_FILE"
 
         if [ "$FUNCTION" = "vamana" ]; then 
@@ -36,11 +36,11 @@ for FUNCTION in "${VAMANA_FUNCTIONS[@]}"; do
             sed -i '' "s|^groundtruth=.*$|groundtruth=data/SIGMOD/DUMMY/dummy_data_1M_queries.bin|" "$TEMP_CONFIG_FILE"
         fi
 
-        # Run the app and store the result
-        echo "L=$L vamana_function=$FUNCTION:" >> "$OUTPUT_FILE"#?NOT CHANGE LINE
+        # Run the app and append the result to the output file
+        echo -n "R=$R vamana_function=$FUNCTION: " >> "$OUTPUT_FILE"
         ./bin/vamana "$TEMP_CONFIG_FILE" >> "$OUTPUT_FILE" 2>&1
 
-        # Delete the file filtered_tmp.bin after each iteration
+        # Delete the file tmp.bin after each iteration
         if [ -f "tmp.bin" ]; then
             rm -f "tmp.bin"
         fi

@@ -285,6 +285,13 @@ Graph vamana_indexing(const Dataset &P, double a, int L, int R) {
 
     // Let s denote the medoid of dataset P randomly
     int s_index = rand() % n;
+
+    //Let subset_p be the first 10% of the dataset
+    //auto subset_p = Dataset(P.begin(), P.begin() + (n / 10 ? n / 10 : n));
+    //int s_index = medoid(subset_p);
+
+    // Let s denote the medoid of dataset P
+    //int s_index = medoid(P);
     
     Data s_d = P[s_index];
     
