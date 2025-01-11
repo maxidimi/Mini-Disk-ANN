@@ -58,10 +58,13 @@ pair<vector<int>, vector<int>> filtered_greedy_search(const Graph &G, vector<int
         
         // If |L| > L_s then update L to retain closest L_s points to q
         if (L.size() > (size_t)L_s && L.size() > 0) {
-            sort(L.begin(), L.end(), [&q, &G](int a, int b) {
+            // Use partial sort instead of full sort
+            auto mid = L.begin() + L_s;
+            nth_element(L.begin(), mid, L.end(), [&q, &G](int a, int b) {
                 return euclidean_distance(G[a]->data, q) < euclidean_distance(G[b]->data, q);
             });
-            L.resize(L_s);
+
+            L.resize(L_s); // Keep only the top-L_s elements
         }
 
         // Update L \ V
@@ -70,10 +73,14 @@ pair<vector<int>, vector<int>> filtered_greedy_search(const Graph &G, vector<int
     
     // Return the first k elements of L
     if (L.size() > (size_t)k) {
-        if (L.size() == 0) return {{}, V};
-        sort(L.begin(), L.end(), [&q, &G](int a, int b) {
+        if (L.empty()) return {{}, V}; // No need to proceed if L is empty
+
+        // Use partial sort instead of full sort
+        auto mid = L.begin() + k;
+        nth_element(L.begin(), mid, L.end(), [&q, &G](int a, int b) {
             return euclidean_distance(G[a]->data, q) < euclidean_distance(G[b]->data, q);
         });
+
         L.resize(k);
     }
     
@@ -107,9 +114,12 @@ pair<vector<int>, vector<int>> greedy_search(const Graph &G, Graph_Node s, Data 
 
         // If |L| > L_s then update L to retain closest L_s points to q
         if (L.size() > (size_t)L_s) {
-            sort(L.begin(), L.end(), [&q, &G](int a, int b) {
+            // Use partial sort instead of full sort
+            auto mid = L.begin() + L_s;
+            nth_element(L.begin(), mid, L.end(), [&q, &G](int a, int b) {
                 return euclidean_distance(G[a]->data, q) < euclidean_distance(G[b]->data, q);
             });
+
             L.resize(L_s);
         }
 
@@ -119,9 +129,11 @@ pair<vector<int>, vector<int>> greedy_search(const Graph &G, Graph_Node s, Data 
     
     // Return the first k elements of L
     if (L.size() > (size_t)k) {
-        sort(L.begin(), L.end(), [&q, &G](int a, int b) {
+        auto mid = L.begin() + k;
+        nth_element(L.begin(), mid, L.end(), [&q, &G](int a, int b) {
             return euclidean_distance(G[a]->data, q) < euclidean_distance(G[b]->data, q);
         });
+
         L.resize(k);
     }
     

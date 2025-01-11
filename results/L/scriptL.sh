@@ -4,17 +4,17 @@
 CONFIG_FILE="config.txt"
 
 # Output file for results
-OUTPUT_FILE="L_100_200_16threads.txt"
+OUTPUT_FILE="rL_100_200_1thread.txt"
 
 # List of vamana_function types
-VAMANA_FUNCTIONS=("vamana" "filtered" "stitched")
+VAMANA_FUNCTIONS=("stitched")
 
 # Loop over each vamana_function type
 for FUNCTION in "${VAMANA_FUNCTIONS[@]}"; do
     echo "Running for vamana_function=$FUNCTION"
 
     # Update the vamana_function in the configuration file
-    for L in {100..200}; do
+    for L in {119..200}; do
         echo "Running with L=$L and vamana_function=$FUNCTION"
 
         # Create a temporary config file with the current L value and function
@@ -38,6 +38,7 @@ for FUNCTION in "${VAMANA_FUNCTIONS[@]}"; do
 
         # Run the app and store the result
         echo -n "L=$L vamana_function=$FUNCTION:" >> "$OUTPUT_FILE"
+        export OMP_NUM_THREADS=1
         ./bin/vamana "$TEMP_CONFIG_FILE" >> "$OUTPUT_FILE" 2>&1
 
         # Delete the file ltmp.bin after each iteration

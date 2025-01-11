@@ -4,7 +4,7 @@
 CONFIG_FILE="config.txt"
 
 # Output file for results
-OUTPUT_FILE="R_15_100_16threads.txt"
+OUTPUT_FILE="a_1_2_16thread.txt"
 
 # List of vamana_function types
 VAMANA_FUNCTIONS=("vamana" "filtered" "stitched")
@@ -13,18 +13,18 @@ VAMANA_FUNCTIONS=("vamana" "filtered" "stitched")
 for FUNCTION in "${VAMANA_FUNCTIONS[@]}"; do
     echo "Running for vamana_function=$FUNCTION"
 
-    # Loop over each value of R
-    for R in {15..100}; do
-        echo "Running with R=$R and vamana_function=$FUNCTION"
+    # Loop over each value of a in [1, 2] with step 0.1
+    for a in $(seq 1 0.01 2); do
+        echo "Running with a=$a and vamana_function=$FUNCTION"
 
-        # Create a temporary config file with the current R value and function
-        TEMP_CONFIG_FILE="temp_config.txt"
+        # Create a temporary config file with the current a value and function
+        TEMP_CONFIG_FILE="atemp_config.txt"
         cp "$CONFIG_FILE" "$TEMP_CONFIG_FILE"
 
         # Update config values
         sed -i '' "s/^vamana_function=.*$/vamana_function=$FUNCTION/" "$TEMP_CONFIG_FILE"
-        sed -i '' "s/^R=.*$/R=$R/" "$TEMP_CONFIG_FILE"
-        sed -i '' "s/^graph_name=.*$/graph_name=tmp/" "$TEMP_CONFIG_FILE"
+        sed -i '' "s/^a=.*$/a=$a/" "$TEMP_CONFIG_FILE"
+        sed -i '' "s/^graph_name=.*$/graph_name=atmp/" "$TEMP_CONFIG_FILE"
 
         if [ "$FUNCTION" = "vamana" ]; then 
             sed -i '' "s|^dataset=.*$|dataset=data/ANN_SIFT10K/siftsmall_base.fvecs|" "$TEMP_CONFIG_FILE"
@@ -37,17 +37,18 @@ for FUNCTION in "${VAMANA_FUNCTIONS[@]}"; do
         fi
 
         # Run the app and append the result to the output file
-        echo -n "R=$R vamana_function=$FUNCTION: " >> "$OUTPUT_FILE"
+        echo -n "a=$a vamana_function=$FUNCTION: " >> "$OUTPUT_FILE"
+        export OMP_NUM_THREADS=16
         ./bin/vamana "$TEMP_CONFIG_FILE" >> "$OUTPUT_FILE" 2>&1
 
         # Delete the file tmp.bin after each iteration
-        if [ -f "tmp.bin" ]; then
-            rm -f "tmp.bin"
+        if [ -f "atmp.bin" ]; then
+            rm -f "atmp.bin"
         fi
     done
 done
 
 # Clean up temporary config file
-rm -f temp_config.txt
+rm -f atemp_config.txt
 
 echo "All runs completed. Results saved in $OUTPUT_FILE."
