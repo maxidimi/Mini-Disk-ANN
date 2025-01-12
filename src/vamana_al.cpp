@@ -196,6 +196,20 @@ Graph stitched_vamana_indexing(const Dataset &P, vector<int> F_x, double a, int 
         }
     }
 
+    /* Add random edges to the stitched graph
+    for (size_t i = 0; i < p_size; i++) {
+        int rand_edges = rand() % ((int) R/10);
+
+        for(int j=0; j < rand_edges; j++){
+            int index = rand() % p_size;
+            while(F_x[i] == F_x[index]) index = rand() % p_size;
+                add_edge_to_graph(G_stitched[i],index);
+        }
+        // Call Robust Pruning to keep only the R nearest neighbours
+        vector<int> N_out(G_stitched[i]->out_neighbours.begin(), G_stitched[i]->out_neighbours.end());
+        G_stitched = robust_pruning(G_stitched,G_stitched[i],N_out,a,R);
+    }*/
+
     // Release memory
     for (auto &g : G) {
         for (auto &node : g.second) {
