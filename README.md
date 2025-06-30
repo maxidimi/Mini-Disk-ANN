@@ -1,32 +1,47 @@
 # Software-Development-for-Information-Systems
-Project for class of Software Development for Information Systems, DIT UOA, 2024.
+
+Project for the course Software Development for Information Systems, DIT UOA, Winter 2024.
 Team members:
-  - Dimitris Dimochronis | 1115202100034 | sdi2100034@di.uoa.gr
-  - Nikos Pentasilis     | 1115202100152 | sdi2100152@di.uoa.gr
-  - Giorgos Ragkos       | 1115202100167 | sdi2100167@di.uoa.gr
+
+* Dimitris Dimochronis, [sdi2100034@di.uoa.gr](mailto:sdi2100034@di.uoa.gr),
+* Nikos Pentasilis, [sdi2100152@di.uoa.gr](mailto:sdi2100152@di.uoa.gr),
+* Giorgos Ragkos, [sdi2100167@di.uoa.gr](mailto:sdi2100167@di.uoa.gr).
+
+This project consists of implementing algorithms described for DiskANN, <em>a fast accurate billion-point nearest neighbor search on a
+single node</em>. For our project, we will experiment with datasets up to 1 million points. More about the algorithms implemented can be found in [Resources](#resources)
+
 
 ## Build and Run project
 
-#### Για την **εκτέλεση** του project:
-  ```
-  make run
-  ```
-#### Για την εκτέλεση των **tests**:
-  ```
-  make test
-  ```
-#### Για τον **καθαρισμό** του directory:
-  ```
-  make clean
-  ```
-#### Για τον έλεγχο για leaks στα test:
-  ```
-  make valgrind_test
-  ```
+#### To **run** the project:
+
+```
+make run
+```
+
+#### To run the **tests**:
+
+```
+make test
+```
+
+#### To **clean** the directory:
+
+```
+make clean
+```
+
+#### To check for memory leaks in tests:
+
+```
+make valgrind_test
+```
 
 ## Configuration file
-Η παροχή παραμέτρων γίνεται μέσω ενός configuration file, το όνομα του οποίου δίνεται ως όρισμα στην εκτέλεση του προγράμματος.<br/>
-Το αρχείο πρέπει να έχει την εξής μορφή:
+
+Parameters are provided via a configuration file, whose name is given as argument to the program.<br/>
+The file must have the following format:
+
 ```
 dataset=data/SIGMOD/DUMMY/dummy-data.bin
 query=data/SIGMOD/DUMMY/dummy-queries.bin
@@ -39,142 +54,83 @@ R=15
 L=100
 a=1.2
 ```
-- Τα dataset/query/groundtruth προσδιορίζουν τα path των συγκεκριμένων αρχείων.
-- Το vamana_function καθορίζει τον αλγόριθμο indexing & searching που θα τρέξει:
-  - vamana για τον απλό Vamana
-  - filtered για τον απλό Filtered
-  - stiched για τον απλό Stiched
-- Το graph_name είναι το όνομα του γράφου που θέλουμε να φτιάξουμε ή να χρησιμοποιήσουμε.
-- Τα k, R, L, a είναι οι γνωστοί παράμετροι για τις συναρτήσεις.
-- Μέσω του q_idx μπορείτε:
-  - να συμπληρώσετε το index του query στο αρχείο που θέλετε να τεστάρετε,
-  - να συμπληρώσετε -2 και να τεστάρετε μόνο ένα query που θα επιλέξει τυχαία το πρόγραμμα,
-  - να συμπληρώσετε -3 και να δημιουργήσετε μόνο το index, χωρίς να τρέξετε queries,
-  - να συμπληρώσετε -4 για να φτιάξετε το groundtruth από το dataset και τα queries το οποίο θα αποθηκευτεί με το όνομα που έχετε δώσει στο αντίστοιχο πεδίο.
-  - να το αφήσετε κενό και να τρέξει για όλα τα queries.
 
-## Απόδοση
-Για dataset μεγέθους 10000 σημείων, οι αλγόριθμοι παρουσιάζουν recall@100 > 95%. Ο απλός Vamana χρειάζεται πλέον 16" για indexing και οι Filtered, Stitched 6".</br>
-Για dataset μεγέθους 1Μ σημείων, οι αλγόριθμοι παρουσιάζουν recall@100 > 97%. Ο απλός Vamana δεν τερματίζει ποτέ, ο Filtered χρειάζεται 12hr για indexing και ο Stitched 13hr.</br>
-Λόγω μεγέθους τα **αρχεία των γράφων** για 1Μ dataset δεν μπορούσαν να ανέβουν εδώ, θα τα βρείτε όμως στο [Drive](https://drive.google.com/drive/folders/1wJWJt5HxCDPbPCWdM1XA2h36Jv8_QZKE?usp=sharing).</br>
-Στα unfiltered queries αρχικά το recall@100 δεν ξεπερνούσε το 35%. Αυτό οφείλεται στην έλλειψη ακμών μεταξύ κόμβων με διαφορετικά φίλτρα, με αποτέλεσμα να μην υπάρχει πρόσβαση σε ολόκληρο τον γράφο.</br>
-Για την αντιμετώπιση αυτού του προβλήματος, ως medoid ενός φίλτρου στο search θεωρούμε το αποτέλεσμα της Filtered Greedy Search για το φίλτρο αυτό για k = 1. 
-Έτσι, η αναζήτηση γίνεται πιο στοχευμένη, έχοντας ως αφετηρία το κοντινότερο σημείο για το φίλτρο αυτό.</br>
- 
-## Βελτιώσεις από το προηγούμενο παραδοτέο
-- Παρέχεται η δυνατότητα δημιουργίας μόνο του groundtruth με q_idx = -4 και δημιουργίας μόνο του γράφου με q_idx = -3.
-- Στην greedy και filtered greedy search, το sorting πλέον είναι partial, δηλαδή ταξινομείται το vector μέχρι το σημείο που θέλουμε εμείς, αφού μετά θα γίνει resize. Προσφέρει καλύτερη πολυπλοκότητα, από O(nlogn) σε Ο(logn).
+* The dataset/query/groundtruth specify the paths of these files.
+* The <b>vamana\_function</b> determines the indexing & searching algorithm to run:
 
-## Workflow
-Υπάρχει workflow script μέσω Github Actions ώστε κάθε commit να ελέγχεται αυτόματα για την ορθότητα του κώδικα μέσω των unit tests.
+  * vamana, for simple Vamana
+  * filtered, for Filtered Vamana,
+  * stiched, for Stitched Vamana.
+* <b>graph\_name</b> is the name of the graph we want to create or use.
+* <b>k, R, L, a</b> are the well-known parameters for the functions.
+* With <b>q\_idx</b> you can:
 
-## Results
-Στο directory graphs/ υπάρχουν έτοιμοι γράφοι για κάθε κατηγορία και τα αποτελέσματα αυτών. Το indexing έχει γίνει από το dummy dataset για Filtered & Stitched και από το sift dataset για τον απλό Vamana. Τα *-results.txt είναι τα αποτελέσματα των queries για τα dummy queries ενώ τα *-1m-queries.txt είναι τα αποτελέσματα από τα queries του 1m dataset.
+  * specify the index of the query in the file you want to test,
+  * set -2 to test only one query, randomly chosen by the program,
+  * set -3 to only create the index, without running queries,
+  * set -4 to create the groundtruth from the dataset and queries, which will be saved with the name given in the corresponding field,
+  * leave it empty to run for all queries.
 
-## main
-Διαβάζει το **configuration file** και δημιουργεί τα dataset, queries και gorundtruth από τα αρχεία που δίνονται από τον χρήστη. Δημιουργείται ο γράφος από το αντίστοιχο **Vamana Indexing** και διατρέχει τον γράφο για τα ζητούμενα queries με την αντίστοιχη **greedy search**. Στο τέλος, καλεί την **check_results** για να ελέγχξει την ορθότητα των αποτελεσμάτων.
+## Performance
 
-## Graph
-- Για την αναπαράσταση του γράφου χρησιμοποιούνται vectors, για απευθείας random indexing.
-- Για κάθε κόμβο, κρατάμε σε ένα struct το vector με τα δεδομένα και ένα unordered set με τους out neighbours. Η επιλογή του set 
-  έγινε ώστε να αποφύγουμε τα duplicates χωρίς να απαιτείται χειροκίνητος έλεγχος σε κάθε εισαγωγή.
-- Παρέχονται οι κατάλληλες συναρτήσεις δημιουργίας κόμβου και προσθήκης αυτού σε γράφο.
-- Η **store_graph** αποθηκεύει τον γράφο ως binary αρχείο ως εξής:</br>
-    &nbsp;&nbsp;&nbsp;- Αποθηκεύει τον αριθμό των κόμβων του γράφου.
-    &nbsp;&nbsp;&nbsp;- Για κάθε κόμβο, αποθηκεύει τον αριθμό των διαστάσεών των δεδομένων του,
-    &nbsp;&nbsp;&nbsp;- Για κάθε κόμβο, αποθηκεύει τα δεδομένα του,
-    &nbsp;&nbsp;&nbsp;- Για κάθε κόμβο, αποθηκεύει το πλήθος των out neighbours του κόμβου,
-    &nbsp;&nbsp;&nbsp;- Για κάθε κόμβο, αποθηκεύει τα indices των out neighbours.
-- Η **read_graph** διαβάζει τον γράφο από binary αρχείο ως εξής:</br>
-    &nbsp;&nbsp;&nbsp;- Διαβάζει τον αριθμό των κόμβων και δημιουργεί τον γραφό (άδειο).
-    &nbsp;&nbsp;&nbsp;- Για κάθε κόμβο, διαβάζει τον αριθμό των διαστάσεών των δεδομένων του,
-    &nbsp;&nbsp;&nbsp;- Για κάθε κόμβο, διαβάζει και αποθηκεύει τα δεδομένα του,
-    &nbsp;&nbsp;&nbsp;- Για κάθε κόμβο, διαβάζει το πλήθος των out neighbours του κόμβου,
-    &nbsp;&nbsp;&nbsp;- Για κάθε κόμβο, διαβάζει και αποθηκεύει τα indices των out neighbours.
-
-## Helper Functions
-- Χρησιμοποιούμε **squared euclidean distance** διότι αυτή είναι και η μετρική των dataset.
-- Η **random_permutation** επιστρέφει μια τυχαία μετάθεση των αριθμών από 0 εώς n - 1.
-- Η **find_min_dist** παίρνει ένα vector με indices κόμβων από έναν γράφο και βρίσκει αυτόν με τη μικρότερη απόσταση από το σημείο q.
-- Η **check_results** ελέγχει τα αποτελέσματα του greedy search κάνοντας το cross-check με το groundtruth.
-- Η **time_elapsed** τυπώνει ένα μήνυμα και τον χρόνο που πέρασε από ένα γεγονός που παίρνει ως όρισμα.
-- H **random_dataset** και η **random_query** παράγουν ένα τυχαίο dataset και query αντίστοιχα (χρησιμοποιήθηκαν για testing).
+- For a dataset of 10,000 points, the algorithms show recall\@100 > 95%. Simple Vamana now requires 16 seconds for indexing, while Filtered and Stitched take 6 seconds.<br/>
+- For a dataset of 1M points, the algorithms show recall\@100 > 97%. Simple Vamana never finishes, Filtered needs 12hr for indexing, and Stitched needs 13hr.<br/>
+- For unfiltered queries, initial recall\@100 did not exceed 35%. This is due to the lack of edges between nodes with different filters, resulting in no access to the entire graph. To address this issue, the medoid for each filter in the search is taken as the result of Filtered Greedy Search for that filter with k = 1.
+Thus, the search is more targeted, starting from the closest point for that filter.
 
 ## Greedy Search
-####  Απλή Greedy Search
-- Η **L_m_V** υπολογίζει τα στοιχεία που υπάρχουν στον γράφο L και δεν υπάρχουν στον V.
-- Η **greedy_search** αρχικοποιεί τα σύνολα L και V. Οσο υπάρχουν στοιχεία στο L που δεν υπάρχουν στο V βρίσκει το κοντινότερο σημείο στο p με την χρήση της euclidean_distance, προσθέτει τους γείτονες του σημείου στο L και αν το μέγεθος του L είναι μεγαλύτερο απο το L_s κάνει resize και κρατάει τους L-L_s κοντινότερους κόμβους. Τελος επιστρέφει ενα pair που αποτελείται απο δύο γράφους, ο πρώτος γραφος περιέχει τους k κοντινότερους κόμβους απο το σημείο q και ο δεύτερος γράφος περιέχει τα visited nodes.
+
+#### Simple Greedy Search
+
+* **L\_m\_V** computes the elements in L not in V.
+* **greedy\_search** initializes sets L and V. While there are elements in L not in V, it finds the closest point to p using euclidean\_distance, adds the point's neighbors to L, and if L exceeds L\_s in size, it resizes to keep only the L-L\_s closest nodes. Finally, returns a pair of graphs: the first contains the k nearest nodes to q, and the second contains the visited nodes.
 
 #### Filtered Greedy Search
-- Η filtered_greedy_search αρχικοποιεί τα σύνολα L και V. Στο σύνολο L προσθέτει όσους κόμβους s έχουν φίλτρο ίδιο με όρισμα fq. Οσο υπάρχουν στοιχεία στο L που δεν υπάρχουν στο V βρίσκει το κοντινότερο σημείο στο p με την χρήση της euclideandistance, αρχίκοποιει το σύνολο N στο οποίο προσθέτει όσους γέιτονες του P έχουν φίλτρο Fq και δεν βρίσκονται στο σύνολο V, προσθέτει στο L όσους κόμβους του N_ δεν υπάρχουν ήδη εκεί. Aν το μέγεθος του L είναι μεγαλύτερο απο το L_s κάνει resize και κρατάει τους L-L_s κοντινότερους κόμβους. Τελος επιστρέφει ενα pair που αποτελείται απο δύο γράφους, ο πρώτος γραφος περιέχει τους k κοντινότερους κόμβους απο το σημείο q και ο δεύτερος γράφος περιέχει τα visited nodes.
+
+* **filtered\_greedy\_search** initializes sets L and V. L is initialized with nodes s whose filter matches fq. While there are elements in L not in V, it finds the closest point to p using euclidean\_distance, initializes set N, adds neighbors of P with filter Fq not in V to N, adds nodes from N not already in L to L. If L exceeds L\_s, it resizes to keep only the L-L\_s closest nodes. Finally, returns a pair of graphs: the first with the k nearest nodes to q, and the second with the visited nodes.
 
 ## Robust Pruning
 
-#### Απλό Robust Pruning
-- Το όρισμα p_node είναι ο κόμβος του σημείου p στον γράφο.
-- Προσθέτει στο V όλες τις εξωτερικές ακμές του σημείου p,ελέγχωντας για διπλότυπα.
-- Αφαιρεί όλες τις ακμές του p από τον γράφο και έπειτα όσο το V δεν είναι άδειο και το |N_out(p)| δεν είναι ίσο με R,υπολογίζει την απόσταση του p από κάθε σημείο του V και εισάγει το κοντινότερο στο N_out(p).
+#### Simple Robust Pruning
+
+* Argument p\_node is the node of point p in the graph.
+* Adds all out edges of p to V, checking for duplicates.
+* Removes all edges of p from the graph, then while V is not empty and |N\_out(p)| is not equal to R, computes the distance from p to each point in V and adds the closest one to N\_out(p).
 
 #### Filtered Robust Pruning
-- Ακολουθεί την ίδια διαδικασία με το απλό robust pruning με 2 βασικές διαφορές.Αρχικά εχεί ένα επιπλέον όρισμα,το vector<int> C το οποίο περιέχει το φίλτρο κάθε σημείου του γράφου.Η δεύτερη διαφορά είναι ότι πριν το έλεγχο για πιθανούς κόμβους που μπορούν να βγουν από το V(ουσιαστικά,να σβήσει κάποια ακμή) ελέγχει αν τα p,p*,p' έχουν το ίδιο φίλτρο και αν δεν ισχύει αυτό τότε συνεχίζει στο επόμενο σημείο του V(έτσι ώστε να μην κόψει κάποια ακμή μεταξύ σημείων με διαφορετικά φίλτρα). 
 
+* Same process as simple robust pruning, with two key differences. First, it has an extra argument, the vector<int> C, containing the filter of each point in the graph. Second, before checking for possible nodes to remove from V (i.e., to delete an edge), it checks if p, p\*, p' have the same filter and if not, it moves to the next point in V (so that it does not delete an edge between points with different filters).
 
 ## Vamana Indexing
 
-#### Απλό Vamana indexing
-Δημιουργεί έναν γράφο από τα σημεία του dataset P και δημιουργεί έως R τυχαίες ακμές (εάν επαρκούν τα σημεία). Έπειτα, βρίσκει το medoid του γράφου και διατρέχει με τυχαίο τρόπο κάθε σημείο στον γράφο. Τρέχει την Greedy Search με q το σημείο που διατρέχει στην συγκεκριμένη επανάληψη και περνάει το vector των visited nodes ως όρισμα στη Pruning. Έπειτα, για κάθε out neighbour δημιουργεί τις ανάποδες ακμές και κλαδεύει τα out neighbours του αν ξεπεράσουν σε πλήθος το R. Το N_out_j_p χρησιμοποιείται για να μετατρέψει το set των out-neighbours σε vector ώστε να περαστεί ως όρισμα στην Robust Prune.
+#### Simple Vamana indexing
+
+Creates a graph from points in dataset P and creates up to R random edges (if enough points exist). Then, finds the graph's medoid and traverses each point in the graph randomly. Runs Greedy Search with q being the current point in that iteration, passing the vector of visited nodes as an argument to Pruning. Then, for each out neighbor, creates reverse edges and prunes out neighbors if they exceed R in number. N\_out\_j\_p is used to convert the set of out-neighbors to a vector to pass to Robust Prune.
 
 #### Filtered Vamana indexing
-Δημιουργεί έναν άδειο γράφο με τα σημεία του dataset P. Βρίσκει το medoid κάθε φίλτρου, το οποίο θα είναι ένα τυχαίο σημείο με αυτό το φίλτρο, αφού κάθε σημείο στο dataset έχει μόνο ένα φίλτρο. Διατρέχει με τυχαίο τρόπο κάθε σημείο στον γράφο. Τρέχει την Filtered Greedy Search με q το σημείο που διατρέχει στην συγκεκριμένη επανάληψη και περνάει το vector των visited nodes ως όρισμα στη Filtered Pruning. Έπειτα, για κάθε out neighbour δημιουργεί τις ανάποδες ακμές και κλαδεύει τα out neighbours του αν ξεπεράσουν σε πλήθος το R. Το N_out_j χρησιμοποιείται για να μετατρέψει το set των out-neighbours σε vector ώστε να περαστεί ως όρισμα στην Robust Prune.
 
-#### Stiched Vamana indexing
-Για κάθε φίλτρο δημιουργεί έναν γράφο από τα σημεία που έχουν αυτό το φίλτρο με την κλασική Vamana. Έπειτα, ενώνει όλους τους γραφους με τον εξής τρόπο:</br>
-    &nbsp;&nbsp;&nbsp;- Αποθηκεύει την αντιστοιχία κάθε σημείου στο P με το index του στον γράφου του φίλτρο του.</br>
-    &nbsp;&nbsp;&nbsp;- Αποθηκεύει την αντιστοιχία κάθε σημείου σε κάθε γράφο φίλτρου με το index του στο dataset P.</br>
-    &nbsp;&nbsp;&nbsp;- Προσθέτει όλα τα σημεία στον τελικό γράφο S_stitched.</br>
-    &nbsp;&nbsp;&nbsp;- Χρησιμοποιώντας τις δύο πρώτες δομές, μετατρέπει τα indices των out neighbours σε κάθε γράφο φίλτρου συμβατά με τον stitched γράφο και το dataset P.</br>
-Το Filtered Pruning παραλείπεται και το R_stitched εφαρμόζεται απευθείας στην Vamana αφού κάθε σημείο έχει μόνο ένα φίλτρο και συνεπώς δεν είναι εφικτό να δημιουργηθούν ακμές με σημεία με άλλα φίλτρα.
+Creates an empty graph with points from dataset P. Finds the medoid for each filter, which is a random point with that filter, as each point in the dataset has only one filter. Traverses each point in the graph randomly. Runs Filtered Greedy Search with q being the current point in that iteration, passing the vector of visited nodes to Filtered Pruning. Then, for each out neighbor, creates reverse edges and prunes out neighbors if they exceed R in number. N\_out\_j is used to convert the set of out-neighbors to a vector to pass to Robust Prune.
 
-## Data_forming
-- H **find_store_groundtruth** βρίσκει και αποθηκεύει χειροκίνητα το groundtruth για το dataset και τα queries που παίρνει ως όρισμα. Σε binary αρχείο αποθηκεύει τον αριθμό των queries και για κάθε query των αριθμό των nearest neighbours και το index τους στο dataset.
-- H **read_sigmod_groundtruth** διαβάζει το groundtruth όπως αυτό δημιουργήθηκε με τη παραπάνω συνάρτηση.
-- H **read_sigmod_queries** διαβάζει τα queries όπως περιγράφεται στo documentation, αγνοώντας όσα αφορούν ερωτήματα με timestamp και μετατρέποντάς τα σε data_t.
-- Η **read_sigmod_dataset** διαβάζει το dataset όπως περιγράφεται στo documentation, αγνοώντας τα timestamp και μετατρέποντας τα data σε data_t.
+#### Stitched Vamana indexing
 
-- H **bvecs_read** διαβάζει τα δεδομένα των αρχείων με .bvecs format,τα μετατρέπει σε data_t τύπο,τα εισάγει σε dataset το οποίο επιστρέφει όταν διαβαστεί όλο το αρχείο.
-- H **fvecs_read** διαβάζει τα δεδομένα των αρχείων με .fvecs format,τα μετατρέπει σε data_t τύπο,τα εισάγει σε dataset το οποίο επιστρέφει όταν διαβαστεί όλο το αρχείο.
-- H **ivecs_read** διαβάζει τα δεδομένα των αρχείων με .ivecs format,τα μετατρέπει σε data_t τύπο,τα εισάγει σε dataset το οποίο επιστρέφει όταν διαβαστεί όλο το αρχείο.
+For each filter, creates a graph from points with that filter using classic Vamana. Then, joins all graphs as follows:<br/>
+   - Stores the mapping of each point in P to its index in the graph of its filter.<br/>
+   - Stores the mapping of each point in each filter graph to its index in dataset P.<br/>
+   - Adds all points to the final graph S\_stitched.<br/>
+   - Using the first two structures, converts the out neighbor indices in each filter graph to match the stitched graph and dataset P.<br/>
+Filtered Pruning is skipped, and R\_stitched is applied directly to Vamana since each point has only one filter, so it is not possible to create edges with points from other filters.
 
+## Datasets
 
-## Optimization
-- Χρησιμοποιείται το **flag -O3** στο compile.
-- Η **medoid** με την χρήση ενός vector για την συνολική απόσταση κάθε σημείου από όλα τα άλλα,υπολογίζει μία φορά την απόσταση κάθε ζευγαριού σημείων, αντί για 2 και την προσθέτει στην συνολιή απόσταση και των 2 σημείων του ζευγαριού.Ουσιαστικά υπολογίζει τον άνω τριγωνικό πίνακα των αποστάσεων όλων των σημείων μεταξύ τους και όχι τον ολόκληρο πίνακα.
-- Το **medoid** προσδιορίζεται τυχαία, οπότε δεν καλείται η αντίστοιχη συνάρτηση.
+* Datasets for simple Vamana Indexing: [Corpus](http://corpus-texmex.irisa.fr/).<br/>
+* Datasets for Filtered & Stiched Vamana Indexing: [DB Group](https://dbgroup.cs.tsinghua.edu.cn/sigmod2024/task.shtml?content=datasets).
 
-## Unit Testing
-Για το unit testing χρησιμοποιήθηκε το **acutest** framework.
-- H **test_create_graph_node** τεστάρει την δημιουργία ενος κόμβου διασφαλίζει οτι ο κόμβος αρχικά δεν έχει γείτονες.
-- Η **test_add_node_to_graph** τεστάρει την εισαγωγή ενος κόμβου σε ένα γράφο και διασφαλίζει οτι το μέγεθος του γράφου είναι το αναμενόμενο.
-- Η **test_add_edge_to_graph** τεστάρει την εισαγωγή ακμών στον γράφο και αν ο γράφος έχει τον αναμενόμενο αριθμό ακμών.
-- Η **test_read_graph** ελέγχει αν γίνεται σωστά το διάβασμα ενός αρχείου γράφου.
-- Η **test_store_graph** αφού δημιουργεί έναν μικρό γράφο,ελέγχει αν σε αυτόν το γράφο υπάρχουν όλοι οι κόμβοι που εισήχθησαν κατά τη δημιουργία του.
-- Η **test_euclidean_distance** τεστάρει την ορθότητα της ευκλείδειας απόστασης σε διαφορετικές διαστάσεις.
-- Η **test_min_dist** δημιουργεί ένα απλό γράφο με λίγους κόμβους και ελέγχει αν ο κόμβος που επιστρέφει η find_min_dist είναι αυτός με την πραγματικά μικρότερη     απόσταση.
-- Η **test_random_permutation** ελέγχει αρχικά αν το μέγεθος του vector παραμένει το ίδιο και την ορθότηα των μεταθέσεων.
-- Η **test_medoid** ελέγχει αν η medoid επιστρέφει την αναμενόμενη τιμή.
-- Η **test_find_medoid** κάλει την medoid και ελέγχει οτι επιστρέφονται medoid για κάθε φίλτρο.
-- Η **test_L_m_V** τεστάρει αν η L_m_V επιστρέφει την ένωση των συνόλων L και V.
-- Η **test_filtered_greedy_search** αρχικοποιεί έναν γράφο με την χρήση της filtered_vamana_indexing και καλεί την filtered_greedy_search.Στην συνέχεια υπολογίζει τα αναμενόμενα αποτελέσματα βρίσκοντας και αποθηκέυοντας σε ένα σύνολο τις euclidean_distance κάθε σημείου του dataset που έχει φίλτρο fq[0] και ταξινομώντας τις σε αύξουσα σειρά.Στην συνέχεια τέσταρει αν το μέγεθος και τα αποτελέσματα της greedy search συμπίμπτουν με τα k πρώτα στοιχεία του συνόλου που αποθήκευσε.
-- Η **test_greedy_search** αρχικοποιεί έναν γράφο και καλεί την greedy_search. Στην συνέχεια υπολογίζει τα αναμενόμενα αποτελέσματα βρίσκοντας και αποθηκέυοντας σε ένα σύνολο τις euclidean_distance κάθε σημείου του dataset και ταξινομώντας τις σε αύξουσα σειρά. Στην συνέχεια τέσταρει αν το μέγεθος και τα αποτελέσματα της greedy search συμπίμπτουν με τα k πρώτα στοιχεία του συνόλου που αποθήκευσε.
-- Η **test_pruning** αρχικοποιεί εναν γράφο με 20 ακμές, στην συνέχει καλεί την robust_pruning και ελέγχει αν το μέγεθος και ακμές του γράφου ειναι οι αναμενόμενες μετά την κλήση της συνάρτησης.
-- Η **test_filtered_pruning** αρχικοποιεί εναν γράφο με 20 ακμές, στην συνέχεια προσθέτει επιπλέον ακμές στον κόμβο 12, στην συνέχεια καλείται η filtered_robust_pruning και γίνεται έλεγχος του μεγέθους και των τιμών του αποτελέσματος.
+## Resources
 
-# Διαμοιρασμός εργασιών μεταξύ των μελών της ομάδας
-Ο κύριος διαχωρισμός έγινε ως εξής:
-- Δημήτρης Δημοχρόνης: Testing, parallelization and report format in Latex,
-- Νίκος Πεντασίλης: Testing and optimizations.
-- Γιώργος Ράγκος: Testing and optimizations.
+1. **Suhas Jayaram Subramanya, Devvrit, Rohan Kadekodi, Ravishankar Krishaswamy, and Harsha Vardhan Simhadri.** (2019).  
+   DiskANN: fast accurate billion-point nearest neighbor search on a single node. Proceedings of the 33rd International Conference on Neural Information Processing Systems. Curran Associates Inc., Red Hook, NY, USA, Article 1233, 13766–13776.  
+   [https://dl.acm.org/doi/abs/10.5555/3454287.3455520](https://dl.acm.org/doi/abs/10.5555/3454287.3455520)
 
-## Dataset
-Datasets για απλό Vamana Indexing: [Corpus](http://corpus-texmex.irisa.fr/).<br/>
-Datasets για Filtered & Stiched Vamana Indexing: [DB Group](https://dbgroup.cs.tsinghua.edu.cn/sigmod2024/task.shtml?content=datasets).
+2. **Siddharth Gollapudi, Neel Karia, Varun Sivashankar, Ravishankar Krishnaswamy, Nikit Begwani, Swapnil Raz, Yiyong Lin, Yin Zhang, Neelam Mahapatro, Premkumar Srinivasan, Amit Singh, and Harsha Vardhan Simhadri.** (2023).  
+   Filtered-DiskANN: Graph Algorithms for Approximate Nearest Neighbor Search with Filters. In Proceedings of the ACM Web Conference 2023 (WWW '23). Association for Computing Machinery, New York, NY, USA, 3406–3416.  
+   [https://doi.org/10.1145/3543507.3583552](https://doi.org/10.1145/3543507.3583552)
