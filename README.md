@@ -18,6 +18,8 @@ single node</em>. For our project, we will experiment with datasets up to 1 mill
 ```
 make run
 ```
+The [configuration file](#configuration-file) is by default <em>config.txt</em>.
+To run with other file name: ```./bin/vamana <file name>```
 
 #### To run the **tests**:
 
