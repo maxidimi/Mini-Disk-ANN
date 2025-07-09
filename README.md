@@ -1,4 +1,4 @@
-# Software-Development-for-Information-Systems
+# Mini-Disk-ANN
 
 Project for the course Software Development for Information Systems, DIT UOA, Winter 2024.
 Team members:
